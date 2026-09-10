@@ -82,3 +82,6 @@ result-*
 
 # direnv
 .direnv
+
+# Keep Flameshot OCR runtime build helper
+!scripts/build-ocr-runtimes.sh

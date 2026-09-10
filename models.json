@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "latest": "paddleocr-vl-1.6",
+  "models": [
+    {
+      "id": "paddleocr-vl-1.6",
+      "name": "PaddleOCR-VL-1.6",
+      "directory": "PaddleOCR-VL-1.6",
+      "model_file": "PaddleOCR-VL-1.6-GGUF.gguf",
+      "mmproj_file": "PaddleOCR-VL-1.6-GGUF-mmproj.gguf",
+      "model_url": "https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6-GGUF/resolve/main/PaddleOCR-VL-1.6-GGUF.gguf",
+      "mmproj_url": "https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6-GGUF/resolve/main/PaddleOCR-VL-1.6-GGUF-mmproj.gguf",
+      "model_size": 935769056,
+      "mmproj_size": 881770560,
+      "prompt": "OCR:",
+      "supported": true
+    }
+  ]
+}

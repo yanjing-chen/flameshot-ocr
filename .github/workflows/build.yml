@@ -1,0 +1,282 @@
+name: Build AppImage and deb
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - 'paddleocr-vl-v*'
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  OCR_VERSION: "2.3"
+  LLAMA_CPP_REF: "72797e891"
+
+jobs:
+  appimage:
+    name: AppImage x86_64
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/flameshot-org/ci-building:ubuntu-noble
+      options: --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined
+
+    steps:
+      - name: Configure git safe directory
+        shell: bash
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve package version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" == paddleocr-vl-v* ]]; then
+            VERSION="${GITHUB_REF_NAME#paddleocr-vl-v}"
+          elif [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" == v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="${OCR_VERSION}+git.${GITHUB_SHA::8}"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Package version: $VERSION"
+
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y --no-install-recommends install \
+            fuse cmake extra-cmake-modules build-essential git wget \
+            qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
+            libqt6svg6-dev qt6-l10n-tools qt6-wayland libgl-dev \
+            appstream hicolor-icon-theme openssl ca-certificates jq \
+            libvulkan-dev glslc spirv-headers
+
+      - name: Build OCR runtimes
+        shell: bash
+        run: bash scripts/build-ocr-runtimes.sh "$GITHUB_WORKSPACE/runtime-build"
+
+      - name: Download linuxdeploy
+        shell: bash
+        run: |
+          wget -q \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget -q \
+            https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage
+          wget -q \
+            https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy*.AppImage
+
+      - name: Build Flameshot OCR
+        shell: bash
+        run: |
+          cmake -S . -B build-appimage \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DUSE_LAUNCHER_ABSOLUTE_PATH:BOOL=OFF
+          cmake --build build-appimage -j"$(nproc)"
+
+      - name: Create AppDir
+        shell: bash
+        run: |
+          APPDIR="$GITHUB_WORKSPACE/FlameshotOCR.AppDir"
+          rm -rf "$APPDIR"
+          mkdir -p "$APPDIR"
+
+          DESTDIR="$APPDIR" cmake --install build-appimage
+
+          rm -rf "$APPDIR/usr/include"
+          rm -rf "$APPDIR/usr/lib"
+
+          mkdir -p "$APPDIR/usr/lib/flameshot-ocr/runtime"
+          cp runtime-build/llama-server-vulkan \
+             "$APPDIR/usr/lib/flameshot-ocr/runtime/llama-server-vulkan"
+          cp runtime-build/llama-server-cpu \
+             "$APPDIR/usr/lib/flameshot-ocr/runtime/llama-server-cpu"
+
+          mkdir -p "$APPDIR/usr/share/doc/flameshot-ocr"
+          cp THIRD_PARTY_NOTICES.md \
+             "$APPDIR/usr/share/doc/flameshot-ocr/THIRD_PARTY_NOTICES.md"
+
+      - name: Package AppImage
+        shell: bash
+        run: |
+          export EXTRA_PLATFORM_PLUGINS="libqwayland-generic.so"
+          export EXTRA_QT_MODULES="waylandcompositor"
+          export QMAKE=/usr/lib/qt6/bin/qmake
+          export OUTPUT="$GITHUB_WORKSPACE/Flameshot-OCR-${VERSION}-x86_64.AppImage"
+
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir "$GITHUB_WORKSPACE/FlameshotOCR.AppDir" \
+            --plugin qt \
+            --output appimage
+
+          test -s "$OUTPUT"
+          sha256sum "$OUTPUT" | tee "${OUTPUT}.sha256sum"
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Flameshot-OCR-${{ env.VERSION }}-AppImage-x86_64
+          path: |
+            Flameshot-OCR-*.AppImage
+            Flameshot-OCR-*.AppImage.sha256sum
+          if-no-files-found: error
+
+  deb:
+    name: deb Ubuntu 24.04 amd64
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve package version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" == paddleocr-vl-v* ]]; then
+            VERSION="${GITHUB_REF_NAME#paddleocr-vl-v}"
+          elif [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" == v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="${OCR_VERSION}+git.${GITHUB_SHA::8}"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Package version: $VERSION"
+
+      - name: Install runtime-build dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake build-essential git libvulkan-dev glslc spirv-headers
+
+      - name: Build OCR runtimes
+        shell: bash
+        run: bash scripts/build-ocr-runtimes.sh "$GITHUB_WORKSPACE/runtime-build"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Checkout Flameshot packpack
+        uses: actions/checkout@v6
+        with:
+          repository: flameshot-org/packpack
+          path: .packpack
+          ref: multiarch
+
+      - name: Build upstream-style deb
+        shell: bash
+        run: |
+          rm -rf debian
+          cp -r packaging/debian debian
+
+          export OS=ubuntu
+          export DIST=noble
+          export DOCKER_ARCH=amd64
+          export ARCH=amd64
+          export GIT_HASH="$(git rev-parse --short HEAD)"
+          export PRESERVE_ENVVARS="GIT_HASH"
+
+          bash .packpack/packpack
+
+          echo "Produced packages:"
+          find build -maxdepth 1 -type f -name '*.deb' -print
+
+      - name: Inject OCR runtimes and rename package
+        shell: bash
+        run: |
+          SRC_DEB="$(find build -maxdepth 1 -type f \
+            -name 'flameshot_*_amd64.deb' \
+            ! -name '*dbgsym*' \
+            ! -name '*dbg*' \
+            | head -n 1)"
+
+          if [[ -z "$SRC_DEB" ]]; then
+            echo "Could not find the generated Flameshot deb."
+            exit 1
+          fi
+
+          ROOT="$RUNNER_TEMP/flameshot-ocr-deb-root"
+          rm -rf "$ROOT"
+          mkdir -p "$ROOT"
+
+          dpkg-deb -R "$SRC_DEB" "$ROOT"
+
+          mkdir -p "$ROOT/usr/lib/flameshot-ocr/runtime"
+          cp runtime-build/llama-server-vulkan \
+             "$ROOT/usr/lib/flameshot-ocr/runtime/llama-server-vulkan"
+          cp runtime-build/llama-server-cpu \
+             "$ROOT/usr/lib/flameshot-ocr/runtime/llama-server-cpu"
+
+          mkdir -p "$ROOT/usr/share/doc/flameshot-ocr"
+          cp THIRD_PARTY_NOTICES.md \
+             "$ROOT/usr/share/doc/flameshot-ocr/THIRD_PARTY_NOTICES.md"
+
+          export CONTROL="$ROOT/DEBIAN/control"
+          python3 <<'PY'
+          from pathlib import Path
+          import os
+
+          path = Path(os.environ["CONTROL"])
+          version = os.environ["VERSION"]
+          lines = path.read_text(encoding="utf-8").splitlines()
+
+          out = []
+          seen = set()
+
+          for line in lines:
+              if line.startswith("Package:"):
+                  out.append("Package: flameshot-ocr")
+                  seen.add("Package")
+              elif line.startswith("Version:"):
+                  safe_version = version.replace("+", "~")
+                  out.append(f"Version: {safe_version}-1")
+                  seen.add("Version")
+              elif line.startswith("Depends:"):
+                  deps = line[len("Depends:"):].strip()
+                  extras = ["libvulkan1", "qt6-wayland", "ca-certificates"]
+                  for dep in extras:
+                      if dep not in deps:
+                          deps = f"{deps}, {dep}" if deps else dep
+                  out.append(f"Depends: {deps}")
+                  seen.add("Depends")
+              elif line.startswith(("Conflicts:", "Replaces:", "Provides:")):
+                  continue
+              else:
+                  out.append(line)
+
+          out.extend([
+              "Conflicts: flameshot",
+              "Replaces: flameshot",
+              "Provides: flameshot",
+          ])
+
+          path.write_text("\n".join(out) + "\n", encoding="utf-8")
+          PY
+
+          OUT_DEB="$GITHUB_WORKSPACE/flameshot-ocr_${VERSION}_amd64.deb"
+          dpkg-deb --build --root-owner-group "$ROOT" "$OUT_DEB"
+
+          dpkg-deb -I "$OUT_DEB"
+          sha256sum "$OUT_DEB" | tee "${OUT_DEB}.sha256sum"
+
+      - name: Upload deb artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Flameshot-OCR-${{ env.VERSION }}-deb-ubuntu-24.04-amd64
+          path: |
+            flameshot-ocr_*_amd64.deb
+            flameshot-ocr_*_amd64.deb.sha256sum
+          if-no-files-found: error
