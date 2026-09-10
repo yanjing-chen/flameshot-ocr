@@ -15,7 +15,7 @@ bool OcrTool::closeOnButtonPressed() const
 QIcon OcrTool::icon(const QColor& background, bool inEditor) const
 {
     Q_UNUSED(inEditor)
-    return QIcon(iconPath(background) + "format-text.svg");
+    return QIcon(iconPath(background) + "ocr.svg");
 }
 
 QString OcrTool::name() const

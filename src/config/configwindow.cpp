@@ -69,7 +69,7 @@ ConfigWindow::ConfigWindow(QWidget* parent)
     m_ocrConfigTab->setLayout(ocrConfigLayout);
     ocrConfigLayout->addWidget(m_ocrConfig);
     m_tabWidget->addTab(
-      m_ocrConfigTab, QIcon(modifier + "format-text.svg"), tr("OCR"));
+      m_ocrConfigTab, QIcon(modifier + "ocr.svg"), tr("OCR"));
 
     // visuals
     m_visuals = new VisualsEditor();

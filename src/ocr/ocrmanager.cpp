@@ -5,6 +5,7 @@
 
 #include "utils/confighandler.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFileInfo>
@@ -365,25 +366,131 @@ QString OcrManager::modelStatusText(const OcrModelInfo& model) const
 
 QString OcrManager::serverExecutable() const
 {
+    // Explicit user configuration always wins.
     const QString configured = ConfigHandler().ocrServerPath().trimmed();
     if (!configured.isEmpty() && QFileInfo(configured).isExecutable()) {
         return configured;
     }
 
-    const QString appRuntime =
+    // User-managed runtimes live outside the AppImage so they can be replaced
+    // independently from Flameshot itself.
+    const QString userRuntimeRoot =
       QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-      QStringLiteral("/flameshot-ocr/runtime/llama-server");
-    if (QFileInfo(appRuntime).isExecutable()) {
-        return appRuntime;
+      QStringLiteral("/flameshot-ocr/runtime");
+
+    // AppImage layout:
+    //   AppDir/usr/bin/flameshot
+    //   AppDir/usr/lib/flameshot-ocr/runtime/llama-server-*
+    const QString packagedRuntimeRoot = QDir::cleanPath(
+      QDir(QCoreApplication::applicationDirPath())
+        .filePath(QStringLiteral("../lib/flameshot-ocr/runtime")));
+
+    QStringList runtimeRoots;
+    runtimeRoots << userRuntimeRoot;
+    if (packagedRuntimeRoot != userRuntimeRoot) {
+        runtimeRoots << packagedRuntimeRoot;
+    }
+
+    auto executableInRoot = [](const QString& root,
+                               const QString& name) -> QString {
+        const QString path = QDir(root).filePath(name);
+        return QFileInfo(path).isExecutable() ? path : QString();
+    };
+
+    auto firstRuntimeWithDevice =
+      [this, &runtimeRoots, &executableInRoot](const QString& fileName,
+                                               const QString& devicePrefix)
+      -> QString {
+        for (const QString& root : runtimeRoots) {
+            const QString candidate = executableInRoot(root, fileName);
+            if (candidate.isEmpty()) {
+                continue;
+            }
+
+            const QString device = chooseDevice(candidate);
+            if (device.startsWith(devicePrefix)) {
+                return candidate;
+            }
+        }
+        return {};
+    };
+
+    // Avoid probing a CUDA runtime on machines without a loaded NVIDIA driver.
+    const bool nvidiaDriverPresent =
+      QFileInfo::exists(QStringLiteral("/dev/nvidiactl")) ||
+      QFileInfo::exists(QStringLiteral("/dev/nvidia0"));
+
+    // 1. CUDA on NVIDIA.
+    if (nvidiaDriverPresent) {
+        const QString cudaRuntime =
+          firstRuntimeWithDevice(QStringLiteral("llama-server-cuda"),
+                                 QStringLiteral("CUDA"));
+        if (!cudaRuntime.isEmpty()) {
+            return cudaRuntime;
+        }
+    }
+
+    // 2. Vulkan on AMD / Intel / NVIDIA.
+    const QString vulkanRuntime =
+      firstRuntimeWithDevice(QStringLiteral("llama-server-vulkan"),
+                             QStringLiteral("Vulkan"));
+    if (!vulkanRuntime.isEmpty()) {
+        return vulkanRuntime;
+    }
+
+    // Backward-compatible generic runtimes. A generic llama-server may itself
+    // have CUDA or Vulkan support, so probe it before falling back to CPU.
+    QStringList genericCandidates;
+    for (const QString& root : runtimeRoots) {
+        const QString generic =
+          executableInRoot(root, QStringLiteral("llama-server"));
+        if (!generic.isEmpty()) {
+            genericCandidates << generic;
+        }
     }
 
     const QString development =
       QDir::homePath() + QStringLiteral("/llama.cpp/build/bin/llama-server");
-    if (QFileInfo(development).isExecutable()) {
-        return development;
+    if (QFileInfo(development).isExecutable() &&
+        !genericCandidates.contains(development)) {
+        genericCandidates << development;
     }
 
-    return QStandardPaths::findExecutable(QStringLiteral("llama-server"));
+    const QString pathRuntime =
+      QStandardPaths::findExecutable(QStringLiteral("llama-server"));
+    if (!pathRuntime.isEmpty() && !genericCandidates.contains(pathRuntime)) {
+        genericCandidates << pathRuntime;
+    }
+
+    if (nvidiaDriverPresent) {
+        for (const QString& candidate : genericCandidates) {
+            if (chooseDevice(candidate).startsWith(QStringLiteral("CUDA"))) {
+                return candidate;
+            }
+        }
+    }
+
+    for (const QString& candidate : genericCandidates) {
+        if (chooseDevice(candidate).startsWith(QStringLiteral("Vulkan"))) {
+            return candidate;
+        }
+    }
+
+    // 3. Reliable CPU fallback.
+    for (const QString& root : runtimeRoots) {
+        const QString cpuRuntime =
+          executableInRoot(root, QStringLiteral("llama-server-cpu"));
+        if (!cpuRuntime.isEmpty()) {
+            return cpuRuntime;
+        }
+    }
+
+    // Last resort: a generic executable can still run with -ngl 0.
+    if (!genericCandidates.isEmpty()) {
+        return genericCandidates.first();
+    }
+
+    return {};
 }
 
 QUrl OcrManager::serverBaseUrl() const

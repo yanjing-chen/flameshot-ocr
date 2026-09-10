@@ -1,0 +1,6 @@
+OCR icon source: Material Design Icons / Pictogrammers Team
+Downloaded from:
+https://www.iconarchive.com/show/material-icons-by-pictogrammers/ocr-icon.html
+Direct SVG URL:
+https://www.iconarchive.com/download/i126527/pictogrammers/material/ocr.svg
+License: Apache License 2.0
