@@ -113,6 +113,11 @@ add_subdirectory(utils)
 add_subdirectory(widgets)
 add_subdirectory(tools)
 
+target_sources(flameshot PRIVATE
+    ocr/ocrmanager.cpp
+    ocr/ocrmanager.h
+)
+
 
 set(FLAMESHOT_TS_FILES
       ${CMAKE_SOURCE_DIR}/data/translations/Internationalization_bg.ts

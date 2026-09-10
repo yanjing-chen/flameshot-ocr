@@ -146,6 +146,8 @@ private:
     QRect extendedSelection() const;
     QRect extendedRect(const QRect& r) const;
     QRect paddedUpdateRect(const QRect& r) const;
+    void runOcr();
+    void showOcrResult(const QString& text);
     void drawErrorMessage(const QString& msg, QPainter* painter);
     void drawInactiveRegion(QPainter* painter);
     void drawToolsData(bool drawSelection = true);

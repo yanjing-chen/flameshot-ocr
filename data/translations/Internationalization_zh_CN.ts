@@ -296,6 +296,74 @@ Press Space to open the side panel.</source>
         <source>Tool Settings</source>
         <translation>工具设置</translation>
     </message>
+    <message>
+        <source>OCR</source>
+        <translation>OCR</translation>
+    </message>
+    <message>
+        <source>There is no image in the current selection.</source>
+        <translation>当前选区中没有可识别的图像。</translation>
+    </message>
+    <message>
+        <source>Preparing PaddleOCR-VL service...</source>
+        <translation>正在准备 PaddleOCR-VL 服务…</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>OCR server unavailable</source>
+        <translation>OCR 服务不可用</translation>
+    </message>
+    <message>
+        <source>PaddleOCR-VL is not ready.
+
+%1</source>
+        <translation>PaddleOCR-VL 尚未就绪。
+
+%1</translation>
+    </message>
+    <message>
+        <source>Recognizing text with PaddleOCR-VL...</source>
+        <translation>正在使用 PaddleOCR-VL 识别文字…</translation>
+    </message>
+    <message>
+        <source>Failed to prepare the selected image for OCR.</source>
+        <translation>无法准备用于 OCR 的选区图像。</translation>
+    </message>
+    <message>
+        <source>The OCR request failed.
+
+%1</source>
+        <translation>OCR 请求失败。
+
+%1</translation>
+    </message>
+    <message>
+        <source>The OCR server returned invalid JSON.</source>
+        <translation>OCR 服务返回了无效的 JSON 数据。</translation>
+    </message>
+    <message>
+        <source>The OCR server returned no recognition result.</source>
+        <translation>OCR 服务没有返回识别结果。</translation>
+    </message>
+    <message>
+        <source>No text was recognized in the selected area.</source>
+        <translation>所选区域中未识别到文字。</translation>
+    </message>
+    <message>
+        <source>OCR Result</source>
+        <translation>OCR 识别结果</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>复制</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
 </context>
 <context>
     <name>CircleCountTool</name>
@@ -651,6 +719,10 @@ Please solve them manually in the configuration file.</source>
         <location filename="../../src/config/configwindow.cpp" line="123"/>
         <source>&lt;b&gt;Configuration file has errors. Resolve them before continuing.&lt;/b&gt;</source>
         <translation>&lt;b&gt;配置文件存在错误。请在继续操作前进行处理。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>OCR</source>
+        <translation>OCR</translation>
     </message>
 </context>
 <context>
@@ -3426,6 +3498,297 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/swatch.cpp" line="864"/>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
+    </message>
+</context>
+<context>
+    <name>OcrTool</name>
+    <message>
+        <source>OCR</source>
+        <translation>OCR</translation>
+    </message>
+    <message>
+        <source>Recognize text in selection with PaddleOCR-VL</source>
+        <translation>使用 PaddleOCR-VL 识别选区中的文字</translation>
+    </message>
+</context>
+<context>
+    <name>OcrConf</name>
+    <message>
+        <source>PaddleOCR-VL Service</source>
+        <translation>PaddleOCR-VL 服务</translation>
+    </message>
+    <message>
+        <source>Server URL:</source>
+        <translation>服务器地址：</translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>浏览…</translation>
+    </message>
+    <message>
+        <source>llama-server:</source>
+        <translation>llama-server：</translation>
+    </message>
+    <message>
+        <source>Automatically start the local OCR service when OCR is used</source>
+        <translation>使用 OCR 时自动启动本地 OCR 服务</translation>
+    </message>
+    <message>
+        <source>Service status:</source>
+        <translation>服务状态：</translation>
+    </message>
+    <message>
+        <source>Acceleration:</source>
+        <translation>硬件加速：</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>启动</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Test connection</source>
+        <translation>测试连接</translation>
+    </message>
+    <message>
+        <source>OCR Model</source>
+        <translation>OCR 模型</translation>
+    </message>
+    <message>
+        <source>Model:</source>
+        <translation>模型：</translation>
+    </message>
+    <message>
+        <source>Model storage:</source>
+        <translation>模型存储位置：</translation>
+    </message>
+    <message>
+        <source>Status:</source>
+        <translation>状态：</translation>
+    </message>
+    <message>
+        <source>Download model</source>
+        <translation>下载模型</translation>
+    </message>
+    <message>
+        <source>Cancel download</source>
+        <translation>取消下载</translation>
+    </message>
+    <message>
+        <source>Delete model</source>
+        <translation>删除模型</translation>
+    </message>
+    <message>
+        <source>Download:</source>
+        <translation>下载：</translation>
+    </message>
+    <message>
+        <source>Model Updates</source>
+        <translation>模型更新</translation>
+    </message>
+    <message>
+        <source>Optional HTTPS URL to a verified models.json manifest</source>
+        <translation>可选：经过验证的 models.json 清单 HTTPS 地址</translation>
+    </message>
+    <message>
+        <source>Remote manifest:</source>
+        <translation>远程模型清单：</translation>
+    </message>
+    <message>
+        <source>Automatically check the configured manifest</source>
+        <translation>自动检查已配置的模型清单</translation>
+    </message>
+    <message>
+        <source>Latest supported:</source>
+        <translation>最新支持版本：</translation>
+    </message>
+    <message>
+        <source>Check model updates</source>
+        <translation>检查模型更新</translation>
+    </message>
+    <message>
+        <source>Flameshot OCR ships with a built-in verified model list. Models are never bundled inside the AppImage. A remote manifest can add newer models after compatibility has been verified.</source>
+        <translation>Flameshot OCR 内置经过验证的模型列表。模型不会打包到 AppImage 中。兼容性验证通过后，可通过远程清单添加新模型。</translation>
+    </message>
+    <message>
+        <source>Choose llama-server executable</source>
+        <translation>选择 llama-server 可执行文件</translation>
+    </message>
+    <message>
+        <source>Choose OCR model storage</source>
+        <translation>选择 OCR 模型存储位置</translation>
+    </message>
+    <message>
+        <source>Delete OCR model</source>
+        <translation>删除 OCR 模型</translation>
+    </message>
+    <message>
+        <source>Delete the selected OCR model from disk?</source>
+        <translation>是否从磁盘中删除所选 OCR 模型？</translation>
+    </message>
+    <message>
+        <source>OCR</source>
+        <translation>OCR</translation>
+    </message>
+    <message>
+        <source>Testing...</source>
+        <translation>正在测试…</translation>
+    </message>
+    <message>
+        <source>Connected — OCR service is healthy</source>
+        <translation>已连接 — OCR 服务运行正常</translation>
+    </message>
+    <message>
+        <source>Not connected — %1</source>
+        <translation>未连接 — %1</translation>
+    </message>
+    <message>
+        <source>Checking...</source>
+        <translation>正在检查…</translation>
+    </message>
+    <message>
+        <source>llama-server not found</source>
+        <translation>未找到 llama-server</translation>
+    </message>
+    <message>
+        <source>%1 (auto-selected)</source>
+        <translation>%1（自动选择）</translation>
+    </message>
+    <message>
+        <source>Managed llama-server process is running</source>
+        <translation>由 Flameshot 管理的 llama-server 进程正在运行</translation>
+    </message>
+    <message>
+        <source>No managed process (an external server may still be running)</source>
+        <translation>没有由 Flameshot 管理的进程（外部服务可能仍在运行）</translation>
+    </message>
+    <message>
+        <source>%1 — current</source>
+        <translation>%1 — 当前版本</translation>
+    </message>
+    <message>
+        <source>%1 — update available</source>
+        <translation>%1 — 有可用更新</translation>
+    </message>
+</context>
+<context>
+    <name>OcrManager</name>
+    <message>
+        <source>Unknown model</source>
+        <translation>未知模型</translation>
+    </message>
+    <message>
+        <source>Installed and verified by file size</source>
+        <translation>已安装，并已通过文件大小校验</translation>
+    </message>
+    <message>
+        <source>Not installed</source>
+        <translation>未安装</translation>
+    </message>
+    <message>
+        <source>Incomplete or file size does not match</source>
+        <translation>模型不完整或文件大小不匹配</translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation>CPU</translation>
+    </message>
+    <message>
+        <source>Automatic server start is only allowed for localhost.</source>
+        <translation>仅允许为本机地址自动启动 OCR 服务。</translation>
+    </message>
+    <message>
+        <source>The selected OCR model is not installed completely.</source>
+        <translation>所选 OCR 模型尚未完整安装。</translation>
+    </message>
+    <message>
+        <source>llama-server was not found. Set its path in OCR settings.</source>
+        <translation>未找到 llama-server。请在 OCR 设置中指定其路径。</translation>
+    </message>
+    <message>
+        <source>Could not start llama-server: %1</source>
+        <translation>无法启动 llama-server：%1</translation>
+    </message>
+    <message>
+        <source>llama-server did not become ready: %1</source>
+        <translation>llama-server 未能就绪：%1</translation>
+    </message>
+    <message>
+        <source>OCR service is not running and automatic start is disabled.
+%1</source>
+        <translation>OCR 服务未运行，并且已关闭自动启动。
+%1</translation>
+    </message>
+    <message>
+        <source>A model download is already running.</source>
+        <translation>已有模型下载任务正在进行。</translation>
+    </message>
+    <message>
+        <source>Unknown OCR model.</source>
+        <translation>未知的 OCR 模型。</translation>
+    </message>
+    <message>
+        <source>Could not create the model directory.</source>
+        <translation>无法创建模型目录。</translation>
+    </message>
+    <message>
+        <source>Download canceled. Partial files were kept for resume.</source>
+        <translation>下载已取消。已保留未完成文件，可用于断点续传。</translation>
+    </message>
+    <message>
+        <source>Could not write %1</source>
+        <translation>无法写入 %1</translation>
+    </message>
+    <message>
+        <source>Unknown network error</source>
+        <translation>未知网络错误</translation>
+    </message>
+    <message>
+        <source>Download failed for %1: %2</source>
+        <translation>下载 %1 失败：%2</translation>
+    </message>
+    <message>
+        <source>Downloaded file size is incorrect for %1 (%2 bytes, expected %3).</source>
+        <translation>下载的 %1 文件大小不正确（实际 %2 字节，应为 %3 字节）。</translation>
+    </message>
+    <message>
+        <source>Could not finalize downloaded file %1.</source>
+        <translation>无法完成下载文件 %1 的保存。</translation>
+    </message>
+    <message>
+        <source>OCR model download completed.</source>
+        <translation>OCR 模型下载完成。</translation>
+    </message>
+    <message>
+        <source>Could not remove model directory: %1</source>
+        <translation>无法删除模型目录：%1</translation>
+    </message>
+    <message>
+        <source>Remote model manifest URL is not configured. The built-in verified model list remains available.</source>
+        <translation>尚未配置远程模型清单地址。仍可使用内置的已验证模型列表。</translation>
+    </message>
+    <message>
+        <source>The remote model manifest URL is invalid.</source>
+        <translation>远程模型清单地址无效。</translation>
+    </message>
+    <message>
+        <source>Remote model manifest is not valid JSON.</source>
+        <translation>远程模型清单不是有效的 JSON 数据。</translation>
+    </message>
+    <message>
+        <source>Remote manifest contains no compatible verified OCR models.</source>
+        <translation>远程清单中没有兼容且经过验证的 OCR 模型。</translation>
+    </message>
+    <message>
+        <source>Could not save the remote model manifest.</source>
+        <translation>无法保存远程模型清单。</translation>
+    </message>
+    <message>
+        <source>Model list updated. Latest supported model: %1</source>
+        <translation>模型列表已更新。最新支持的模型：%1</translation>
     </message>
 </context>
 </TS>

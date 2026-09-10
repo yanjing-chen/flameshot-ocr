@@ -8,6 +8,7 @@
 class FileNameEditor;
 class ShortcutsWidget;
 class GeneralConf;
+class OcrConf;
 class QFileSystemWatcher;
 class VisualsEditor;
 class QWidget;
@@ -35,6 +36,9 @@ private:
 
     GeneralConf* m_generalConfig;
     QWidget* m_generalConfigTab;
+
+    OcrConf* m_ocrConfig;
+    QWidget* m_ocrConfigTab;
 
     VisualsEditor* m_visuals;
     QWidget* m_visualsTab;

@@ -5,6 +5,7 @@
 #include "config/configresolver.h"
 #include "config/filenameeditor.h"
 #include "config/generalconf.h"
+#include "config/ocrconf.h"
 #include "config/shortcutswidget.h"
 #include "config/visualseditor.h"
 #include "utils/colorutils.h"
@@ -61,6 +62,14 @@ ConfigWindow::ConfigWindow(QWidget* parent)
     generalConfigLayout->addWidget(m_generalConfig);
     m_tabWidget->addTab(
       m_generalConfigTab, QIcon(modifier + "config.svg"), tr("General"));
+    // OCR
+    m_ocrConfig = new OcrConf();
+    m_ocrConfigTab = new QWidget();
+    auto* ocrConfigLayout = new QVBoxLayout(m_ocrConfigTab);
+    m_ocrConfigTab->setLayout(ocrConfigLayout);
+    ocrConfigLayout->addWidget(m_ocrConfig);
+    m_tabWidget->addTab(
+      m_ocrConfigTab, QIcon(modifier + "format-text.svg"), tr("OCR"));
 
     // visuals
     m_visuals = new VisualsEditor();
@@ -103,11 +112,16 @@ ConfigWindow::ConfigWindow(QWidget* parent)
             &ConfigWindow::updateChildren,
             m_generalConfig,
             &GeneralConf::updateComponents);
+    connect(this,
+            &ConfigWindow::updateChildren,
+            m_ocrConfig,
+            &OcrConf::updateComponents);
 
     // Error indicator (this must come last)
     initErrorIndicator(m_visualsTab, m_visuals);
     initErrorIndicator(m_filenameEditorTab, m_filenameEditor);
     initErrorIndicator(m_generalConfigTab, m_generalConfig);
+    initErrorIndicator(m_ocrConfigTab, m_ocrConfig);
     initErrorIndicator(m_shortcutsTab, m_shortcuts);
 }
 
