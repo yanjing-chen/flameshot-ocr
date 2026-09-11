@@ -3693,6 +3693,68 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <source>%1 (manually selected)</source>
         <translation>%1（手动选择）</translation>
     </message>
+    <message>
+        <source>NVIDIA CUDA Acceleration</source>
+        <translation>NVIDIA CUDA 加速</translation>
+    </message>
+    <message>
+        <source>CUDA runtime:</source>
+        <translation>CUDA 运行环境：</translation>
+    </message>
+    <message>
+        <source>Install CUDA runtime (~492 MB)</source>
+        <translation>安装 CUDA 运行环境（约 492 MB）</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>CUDA support is downloaded separately and is not bundled in the AppImage. The NVIDIA driver remains managed by the operating system.</source>
+        <translation>CUDA 支持将单独下载，不会打包进 AppImage。NVIDIA 驱动仍由操作系统负责管理。</translation>
+    </message>
+    <message>
+        <source>Install CUDA runtime</source>
+        <translation>安装 CUDA 运行环境</translation>
+    </message>
+    <message>
+        <source>Download and install the verified CUDA runtime?
+
+Download size: approximately 492 MB
+Installed size: approximately 899 MB</source>
+        <translation>是否下载并安装已验证的 CUDA 运行环境？
+
+下载大小：约 492 MB
+安装后大小：约 899 MB</translation>
+    </message>
+    <message>
+        <source>CUDA Runtime</source>
+        <translation>CUDA 运行环境</translation>
+    </message>
+    <message>
+        <source>Installed, but no active NVIDIA driver was detected.</source>
+        <translation>已安装，但未检测到正在工作的 NVIDIA 驱动。</translation>
+    </message>
+    <message>
+        <source>No active NVIDIA driver detected. Vulkan or CPU will be used.</source>
+        <translation>未检测到正在工作的 NVIDIA 驱动，将使用 Vulkan 或 CPU。</translation>
+    </message>
+    <message>
+        <source>Installed and verified — %1</source>
+        <translation>已安装并通过验证 — %1</translation>
+    </message>
+    <message>
+        <source>unknown version</source>
+        <translation>未知版本</translation>
+    </message>
+    <message>
+        <source>Downloading or installing the CUDA runtime...</source>
+        <translation>正在下载或安装 CUDA 运行环境……</translation>
+    </message>
+    <message>
+        <source>Not installed. NVIDIA Vulkan remains available as fallback.</source>
+        <translation>未安装。仍可使用 NVIDIA Vulkan 作为备用方案。</translation>
+    </message>
 </context>
 <context>
     <name>OcrManager</name>
@@ -3809,6 +3871,126 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
     <message>
         <source>Model list updated. Latest supported model: %1</source>
         <translation>模型列表已更新。最新支持的模型：%1</translation>
+    </message>
+    <message>
+        <source>A CUDA runtime installation is already running.</source>
+        <translation>CUDA 运行环境安装任务正在进行。</translation>
+    </message>
+    <message>
+        <source>No active NVIDIA driver was detected. CUDA runtime installation is not required on this system.</source>
+        <translation>未检测到正在工作的 NVIDIA 驱动，本系统无需安装 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>Stop the managed OCR service before installing the CUDA runtime.</source>
+        <translation>请先停止由 Flameshot 管理的 OCR 服务，再安装 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime %1 is already installed.</source>
+        <translation>CUDA 运行环境 %1 已安装。</translation>
+    </message>
+    <message>
+        <source>Could not create the CUDA runtime download directory.</source>
+        <translation>无法创建 CUDA 运行环境下载目录。</translation>
+    </message>
+    <message>
+        <source>Could not write CUDA runtime download file.</source>
+        <translation>无法写入 CUDA 运行环境下载文件。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime download canceled. The partial file was kept for resume.</source>
+        <translation>已取消 CUDA 运行环境下载，部分文件已保留，可供下次续传。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime download failed: %1</source>
+        <translation>CUDA 运行环境下载失败：%1</translation>
+    </message>
+    <message>
+        <source>CUDA runtime download size is incorrect (%1 bytes, expected %2).</source>
+        <translation>CUDA 运行环境下载文件大小不正确（%1 字节，预期 %2 字节）。</translation>
+    </message>
+    <message>
+        <source>Could not finalize the CUDA runtime download.</source>
+        <translation>无法完成 CUDA 运行环境下载文件的保存。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime SHA256 verification failed. The downloaded archive was removed.</source>
+        <translation>CUDA 运行环境 SHA256 校验失败，已删除下载的压缩包。</translation>
+    </message>
+    <message>
+        <source>zstd was not found. CUDA runtime extraction cannot continue.</source>
+        <translation>未找到 zstd，无法继续解压 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>tar was not found. CUDA runtime extraction cannot continue.</source>
+        <translation>未找到 tar，无法继续解压 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>Could not create the CUDA runtime directory.</source>
+        <translation>无法创建 CUDA 运行环境目录。</translation>
+    </message>
+    <message>
+        <source>Could not clear the previous CUDA runtime staging directory.</source>
+        <translation>无法清理之前的 CUDA 运行环境临时安装目录。</translation>
+    </message>
+    <message>
+        <source>Could not create the CUDA runtime staging directory.</source>
+        <translation>无法创建 CUDA 运行环境临时安装目录。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime installation canceled.</source>
+        <translation>已取消 CUDA 运行环境安装。</translation>
+    </message>
+    <message>
+        <source>Could not extract the CUDA runtime.
+%1</source>
+        <translation>无法解压 CUDA 运行环境。
+%1</translation>
+    </message>
+    <message>
+        <source>The extracted CUDA runtime is incomplete or invalid.</source>
+        <translation>解压后的 CUDA 运行环境不完整或无效。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime could not be started for verification.</source>
+        <translation>无法启动 CUDA 运行环境进行验证。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime verification timed out.</source>
+        <translation>CUDA 运行环境验证超时。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime verification failed.
+%1</source>
+        <translation>CUDA 运行环境验证失败。
+%1</translation>
+    </message>
+    <message>
+        <source>Could not replace the existing CUDA runtime directory.</source>
+        <translation>无法替换现有的 CUDA 运行环境目录。</translation>
+    </message>
+    <message>
+        <source>Could not finalize the CUDA runtime directory.</source>
+        <translation>无法完成 CUDA 运行环境目录的安装。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime 'current' path is not a symbolic link.</source>
+        <translation>CUDA 运行环境的“current”路径不是符号链接。</translation>
+    </message>
+    <message>
+        <source>Could not create the CUDA runtime version link.</source>
+        <translation>无法创建 CUDA 运行环境版本链接。</translation>
+    </message>
+    <message>
+        <source>Could not activate the new CUDA runtime.</source>
+        <translation>无法启用新的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime %1 was installed and verified successfully.</source>
+        <translation>CUDA 运行环境 %1 已成功安装并通过验证。</translation>
+    </message>
+    <message>
+        <source>Could not start CUDA runtime extraction.</source>
+        <translation>无法启动 CUDA 运行环境解压过程。</translation>
     </message>
 </context>
 </TS>

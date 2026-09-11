@@ -58,7 +58,7 @@ jobs:
             fuse cmake extra-cmake-modules build-essential git wget \
             qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
             libqt6svg6-dev qt6-l10n-tools qt6-wayland libgl-dev \
-            appstream hicolor-icon-theme openssl ca-certificates jq \
+            appstream hicolor-icon-theme openssl ca-certificates jq zstd \
             libvulkan-dev glslc spirv-headers
 
       - name: Build OCR runtimes
@@ -126,6 +126,42 @@ jobs:
              "$APPDIR/usr/lib/flameshot-ocr/runtime/llama-server-vulkan"
           cp runtime-build/llama-server-cpu \
              "$APPDIR/usr/lib/flameshot-ocr/runtime/llama-server-cpu"
+
+          # CUDA Runtime Manager downloads a .tar.zst archive. Bundle zstd so
+          # the AppImage does not depend on the host having zstd installed.
+          # Keep this tool separate from the llama runtimes because it is only
+          # used for installing/updating optional CUDA support.
+          ZSTD_BIN="$(command -v zstd)"
+          test -x "$ZSTD_BIN"
+
+          mkdir -p "$APPDIR/usr/lib/flameshot-ocr/tools"
+          cp -L "$ZSTD_BIN" \
+             "$APPDIR/usr/lib/flameshot-ocr/tools/zstd"
+          chmod 0755 "$APPDIR/usr/lib/flameshot-ocr/tools/zstd"
+
+          # zstd on Ubuntu Noble uses these small non-system libraries.
+          # Do not bundle glibc or the dynamic loader.
+          for ZSTD_LIB in libz.so.1 liblzma.so.5 liblz4.so.1 libxxhash.so.0; do
+            ZSTD_LIB_PATH="$(ldconfig -p | awk -v lib="$ZSTD_LIB" \
+              '$1 == lib && $4 ~ /^\/.*x86_64-linux-gnu/ { print $4; exit }')"
+            test -n "$ZSTD_LIB_PATH"
+            test -s "$ZSTD_LIB_PATH"
+            cp -L "$ZSTD_LIB_PATH" "$APPDIR/usr/lib/$ZSTD_LIB"
+          done
+
+          echo "Bundled CUDA extraction tool:"
+          ls -lh "$APPDIR/usr/lib/flameshot-ocr/tools/zstd"
+          echo "Bundled zstd libraries:"
+          ls -lh \
+            "$APPDIR/usr/lib/libz.so.1" \
+            "$APPDIR/usr/lib/liblzma.so.5" \
+            "$APPDIR/usr/lib/liblz4.so.1" \
+            "$APPDIR/usr/lib/libxxhash.so.0"
+
+          # Build-time sanity check: the packaged zstd must actually execute
+          # using the AppDir libraries.
+          LD_LIBRARY_PATH="$APPDIR/usr/lib" \
+            "$APPDIR/usr/lib/flameshot-ocr/tools/zstd" --version
 
           mkdir -p "$APPDIR/usr/share/doc/flameshot-ocr"
           cp THIRD_PARTY_NOTICES.md \

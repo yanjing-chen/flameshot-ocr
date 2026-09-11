@@ -6,6 +6,7 @@
 #include "utils/confighandler.h"
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFileInfo>
@@ -24,12 +25,78 @@
 
 #include <cerrno>
 #include <csignal>
+#include <cstdio>
+#include <unistd.h>
 #include <sys/types.h>
 
 namespace
 {
 constexpr qint64 PADDLE_16_MODEL_SIZE = 935769056;
 constexpr qint64 PADDLE_16_MMPROJ_SIZE = 881770560;
+
+// Verified experimental CUDA runtime for the first v2.4 Runtime Manager.
+// This package was built with CUDA Toolkit 12.8.1 and llama.cpp 72797e891.
+// The sm86 build has been verified on an RTX 3050 Laptop GPU.
+constexpr auto CUDA_RUNTIME_VERSION = "12.8-r1";
+constexpr auto CUDA_RUNTIME_DISPLAY_VERSION = "12.8-r1 (sm86)";
+constexpr auto CUDA_RUNTIME_ARCHIVE =
+  "Flameshot-OCR-CUDA-12.8-r1-sm86.tar.zst";
+constexpr auto CUDA_RUNTIME_URL =
+  "https://github.com/yanjing-chen/flameshot-ocr/releases/download/"
+  "cuda-runtime-12.8-r1-sm86/"
+  "Flameshot-OCR-CUDA-12.8-r1-sm86.tar.zst";
+constexpr qint64 CUDA_RUNTIME_ARCHIVE_SIZE = 515204221;
+constexpr auto CUDA_RUNTIME_ARCHIVE_SHA256 =
+  "21d4febc94847568194457170f9563371c5e244513087b167164b1e874efda45";
+
+constexpr qint64 CUDA_WRAPPER_SIZE = 206;
+constexpr qint64 CUDA_SERVER_SIZE = 73419736;
+constexpr qint64 CUDA_CUDART_SIZE = 728800;
+constexpr qint64 CUDA_CUBLAS_SIZE = 116388640;
+constexpr qint64 CUDA_CUBLASLT_SIZE = 751771728;
+
+bool nvidiaDriverPresent()
+{
+    return QFileInfo::exists(QStringLiteral("/dev/nvidiactl")) ||
+           QFileInfo::exists(QStringLiteral("/dev/nvidia0"));
+}
+
+QString bundledZstdExecutable()
+{
+    // AppImage layout:
+    //   AppDir/usr/bin/flameshot
+    //   AppDir/usr/lib/flameshot-ocr/tools/zstd
+    const QString packaged = QDir::cleanPath(
+      QDir(QCoreApplication::applicationDirPath())
+        .filePath(QStringLiteral("../lib/flameshot-ocr/tools/zstd")));
+
+    if (QFileInfo(packaged).isExecutable()) {
+        return packaged;
+    }
+
+    return QStandardPaths::findExecutable(QStringLiteral("zstd"));
+}
+
+QByteArray sha256ForFile(const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return {};
+    }
+
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    while (!file.atEnd()) {
+        const QByteArray data = file.read(4 * 1024 * 1024);
+        if (data.isEmpty() && file.error() != QFileDevice::NoError) {
+            return {};
+        }
+        if (!data.isEmpty()) {
+            hash.addData(data);
+        }
+    }
+
+    return hash.result().toHex();
+}
 
 bool fileMatchesSize(const QString& path, qint64 expected)
 {
@@ -520,12 +587,10 @@ QString OcrManager::serverExecutable() const
     };
 
     // Avoid probing a CUDA runtime on machines without a loaded NVIDIA driver.
-    const bool nvidiaDriverPresent =
-      QFileInfo::exists(QStringLiteral("/dev/nvidiactl")) ||
-      QFileInfo::exists(QStringLiteral("/dev/nvidia0"));
+    const bool hasNvidiaDriver = nvidiaDriverPresent();
 
     // 1. CUDA on NVIDIA.
-    if (nvidiaDriverPresent) {
+    if (hasNvidiaDriver) {
         const QString cudaRuntime =
           firstRuntimeWithDevice(QStringLiteral("llama-server-cuda"),
                                  QStringLiteral("CUDA"));
@@ -566,7 +631,7 @@ QString OcrManager::serverExecutable() const
         genericCandidates << pathRuntime;
     }
 
-    if (nvidiaDriverPresent) {
+    if (hasNvidiaDriver) {
         for (const QString& candidate : genericCandidates) {
             if (chooseDevice(candidate).startsWith(QStringLiteral("CUDA"))) {
                 return candidate;
@@ -919,6 +984,547 @@ void OcrManager::ensureReady(
           // Up to 30 seconds for model loading on slower CPUs.
           waitUntilHealthy(context, 60, callback);
       });
+}
+
+QString OcrManager::cudaRuntimeBaseDir() const
+{
+    return QStandardPaths::writableLocation(
+             QStandardPaths::GenericDataLocation) +
+           QStringLiteral("/flameshot-ocr/runtime/cuda");
+}
+
+QString OcrManager::cudaRuntimeCurrentDir() const
+{
+    return QDir(cudaRuntimeBaseDir()).filePath(QStringLiteral("current"));
+}
+
+bool OcrManager::nvidiaDriverAvailable() const
+{
+    return nvidiaDriverPresent();
+}
+
+bool OcrManager::cudaRuntimeInstalled() const
+{
+    const QString root = cudaRuntimeCurrentDir();
+
+    const QString wrapper =
+      QDir(root).filePath(QStringLiteral("llama-server-cuda"));
+    const QString server =
+      QDir(root).filePath(QStringLiteral("llama-server-cuda.bin"));
+    const QString cudart =
+      QDir(root).filePath(QStringLiteral("lib/libcudart.so.12"));
+    const QString cublas =
+      QDir(root).filePath(QStringLiteral("lib/libcublas.so.12"));
+    const QString cublasLt =
+      QDir(root).filePath(QStringLiteral("lib/libcublasLt.so.12"));
+
+    return QFileInfo(wrapper).isExecutable() &&
+           QFileInfo(server).isExecutable() &&
+           fileMatchesSize(wrapper, CUDA_WRAPPER_SIZE) &&
+           fileMatchesSize(server, CUDA_SERVER_SIZE) &&
+           fileMatchesSize(cudart, CUDA_CUDART_SIZE) &&
+           fileMatchesSize(cublas, CUDA_CUBLAS_SIZE) &&
+           fileMatchesSize(cublasLt, CUDA_CUBLASLT_SIZE);
+}
+
+QString OcrManager::cudaRuntimeVersion() const
+{
+    const QFileInfo current(cudaRuntimeCurrentDir());
+
+    if (current.isSymLink()) {
+        const QString target = current.symLinkTarget();
+        const QString name = QFileInfo(QDir::cleanPath(target)).fileName();
+        if (!name.isEmpty()) {
+            return name;
+        }
+    }
+
+    if (cudaRuntimeInstalled()) {
+        return QString::fromLatin1(CUDA_RUNTIME_DISPLAY_VERSION);
+    }
+
+    return {};
+}
+
+bool OcrManager::cudaRuntimeBusy() const
+{
+    return m_cudaDownloadReply != nullptr || m_cudaExtractProcess != nullptr;
+}
+
+void OcrManager::installCudaRuntime()
+{
+    if (cudaRuntimeBusy()) {
+        emit cudaRuntimeFinished(false,
+                                 tr("A CUDA runtime installation is already running."));
+        return;
+    }
+
+    if (!nvidiaDriverAvailable()) {
+        emit cudaRuntimeFinished(
+          false,
+          tr("No active NVIDIA driver was detected. CUDA runtime installation "
+             "is not required on this system."));
+        return;
+    }
+
+    if (managedServerRunning()) {
+        emit cudaRuntimeFinished(
+          false,
+          tr("Stop the managed OCR service before installing the CUDA runtime."));
+        return;
+    }
+
+    if (cudaRuntimeInstalled()) {
+        emit cudaRuntimeFinished(
+          true,
+          tr("CUDA runtime %1 is already installed.")
+            .arg(QString::fromLatin1(CUDA_RUNTIME_DISPLAY_VERSION)));
+        return;
+    }
+
+    const QString base = cudaRuntimeBaseDir();
+    const QString downloadDir =
+      QDir(base).filePath(QStringLiteral(".downloads"));
+
+    if (!QDir().mkpath(downloadDir)) {
+        emit cudaRuntimeFinished(
+          false, tr("Could not create the CUDA runtime download directory."));
+        return;
+    }
+
+    m_cudaArchivePath =
+      QDir(downloadDir).filePath(QString::fromLatin1(CUDA_RUNTIME_ARCHIVE));
+    const QString partPath = m_cudaArchivePath + QStringLiteral(".part");
+
+    // Reuse a previously completed archive only after verifying both size
+    // and SHA256.
+    if (fileMatchesSize(m_cudaArchivePath, CUDA_RUNTIME_ARCHIVE_SIZE)) {
+        const QByteArray hash = sha256ForFile(m_cudaArchivePath);
+        if (hash == QByteArray(CUDA_RUNTIME_ARCHIVE_SHA256)) {
+            emit cudaRuntimeProgress(CUDA_RUNTIME_ARCHIVE_SIZE,
+                                     CUDA_RUNTIME_ARCHIVE_SIZE);
+            startCudaRuntimeExtraction(m_cudaArchivePath);
+            return;
+        }
+        QFile::remove(m_cudaArchivePath);
+    } else if (QFileInfo::exists(m_cudaArchivePath)) {
+        QFile::remove(m_cudaArchivePath);
+    }
+
+    qint64 offset =
+      QFileInfo(partPath).isFile() ? QFileInfo(partPath).size() : 0;
+
+    if (offset < 0 || offset >= CUDA_RUNTIME_ARCHIVE_SIZE) {
+        QFile::remove(partPath);
+        offset = 0;
+    }
+
+    m_cudaDownloadOffset = offset;
+    m_cudaCanceled = false;
+
+    m_cudaDownloadFile = new QFile(partPath, this);
+    QIODevice::OpenMode mode = QIODevice::WriteOnly;
+    if (offset > 0) {
+        mode |= QIODevice::Append;
+    } else {
+        mode |= QIODevice::Truncate;
+    }
+
+    if (!m_cudaDownloadFile->open(mode)) {
+        failCudaRuntime(tr("Could not write CUDA runtime download file."));
+        return;
+    }
+
+    QNetworkRequest request(QUrl(QString::fromLatin1(CUDA_RUNTIME_URL)));
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::NoLessSafeRedirectPolicy);
+
+    if (offset > 0) {
+        request.setRawHeader(
+          "Range",
+          QByteArray("bytes=") + QByteArray::number(offset) + "-");
+    }
+
+    m_cudaDownloadReply = m_network.get(request);
+
+    connect(m_cudaDownloadReply,
+            &QNetworkReply::metaDataChanged,
+            this,
+            [this]() {
+                if (!m_cudaDownloadReply || !m_cudaDownloadFile ||
+                    m_cudaDownloadOffset <= 0) {
+                    return;
+                }
+
+                const int status =
+                  m_cudaDownloadReply
+                    ->attribute(QNetworkRequest::HttpStatusCodeAttribute)
+                    .toInt();
+
+                if (status == 200) {
+                    // GitHub/CDN ignored Range. Restart safely from byte zero.
+                    m_cudaDownloadFile->resize(0);
+                    m_cudaDownloadOffset = 0;
+                }
+            });
+
+    connect(m_cudaDownloadReply,
+            &QNetworkReply::readyRead,
+            this,
+            [this]() {
+                if (m_cudaDownloadReply && m_cudaDownloadFile) {
+                    m_cudaDownloadFile->write(m_cudaDownloadReply->readAll());
+                }
+            });
+
+    connect(m_cudaDownloadReply,
+            &QNetworkReply::downloadProgress,
+            this,
+            [this](qint64 received, qint64) {
+                const qint64 done =
+                  qMin(m_cudaDownloadOffset + received,
+                       CUDA_RUNTIME_ARCHIVE_SIZE);
+                emit cudaRuntimeProgress(done, CUDA_RUNTIME_ARCHIVE_SIZE);
+            });
+
+    connect(m_cudaDownloadReply,
+            &QNetworkReply::finished,
+            this,
+            [this, partPath]() {
+                if (m_cudaDownloadFile) {
+                    if (m_cudaDownloadReply) {
+                        m_cudaDownloadFile->write(
+                          m_cudaDownloadReply->readAll());
+                    }
+                    m_cudaDownloadFile->flush();
+                    m_cudaDownloadFile->close();
+                    m_cudaDownloadFile->deleteLater();
+                    m_cudaDownloadFile = nullptr;
+                }
+
+                const bool canceled = m_cudaCanceled;
+                const auto error =
+                  m_cudaDownloadReply
+                    ? m_cudaDownloadReply->error()
+                    : QNetworkReply::UnknownNetworkError;
+                const QString errorText =
+                  m_cudaDownloadReply
+                    ? m_cudaDownloadReply->errorString()
+                    : tr("Unknown network error");
+
+                if (m_cudaDownloadReply) {
+                    m_cudaDownloadReply->deleteLater();
+                    m_cudaDownloadReply = nullptr;
+                }
+
+                if (canceled) {
+                    failCudaRuntime(
+                      tr("CUDA runtime download canceled. "
+                         "The partial file was kept for resume."));
+                    return;
+                }
+
+                if (error != QNetworkReply::NoError) {
+                    failCudaRuntime(
+                      tr("CUDA runtime download failed: %1").arg(errorText));
+                    return;
+                }
+
+                const QFileInfo downloaded(partPath);
+                if (downloaded.size() != CUDA_RUNTIME_ARCHIVE_SIZE) {
+                    failCudaRuntime(
+                      tr("CUDA runtime download size is incorrect "
+                         "(%1 bytes, expected %2).")
+                        .arg(downloaded.size())
+                        .arg(CUDA_RUNTIME_ARCHIVE_SIZE));
+                    return;
+                }
+
+                QFile::remove(m_cudaArchivePath);
+                if (!QFile::rename(partPath, m_cudaArchivePath)) {
+                    failCudaRuntime(
+                      tr("Could not finalize the CUDA runtime download."));
+                    return;
+                }
+
+                emit cudaRuntimeProgress(CUDA_RUNTIME_ARCHIVE_SIZE,
+                                         CUDA_RUNTIME_ARCHIVE_SIZE);
+
+                const QByteArray hash = sha256ForFile(m_cudaArchivePath);
+                if (hash != QByteArray(CUDA_RUNTIME_ARCHIVE_SHA256)) {
+                    QFile::remove(m_cudaArchivePath);
+                    failCudaRuntime(
+                      tr("CUDA runtime SHA256 verification failed. "
+                         "The downloaded archive was removed."));
+                    return;
+                }
+
+                startCudaRuntimeExtraction(m_cudaArchivePath);
+            });
+}
+
+void OcrManager::startCudaRuntimeExtraction(const QString& archivePath)
+{
+    const QString zstd = bundledZstdExecutable();
+    if (zstd.isEmpty()) {
+        failCudaRuntime(
+          tr("zstd was not found. CUDA runtime extraction cannot continue."));
+        return;
+    }
+
+    const QString tar =
+      QStandardPaths::findExecutable(QStringLiteral("tar"));
+    if (tar.isEmpty()) {
+        failCudaRuntime(
+          tr("tar was not found. CUDA runtime extraction cannot continue."));
+        return;
+    }
+
+    const QString base = cudaRuntimeBaseDir();
+    if (!QDir().mkpath(base)) {
+        failCudaRuntime(tr("Could not create the CUDA runtime directory."));
+        return;
+    }
+
+    const QString stagingName =
+      QStringLiteral(".staging-") + QString::fromLatin1(CUDA_RUNTIME_VERSION);
+    m_cudaStagingDir = QDir(base).filePath(stagingName);
+
+    if (QDir(m_cudaStagingDir).exists() &&
+        !QDir(m_cudaStagingDir).removeRecursively()) {
+        failCudaRuntime(
+          tr("Could not clear the previous CUDA runtime staging directory."));
+        return;
+    }
+
+    if (!QDir().mkpath(m_cudaStagingDir)) {
+        failCudaRuntime(
+          tr("Could not create the CUDA runtime staging directory."));
+        return;
+    }
+
+    m_cudaCanceled = false;
+    m_cudaExtractProcess = new QProcess(this);
+    m_cudaExtractProcess->setProcessChannelMode(QProcess::MergedChannels);
+
+    QStringList args;
+    args << QStringLiteral("--use-compress-program=%1").arg(zstd)
+         << QStringLiteral("--no-same-owner")
+         << QStringLiteral("-xf")
+         << archivePath
+         << QStringLiteral("-C")
+         << m_cudaStagingDir;
+
+    connect(
+      m_cudaExtractProcess,
+      qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
+      this,
+      [this, archivePath](int exitCode, QProcess::ExitStatus exitStatus) {
+          const QString processOutput =
+            m_cudaExtractProcess
+              ? QString::fromLocal8Bit(m_cudaExtractProcess->readAll())
+              : QString();
+
+          if (m_cudaExtractProcess) {
+              m_cudaExtractProcess->deleteLater();
+              m_cudaExtractProcess = nullptr;
+          }
+
+          if (m_cudaCanceled) {
+              QDir(m_cudaStagingDir).removeRecursively();
+              failCudaRuntime(tr("CUDA runtime installation canceled."));
+              return;
+          }
+
+          if (exitStatus != QProcess::NormalExit || exitCode != 0) {
+              QDir(m_cudaStagingDir).removeRecursively();
+              failCudaRuntime(
+                tr("Could not extract the CUDA runtime.\n%1")
+                  .arg(processOutput.trimmed()));
+              return;
+          }
+
+          const QString wrapper =
+            QDir(m_cudaStagingDir)
+              .filePath(QStringLiteral("llama-server-cuda"));
+          const QString server =
+            QDir(m_cudaStagingDir)
+              .filePath(QStringLiteral("llama-server-cuda.bin"));
+          const QString cudart =
+            QDir(m_cudaStagingDir)
+              .filePath(QStringLiteral("lib/libcudart.so.12"));
+          const QString cublas =
+            QDir(m_cudaStagingDir)
+              .filePath(QStringLiteral("lib/libcublas.so.12"));
+          const QString cublasLt =
+            QDir(m_cudaStagingDir)
+              .filePath(QStringLiteral("lib/libcublasLt.so.12"));
+
+          const bool filesValid =
+            QFileInfo(wrapper).isExecutable() &&
+            QFileInfo(server).isExecutable() &&
+            fileMatchesSize(wrapper, CUDA_WRAPPER_SIZE) &&
+            fileMatchesSize(server, CUDA_SERVER_SIZE) &&
+            fileMatchesSize(cudart, CUDA_CUDART_SIZE) &&
+            fileMatchesSize(cublas, CUDA_CUBLAS_SIZE) &&
+            fileMatchesSize(cublasLt, CUDA_CUBLASLT_SIZE);
+
+          if (!filesValid) {
+              QDir(m_cudaStagingDir).removeRecursively();
+              failCudaRuntime(
+                tr("The extracted CUDA runtime is incomplete or invalid."));
+              return;
+          }
+
+          // Real runtime sanity check before current is switched.
+          QProcess probe;
+          probe.setProcessChannelMode(QProcess::MergedChannels);
+          probe.start(wrapper, { QStringLiteral("--list-devices") });
+
+          if (!probe.waitForStarted(5000)) {
+              QDir(m_cudaStagingDir).removeRecursively();
+              failCudaRuntime(
+                tr("The CUDA runtime could not be started for verification."));
+              return;
+          }
+
+          if (!probe.waitForFinished(15000)) {
+              probe.kill();
+              probe.waitForFinished(2000);
+              QDir(m_cudaStagingDir).removeRecursively();
+              failCudaRuntime(
+                tr("CUDA runtime verification timed out."));
+              return;
+          }
+
+          const QString probeOutput =
+            QString::fromLocal8Bit(probe.readAll());
+
+          if (probe.exitStatus() != QProcess::NormalExit ||
+              probe.exitCode() != 0 ||
+              !probeOutput.contains(QStringLiteral("CUDA"),
+                                    Qt::CaseInsensitive)) {
+              QDir(m_cudaStagingDir).removeRecursively();
+              failCudaRuntime(
+                tr("CUDA runtime verification failed.\n%1")
+                  .arg(probeOutput.trimmed()));
+              return;
+          }
+
+          const QString base = cudaRuntimeBaseDir();
+          const QString versionName =
+            QString::fromLatin1(CUDA_RUNTIME_VERSION);
+          const QString finalDir =
+            QDir(base).filePath(versionName);
+
+          // A stale/incomplete directory with this version can be safely
+          // replaced because current has not been switched yet.
+          if (QDir(finalDir).exists() &&
+              !QDir(finalDir).removeRecursively()) {
+              QDir(m_cudaStagingDir).removeRecursively();
+              failCudaRuntime(
+                tr("Could not replace the existing CUDA runtime directory."));
+              return;
+          }
+
+          QDir baseDir(base);
+          const QString stagingName =
+            QFileInfo(m_cudaStagingDir).fileName();
+
+          if (!baseDir.rename(stagingName, versionName)) {
+              QDir(m_cudaStagingDir).removeRecursively();
+              failCudaRuntime(
+                tr("Could not finalize the CUDA runtime directory."));
+              return;
+          }
+
+          const QString current =
+            QDir(base).filePath(QStringLiteral("current"));
+          const QString currentNew =
+            QDir(base).filePath(QStringLiteral(".current-new"));
+
+          const QFileInfo currentInfo(current);
+          if (currentInfo.exists() && !currentInfo.isSymLink()) {
+              failCudaRuntime(
+                tr("The CUDA runtime 'current' path is not a symbolic link."));
+              return;
+          }
+
+          QFile::remove(currentNew);
+
+          const QByteArray targetNative =
+            QFile::encodeName(versionName);
+          const QByteArray currentNewNative =
+            QFile::encodeName(currentNew);
+          const QByteArray currentNative =
+            QFile::encodeName(current);
+
+          if (::symlink(targetNative.constData(),
+                        currentNewNative.constData()) != 0) {
+              failCudaRuntime(
+                tr("Could not create the CUDA runtime version link."));
+              return;
+          }
+
+          // POSIX rename replaces the old symlink atomically. Any old runtime
+          // directory remains on disk for future rollback support.
+          if (::rename(currentNewNative.constData(),
+                       currentNative.constData()) != 0) {
+              QFile::remove(currentNew);
+              failCudaRuntime(
+                tr("Could not activate the new CUDA runtime."));
+              return;
+          }
+
+          QFile::remove(archivePath);
+          m_cudaArchivePath.clear();
+          m_cudaStagingDir.clear();
+
+          emit cudaRuntimeChanged();
+          emit cudaRuntimeFinished(
+            true,
+            tr("CUDA runtime %1 was installed and verified successfully.")
+              .arg(QString::fromLatin1(CUDA_RUNTIME_DISPLAY_VERSION)));
+      });
+
+    m_cudaExtractProcess->start(tar, args);
+
+    if (!m_cudaExtractProcess->waitForStarted(5000)) {
+        m_cudaExtractProcess->deleteLater();
+        m_cudaExtractProcess = nullptr;
+        QDir(m_cudaStagingDir).removeRecursively();
+        failCudaRuntime(tr("Could not start CUDA runtime extraction."));
+    }
+}
+
+void OcrManager::cancelCudaRuntimeInstall()
+{
+    m_cudaCanceled = true;
+
+    if (m_cudaDownloadReply) {
+        m_cudaDownloadReply->abort();
+        return;
+    }
+
+    if (m_cudaExtractProcess) {
+        m_cudaExtractProcess->kill();
+    }
+}
+
+void OcrManager::failCudaRuntime(const QString& message)
+{
+    if (m_cudaDownloadReply) {
+        m_cudaDownloadReply->deleteLater();
+        m_cudaDownloadReply = nullptr;
+    }
+
+    if (m_cudaDownloadFile) {
+        m_cudaDownloadFile->close();
+        m_cudaDownloadFile->deleteLater();
+        m_cudaDownloadFile = nullptr;
+    }
+
+    emit cudaRuntimeFinished(false, message);
 }
 
 void OcrManager::downloadModel(const QString& modelId)

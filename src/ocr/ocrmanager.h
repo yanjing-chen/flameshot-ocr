@@ -59,6 +59,11 @@ public:
     QList<OcrDeviceInfo> availableDevices() const;
     QString detectedDevice() const;
 
+    bool nvidiaDriverAvailable() const;
+    bool cudaRuntimeInstalled() const;
+    QString cudaRuntimeVersion() const;
+    bool cudaRuntimeBusy() const;
+
     bool startServer(QString* error = nullptr);
     void stopServer();
     bool managedServerRunning() const;
@@ -71,6 +76,10 @@ public:
 
     void downloadModel(const QString& modelId);
     void cancelDownload();
+
+    void installCudaRuntime();
+    void cancelCudaRuntimeInstall();
+
     bool removeModel(const QString& modelId, QString* error = nullptr);
 
     void checkRemoteManifest(
@@ -80,6 +89,11 @@ public:
 signals:
     void downloadProgress(qint64 done, qint64 total, const QString& fileName);
     void downloadFinished(bool ok, const QString& message);
+
+    void cudaRuntimeProgress(qint64 done, qint64 total);
+    void cudaRuntimeFinished(bool ok, const QString& message);
+    void cudaRuntimeChanged();
+
     void serverStateChanged();
     void manifestChanged();
 
@@ -105,6 +119,12 @@ private:
 
     void startNextDownload();
     void failDownload(const QString& message);
+
+    void startCudaRuntimeExtraction(const QString& archivePath);
+    void failCudaRuntime(const QString& message);
+    QString cudaRuntimeBaseDir() const;
+    QString cudaRuntimeCurrentDir() const;
+
     QString chooseDevice(const QString& executable) const;
 
     QNetworkAccessManager m_network;
@@ -118,4 +138,12 @@ private:
     qint64 m_downloadCompleted{ 0 };
     bool m_downloadCanceled{ false };
     QString m_downloadModelDir;
+
+    QFile* m_cudaDownloadFile{ nullptr };
+    QNetworkReply* m_cudaDownloadReply{ nullptr };
+    QProcess* m_cudaExtractProcess{ nullptr };
+    qint64 m_cudaDownloadOffset{ 0 };
+    bool m_cudaCanceled{ false };
+    QString m_cudaArchivePath;
+    QString m_cudaStagingDir;
 };
