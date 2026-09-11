@@ -24,6 +24,7 @@ public slots:
 
 private:
     void rebuildModelList();
+    void rebuildDeviceList();
     void refreshModelStatus();
     void refreshRuntimeStatus();
 
@@ -33,6 +34,7 @@ private:
     QLineEdit* m_manifestUrl;
 
     QComboBox* m_modelCombo;
+    QComboBox* m_deviceCombo;
     QLabel* m_modelStatus;
     QLabel* m_runtimeStatus;
     QLabel* m_deviceStatus;

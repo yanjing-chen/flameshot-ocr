@@ -168,6 +168,101 @@ qint64 verifiedManagedPid()
 
     return pid;
 }
+
+QList<OcrDeviceInfo> probeDevices(const QString& executable)
+{
+    QList<OcrDeviceInfo> devices;
+    if (executable.isEmpty() || !QFileInfo(executable).isExecutable()) {
+        return devices;
+    }
+
+    QProcess probe;
+    probe.start(executable, { QStringLiteral("--list-devices") });
+    if (!probe.waitForStarted(3000) || !probe.waitForFinished(8000)) {
+        return devices;
+    }
+
+    const QString output =
+      QString::fromUtf8(probe.readAllStandardOutput()) +
+      QString::fromUtf8(probe.readAllStandardError());
+
+    const QRegularExpression deviceExpression(
+      QStringLiteral(
+        R"(((?:CUDA|Vulkan)\d+):\s*(.*?)(?=\s+(?:CUDA|Vulkan)\d+:|\r?\n|$))"),
+      QRegularExpression::CaseInsensitiveOption);
+
+    auto matches = deviceExpression.globalMatch(output);
+    while (matches.hasNext()) {
+        const auto match = matches.next();
+
+        OcrDeviceInfo device;
+        device.id = match.captured(1).trimmed();
+        device.backend =
+          device.id.startsWith(QStringLiteral("CUDA"), Qt::CaseInsensitive)
+            ? QStringLiteral("CUDA")
+            : QStringLiteral("Vulkan");
+        device.name = match.captured(2).trimmed();
+
+        device.name.remove(QRegularExpression(
+          QStringLiteral(
+            R"(\s+\(\d+\s+MiB,\s+\d+\s+MiB\s+free\)\s*$)"),
+          QRegularExpression::CaseInsensitiveOption));
+
+        if (device.name.isEmpty()) {
+            device.name = device.id;
+        }
+
+        bool duplicate = false;
+        for (const auto& existing : devices) {
+            if (existing.id.compare(device.id, Qt::CaseInsensitive) == 0) {
+                duplicate = true;
+                break;
+            }
+        }
+        if (!duplicate) {
+            devices.append(device);
+        }
+    }
+
+    return devices;
+}
+
+int automaticDeviceScore(const OcrDeviceInfo& device)
+{
+    if (device.backend.compare(QStringLiteral("CUDA"), Qt::CaseInsensitive) ==
+        0) {
+        return 5000;
+    }
+
+    const QString name = device.name.toLower();
+    if (name.contains(QStringLiteral("nvidia"))) {
+        return 4000;
+    }
+    if (name.contains(QStringLiteral("amd")) ||
+        name.contains(QStringLiteral("radeon"))) {
+        return 3000;
+    }
+    if (name.contains(QStringLiteral("intel"))) {
+        return 2000;
+    }
+    return 1000;
+}
+
+QString bestAutomaticDevice(const QList<OcrDeviceInfo>& devices)
+{
+    QString best;
+    int bestScore = -1;
+
+    for (const auto& device : devices) {
+        const int score = automaticDeviceScore(device);
+        if (score > bestScore) {
+            bestScore = score;
+            best = device.id;
+        }
+    }
+
+    return best;
+}
 }
 
 OcrManager* OcrManager::instance()
@@ -516,36 +611,89 @@ QString OcrManager::activePrompt() const
     return prompt.isEmpty() ? QStringLiteral("OCR:") : prompt;
 }
 
+QList<OcrDeviceInfo> OcrManager::availableDevices() const
+{
+    QStringList candidates;
+
+    auto appendExecutable = [&candidates](const QString& path) {
+        if (!path.isEmpty() && QFileInfo(path).isExecutable() &&
+            !candidates.contains(path)) {
+            candidates.append(path);
+        }
+    };
+
+    const QString configured = ConfigHandler().ocrServerPath().trimmed();
+    appendExecutable(configured);
+
+    const QString userRuntimeRoot =
+      QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
+      QStringLiteral("/flameshot-ocr/runtime");
+    const QString packagedRuntimeRoot = QDir::cleanPath(
+      QDir(QCoreApplication::applicationDirPath())
+        .filePath(QStringLiteral("../lib/flameshot-ocr/runtime")));
+
+    const QStringList roots = { userRuntimeRoot, packagedRuntimeRoot };
+    const QStringList runtimeNames = {
+        QStringLiteral("llama-server-cuda"),
+        QStringLiteral("llama-server-vulkan"),
+        QStringLiteral("llama-server")
+    };
+
+    for (const QString& root : roots) {
+        for (const QString& name : runtimeNames) {
+            appendExecutable(QDir(root).filePath(name));
+        }
+    }
+
+    appendExecutable(QDir::homePath() +
+                     QStringLiteral("/llama.cpp/build/bin/llama-server"));
+    appendExecutable(
+      QStandardPaths::findExecutable(QStringLiteral("llama-server")));
+
+    QList<OcrDeviceInfo> result;
+    for (const QString& executable : candidates) {
+        const auto probed = probeDevices(executable);
+        for (const auto& device : probed) {
+            bool duplicate = false;
+            for (const auto& existing : result) {
+                if (existing.id.compare(device.id, Qt::CaseInsensitive) == 0) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                result.append(device);
+            }
+        }
+    }
+
+    return result;
+}
+
 QString OcrManager::chooseDevice(const QString& executable) const
 {
-    if (executable.isEmpty()) {
+    const QString preference = ConfigHandler().ocrDeviceId().trimmed();
+
+    if (preference.compare(QStringLiteral("cpu"), Qt::CaseInsensitive) == 0) {
         return {};
     }
 
-    QProcess probe;
-    probe.start(executable, { QStringLiteral("--list-devices") });
-    if (!probe.waitForStarted(3000) || !probe.waitForFinished(8000)) {
+    const QList<OcrDeviceInfo> devices = probeDevices(executable);
+    if (devices.isEmpty()) {
         return {};
     }
 
-    const QString output =
-      QString::fromUtf8(probe.readAllStandardOutput()) +
-      QString::fromUtf8(probe.readAllStandardError());
-
-    // Prefer NVIDIA CUDA, then Vulkan (AMD/Intel/NVIDIA), then CPU fallback.
-    QRegularExpression cuda(QStringLiteral(R"((CUDA\d+):)"));
-    auto match = cuda.match(output);
-    if (match.hasMatch()) {
-        return match.captured(1);
+    if (!preference.isEmpty() &&
+        preference.compare(QStringLiteral("auto"), Qt::CaseInsensitive) != 0) {
+        for (const auto& device : devices) {
+            if (device.id.compare(preference, Qt::CaseInsensitive) == 0) {
+                return device.id;
+            }
+        }
+        return {};
     }
 
-    QRegularExpression vulkan(QStringLiteral(R"((Vulkan\d+):)"));
-    match = vulkan.match(output);
-    if (match.hasMatch()) {
-        return match.captured(1);
-    }
-
-    return {};
+    return bestAutomaticDevice(devices);
 }
 
 QString OcrManager::detectedDevice() const

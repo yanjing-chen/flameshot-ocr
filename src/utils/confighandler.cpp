@@ -144,6 +144,7 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("ocrModelRoot"               ,String             ( ""            )),
     OPTION("ocrModelId"                 ,String             ( "paddleocr-vl-1.6" )),
     OPTION("ocrManifestUrl"             ,String             ( ""            )),
+    OPTION("ocrDeviceId"                ,String             ( "auto"        )),
     OPTION("ocrAutoStartServer"         ,Bool               ( true          )),
     OPTION("ocrAutoCheckModelUpdates"   ,Bool               ( true          )),
 #if defined(Q_OS_WIN)

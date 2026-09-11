@@ -52,6 +52,9 @@ OcrConf::OcrConf(QWidget* parent)
     serverPathLayout->addWidget(browseServer);
     serviceForm->addRow(tr("llama-server:"), serverPathRow);
 
+    m_deviceCombo = new QComboBox(serviceBox);
+    serviceForm->addRow(tr("Inference device:"), m_deviceCombo);
+
     m_autoStart = new QCheckBox(
       tr("Automatically start the local OCR service when OCR is used"),
       serviceBox);
@@ -156,6 +159,7 @@ OcrConf::OcrConf(QWidget* parent)
     });
     connect(m_serverPath, &QLineEdit::editingFinished, this, [this]() {
         ConfigHandler().setOcrServerPath(m_serverPath->text().trimmed());
+        rebuildDeviceList();
         refreshRuntimeStatus();
     });
     connect(browseServer, &QPushButton::clicked, this, [this]() {
@@ -164,6 +168,7 @@ OcrConf::OcrConf(QWidget* parent)
         if (!path.isEmpty()) {
             m_serverPath->setText(path);
             ConfigHandler().setOcrServerPath(path);
+            rebuildDeviceList();
             refreshRuntimeStatus();
         }
     });
@@ -184,6 +189,19 @@ OcrConf::OcrConf(QWidget* parent)
             refreshModelStatus();
         }
     });
+
+    connect(m_deviceCombo,
+            &QComboBox::currentIndexChanged,
+            this,
+            [this](int index) {
+                if (index < 0) {
+                    return;
+                }
+
+                ConfigHandler().setOcrDeviceId(
+                  m_deviceCombo->itemData(index).toString());
+                refreshRuntimeStatus();
+            });
 
     connect(m_modelCombo,
             &QComboBox::currentIndexChanged,
@@ -350,6 +368,38 @@ void OcrConf::rebuildModelList()
     }
 }
 
+void OcrConf::rebuildDeviceList()
+{
+    QString selected = ConfigHandler().ocrDeviceId().trimmed();
+    if (selected.isEmpty()) {
+        selected = QStringLiteral("auto");
+    }
+
+    const QSignalBlocker blocker(m_deviceCombo);
+    m_deviceCombo->clear();
+
+    m_deviceCombo->addItem(tr("Automatic (recommended)"),
+                           QStringLiteral("auto"));
+
+    const auto devices = OcrManager::instance()->availableDevices();
+    for (const auto& device : devices) {
+        const QString label =
+          tr("%1 — %2 [%3]").arg(device.name, device.backend, device.id);
+        m_deviceCombo->addItem(label, device.id);
+    }
+
+    m_deviceCombo->addItem(tr("CPU"), QStringLiteral("cpu"));
+
+    int index = m_deviceCombo->findData(selected);
+    if (index < 0) {
+        m_deviceCombo->addItem(
+          tr("%1 (currently unavailable)").arg(selected), selected);
+        index = m_deviceCombo->count() - 1;
+    }
+
+    m_deviceCombo->setCurrentIndex(index);
+}
+
 void OcrConf::refreshModelStatus()
 {
     const OcrModelInfo model = OcrManager::instance()->activeModel();
@@ -367,10 +417,19 @@ void OcrConf::refreshModelStatus()
 void OcrConf::refreshRuntimeStatus()
 {
     const QString executable = OcrManager::instance()->serverExecutable();
+    const QString preference = ConfigHandler().ocrDeviceId().trimmed();
+    const bool automatic =
+      preference.isEmpty() ||
+      preference.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0;
+
     m_deviceStatus->setText(
       executable.isEmpty()
         ? tr("llama-server not found")
-        : tr("%1 (auto-selected)").arg(OcrManager::instance()->detectedDevice()));
+        : automatic
+            ? tr("%1 (auto-selected)")
+                .arg(OcrManager::instance()->detectedDevice())
+            : tr("%1 (manually selected)")
+                .arg(OcrManager::instance()->detectedDevice()));
 
     if (OcrManager::instance()->managedServerRunning()) {
         m_runtimeStatus->setText(tr("Managed llama-server process is running"));
@@ -379,9 +438,10 @@ void OcrConf::refreshRuntimeStatus()
           tr("No managed process (an external server may still be running)"));
     }
 
-    m_startButton->setEnabled(
-      !OcrManager::instance()->managedServerRunning());
-    m_stopButton->setEnabled(OcrManager::instance()->managedServerRunning());
+    const bool managed = OcrManager::instance()->managedServerRunning();
+    m_startButton->setEnabled(!managed);
+    m_stopButton->setEnabled(managed);
+    m_deviceCombo->setEnabled(!managed);
 }
 
 void OcrConf::updateComponents()
@@ -417,6 +477,7 @@ void OcrConf::updateComponents()
     }
 
     rebuildModelList();
+    rebuildDeviceList();
     refreshModelStatus();
     refreshRuntimeStatus();
 

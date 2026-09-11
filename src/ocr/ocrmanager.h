@@ -26,6 +26,13 @@ struct OcrModelInfo
     bool verified{ false };
 };
 
+struct OcrDeviceInfo
+{
+    QString id;
+    QString name;
+    QString backend;
+};
+
 class OcrManager : public QObject
 {
     Q_OBJECT
@@ -49,6 +56,7 @@ public:
     QUrl healthEndpoint() const;
     QUrl chatEndpoint() const;
     QString activePrompt() const;
+    QList<OcrDeviceInfo> availableDevices() const;
     QString detectedDevice() const;
 
     bool startServer(QString* error = nullptr);

@@ -147,6 +147,7 @@ public:
     CONFIG_GETTER_SETTER(ocrModelRoot, setOcrModelRoot, QString)
     CONFIG_GETTER_SETTER(ocrModelId, setOcrModelId, QString)
     CONFIG_GETTER_SETTER(ocrManifestUrl, setOcrManifestUrl, QString)
+    CONFIG_GETTER_SETTER(ocrDeviceId, setOcrDeviceId, QString)
     CONFIG_GETTER_SETTER(ocrAutoStartServer, setOcrAutoStartServer, bool)
     CONFIG_GETTER_SETTER(ocrAutoCheckModelUpdates,
                          setOcrAutoCheckModelUpdates,
