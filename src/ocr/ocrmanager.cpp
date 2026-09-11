@@ -473,6 +473,14 @@ QString OcrManager::serverExecutable() const
       QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
       QStringLiteral("/flameshot-ocr/runtime");
 
+    // Versioned CUDA runtime layout:
+    //   runtime/cuda/<version>/
+    //   runtime/cuda/current -> <version>
+    // The "current" symlink lets the runtime manager switch versions
+    // atomically without replacing files that may still be in use.
+    const QString userCudaCurrentRoot =
+      QDir(userRuntimeRoot).filePath(QStringLiteral("cuda/current"));
+
     // AppImage layout:
     //   AppDir/usr/bin/flameshot
     //   AppDir/usr/lib/flameshot-ocr/runtime/llama-server-*
@@ -481,8 +489,9 @@ QString OcrManager::serverExecutable() const
         .filePath(QStringLiteral("../lib/flameshot-ocr/runtime")));
 
     QStringList runtimeRoots;
-    runtimeRoots << userRuntimeRoot;
-    if (packagedRuntimeRoot != userRuntimeRoot) {
+    runtimeRoots << userCudaCurrentRoot << userRuntimeRoot;
+    if (packagedRuntimeRoot != userRuntimeRoot &&
+        packagedRuntimeRoot != userCudaCurrentRoot) {
         runtimeRoots << packagedRuntimeRoot;
     }
 
@@ -628,11 +637,15 @@ QList<OcrDeviceInfo> OcrManager::availableDevices() const
     const QString userRuntimeRoot =
       QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
       QStringLiteral("/flameshot-ocr/runtime");
+    const QString userCudaCurrentRoot =
+      QDir(userRuntimeRoot).filePath(QStringLiteral("cuda/current"));
     const QString packagedRuntimeRoot = QDir::cleanPath(
       QDir(QCoreApplication::applicationDirPath())
         .filePath(QStringLiteral("../lib/flameshot-ocr/runtime")));
 
-    const QStringList roots = { userRuntimeRoot, packagedRuntimeRoot };
+    const QStringList roots = {
+        userCudaCurrentRoot, userRuntimeRoot, packagedRuntimeRoot
+    };
     const QStringList runtimeNames = {
         QStringLiteral("llama-server-cuda"),
         QStringLiteral("llama-server-vulkan"),
