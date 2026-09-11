@@ -30,7 +30,7 @@ jobs:
           rm -rf "$GITHUB_WORKSPACE/runtime-cuda-test"
           mkdir -p "$GITHUB_WORKSPACE/runtime-cuda-test"
 
-          docker run --rm \
+          docker run --rm -i \
             -e LLAMA_CPP_REF="$LLAMA_CPP_REF" \
             -v "$GITHUB_WORKSPACE:/workspace" \
             -w /workspace \
