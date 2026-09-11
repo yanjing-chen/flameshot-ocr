@@ -94,6 +94,12 @@ jobs:
 
           DESTDIR="$APPDIR" cmake --install build-appimage
 
+          # Fail the AppImage build immediately if Flameshot translations were
+          # not installed into the portable AppDir.
+          test -s "$APPDIR/usr/share/flameshot/translations/Internationalization_zh_CN.qm"
+          echo "AppImage translation payload:"
+          ls -lh "$APPDIR/usr/share/flameshot/translations/Internationalization_zh_CN.qm"
+
           rm -rf "$APPDIR/usr/include"
           rm -rf "$APPDIR/usr/lib"
 
