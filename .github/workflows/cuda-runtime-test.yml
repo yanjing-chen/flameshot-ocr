@@ -1,0 +1,130 @@
+name: Build CUDA Runtime Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LLAMA_CPP_REF: "72797e891"
+  CUDA_IMAGE: "nvidia/cuda:12.8.1-devel-ubuntu24.04"
+
+jobs:
+  cuda-runtime:
+    name: CUDA 12.8 runtime / RTX 30 test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Build llama-server CUDA runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -rf "$GITHUB_WORKSPACE/runtime-cuda-test"
+          mkdir -p "$GITHUB_WORKSPACE/runtime-cuda-test"
+
+          docker run --rm \
+            -e LLAMA_CPP_REF="$LLAMA_CPP_REF" \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -w /workspace \
+            "$CUDA_IMAGE" \
+            bash -lc '
+              set -euo pipefail
+              export DEBIAN_FRONTEND=noninteractive
+
+              apt-get update -qq
+              apt-get install -y --no-install-recommends \
+                ca-certificates cmake build-essential git file binutils
+
+              WORK=/tmp/flameshot-ocr-llama-cuda
+              rm -rf "$WORK"
+              mkdir -p "$WORK"
+
+              echo "CUDA compiler:"
+              nvcc --version
+
+              echo
+              echo "Building llama.cpp revision: $LLAMA_CPP_REF"
+              git clone --filter=blob:none \
+                https://github.com/ggml-org/llama.cpp.git \
+                "$WORK/llama.cpp"
+              git -C "$WORK/llama.cpp" checkout "$LLAMA_CPP_REF"
+
+              cmake \
+                -S "$WORK/llama.cpp" \
+                -B "$WORK/build-cuda" \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DGGML_NATIVE=OFF \
+                -DBUILD_SHARED_LIBS=OFF \
+                -DLLAMA_CURL=OFF \
+                -DLLAMA_BUILD_TESTS=OFF \
+                -DLLAMA_BUILD_EXAMPLES=OFF \
+                -DGGML_VULKAN=OFF \
+                -DGGML_CUDA=ON \
+                -DGGML_CUDA_NCCL=OFF \
+                -DCMAKE_CUDA_ARCHITECTURES=86
+
+              cmake --build "$WORK/build-cuda" \
+                --target llama-server \
+                -j"$(nproc)"
+
+              cp "$WORK/build-cuda/bin/llama-server" \
+                /workspace/runtime-cuda-test/llama-server-cuda
+              chmod 0755 /workspace/runtime-cuda-test/llama-server-cuda
+
+              if command -v strip >/dev/null 2>&1; then
+                strip --strip-unneeded \
+                  /workspace/runtime-cuda-test/llama-server-cuda || true
+              fi
+
+              nvcc --version \
+                > /workspace/runtime-cuda-test/cuda-toolkit.txt
+
+              {
+                echo "llama.cpp revision: $LLAMA_CPP_REF"
+                echo "CUDA image: nvidia/cuda:12.8.1-devel-ubuntu24.04"
+                echo "CUDA architectures: 86"
+                echo "Build shared libs: OFF"
+                echo "GGML CUDA: ON"
+              } > /workspace/runtime-cuda-test/build-info.txt
+
+              ldd /workspace/runtime-cuda-test/llama-server-cuda \
+                > /workspace/runtime-cuda-test/ldd-build.txt || true
+
+              file /workspace/runtime-cuda-test/llama-server-cuda \
+                > /workspace/runtime-cuda-test/file-info.txt
+
+              chmod -R a+rX /workspace/runtime-cuda-test
+            '
+
+          echo
+          echo "===== CUDA test runtime ====="
+          ls -lh "$GITHUB_WORKSPACE/runtime-cuda-test"
+
+          echo
+          echo "===== Binary type ====="
+          cat "$GITHUB_WORKSPACE/runtime-cuda-test/file-info.txt"
+
+          echo
+          echo "===== Build-container dependencies ====="
+          cat "$GITHUB_WORKSPACE/runtime-cuda-test/ldd-build.txt"
+
+          echo
+          echo "===== SHA256 ====="
+          sha256sum "$GITHUB_WORKSPACE/runtime-cuda-test/llama-server-cuda" \
+            | tee "$GITHUB_WORKSPACE/runtime-cuda-test/llama-server-cuda.sha256sum"
+
+      - name: Upload CUDA test artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Flameshot-OCR-CUDA12.8-sm86-test-${{ github.sha }}
+          path: runtime-cuda-test/
+          if-no-files-found: error
+          retention-days: 3
