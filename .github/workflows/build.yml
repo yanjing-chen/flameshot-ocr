@@ -98,6 +98,24 @@ jobs:
           rm -rf "$APPDIR/usr/lib"
 
           mkdir -p "$APPDIR/usr/lib/flameshot-ocr/runtime"
+
+          # Qt's OpenSSL TLS backend loads libssl dynamically. linuxdeploy can
+          # include libcrypto without libssl, causing a host/AppImage OpenSSL
+          # version mismatch on newer Ubuntu releases. Bundle libssl.so.3 and
+          # libcrypto.so.3 from the SAME build image.
+          MULTIARCH="$(gcc -print-multiarch)"
+          SSL_LIB="/usr/lib/${MULTIARCH}/libssl.so.3"
+          CRYPTO_LIB="/usr/lib/${MULTIARCH}/libcrypto.so.3"
+
+          test -s "$SSL_LIB"
+          test -s "$CRYPTO_LIB"
+
+          mkdir -p "$APPDIR/usr/lib"
+          cp -L "$SSL_LIB" "$APPDIR/usr/lib/libssl.so.3"
+          cp -L "$CRYPTO_LIB" "$APPDIR/usr/lib/libcrypto.so.3"
+
+          echo "Bundled OpenSSL libraries:"
+          ls -lh "$APPDIR/usr/lib/libssl.so.3" "$APPDIR/usr/lib/libcrypto.so.3"
           cp runtime-build/llama-server-vulkan \
              "$APPDIR/usr/lib/flameshot-ocr/runtime/llama-server-vulkan"
           cp runtime-build/llama-server-cpu \
