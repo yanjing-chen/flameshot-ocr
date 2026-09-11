@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build llama-server CUDA runtime
+      - name: Build self-contained llama-server CUDA runtime
         shell: bash
         run: |
           set -euo pipefail
@@ -75,14 +75,38 @@ jobs:
                 --target llama-server \
                 -j"$(nproc)"
 
+              mkdir -p /workspace/runtime-cuda-test/lib
+
               cp "$WORK/build-cuda/bin/llama-server" \
-                /workspace/runtime-cuda-test/llama-server-cuda
-              chmod 0755 /workspace/runtime-cuda-test/llama-server-cuda
+                /workspace/runtime-cuda-test/llama-server-cuda.bin
+              chmod 0755 /workspace/runtime-cuda-test/llama-server-cuda.bin
 
               if command -v strip >/dev/null 2>&1; then
                 strip --strip-unneeded \
-                  /workspace/runtime-cuda-test/llama-server-cuda || true
+                  /workspace/runtime-cuda-test/llama-server-cuda.bin || true
               fi
+
+              # Bundle CUDA user-space libraries required by llama-server.
+              # libcuda.so.1 is intentionally not bundled; it is supplied by
+              # the host NVIDIA driver.
+              ldd /workspace/runtime-cuda-test/llama-server-cuda.bin \
+                | awk '"'"'$3 ~ "^/usr/local/cuda/" { print $3 }'"'"' \
+                | sort -u \
+                > /tmp/flameshot-cuda-libs.txt
+
+              while IFS= read -r lib; do
+                [[ -n "$lib" ]] || continue
+                cp -L "$lib" /workspace/runtime-cuda-test/lib/
+              done < /tmp/flameshot-cuda-libs.txt
+
+              cat > /workspace/runtime-cuda-test/llama-server-cuda <<'"'"'WRAPPER'"'"'
+#!/usr/bin/env bash
+set -euo pipefail
+DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+export LD_LIBRARY_PATH="$DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec "$DIR/llama-server-cuda.bin" "$@"
+WRAPPER
+              chmod 0755 /workspace/runtime-cuda-test/llama-server-cuda
 
               nvcc --version \
                 > /workspace/runtime-cuda-test/cuda-toolkit.txt
@@ -95,10 +119,20 @@ jobs:
                 echo "GGML CUDA: ON"
               } > /workspace/runtime-cuda-test/build-info.txt
 
-              ldd /workspace/runtime-cuda-test/llama-server-cuda \
+              {
+                echo "Bundled CUDA user-space libraries:"
+                find /workspace/runtime-cuda-test/lib \
+                  -maxdepth 1 -type f -printf "%f\n" | sort
+                echo
+                echo "Host requirement:"
+                echo "libcuda.so.1 from the NVIDIA driver"
+              } > /workspace/runtime-cuda-test/bundled-libs.txt
+
+              LD_LIBRARY_PATH=/workspace/runtime-cuda-test/lib \
+                ldd /workspace/runtime-cuda-test/llama-server-cuda.bin \
                 > /workspace/runtime-cuda-test/ldd-build.txt || true
 
-              file /workspace/runtime-cuda-test/llama-server-cuda \
+              file /workspace/runtime-cuda-test/llama-server-cuda.bin \
                 > /workspace/runtime-cuda-test/file-info.txt
 
               chmod -R a+rX /workspace/runtime-cuda-test
@@ -106,25 +140,30 @@ jobs:
 
           echo
           echo "===== CUDA test runtime ====="
-          ls -lh "$GITHUB_WORKSPACE/runtime-cuda-test"
+          du -sh "$GITHUB_WORKSPACE/runtime-cuda-test"
+          find "$GITHUB_WORKSPACE/runtime-cuda-test" \
+            -maxdepth 2 -type f -printf "%p\t%k KB\n" | sort
 
           echo
-          echo "===== Binary type ====="
-          cat "$GITHUB_WORKSPACE/runtime-cuda-test/file-info.txt"
+          echo "===== Bundled CUDA libraries ====="
+          cat "$GITHUB_WORKSPACE/runtime-cuda-test/bundled-libs.txt"
 
           echo
-          echo "===== Build-container dependencies ====="
+          echo "===== Dependencies with bundled libraries ====="
           cat "$GITHUB_WORKSPACE/runtime-cuda-test/ldd-build.txt"
 
           echo
           echo "===== SHA256 ====="
-          sha256sum "$GITHUB_WORKSPACE/runtime-cuda-test/llama-server-cuda" \
-            | tee "$GITHUB_WORKSPACE/runtime-cuda-test/llama-server-cuda.sha256sum"
+          (
+            cd "$GITHUB_WORKSPACE/runtime-cuda-test"
+            sha256sum llama-server-cuda llama-server-cuda.bin lib/* \
+              | tee SHA256SUMS
+          )
 
       - name: Upload CUDA test artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Flameshot-OCR-CUDA12.8-sm86-test-${{ github.sha }}
+          name: Flameshot-OCR-CUDA12.8-sm86-selfcontained-${{ github.sha }}
           path: runtime-cuda-test/
           if-no-files-found: error
           retention-days: 3
