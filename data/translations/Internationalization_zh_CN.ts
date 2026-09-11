@@ -3673,6 +3673,26 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <source>%1 — update available</source>
         <translation>%1 — 有可用更新</translation>
     </message>
+
+    <message>
+        <source>Inference device:</source>
+        <translation>推理设备：</translation>
+    </message>
+
+    <message>
+        <source>Automatic (recommended)</source>
+        <translation>自动（推荐）</translation>
+    </message>
+
+    <message>
+        <source>%1 (currently unavailable)</source>
+        <translation>%1（当前不可用）</translation>
+    </message>
+
+    <message>
+        <source>%1 (manually selected)</source>
+        <translation>%1（手动选择）</translation>
+    </message>
 </context>
 <context>
     <name>OcrManager</name>

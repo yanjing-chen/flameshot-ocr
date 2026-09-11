@@ -10,6 +10,7 @@
 #include <QComboBox>
 #include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -454,10 +455,15 @@ void OcrConf::updateComponents()
     }
     {
         const QSignalBlocker blocker(m_serverPath);
-        const QString configured = config.ocrServerPath();
-        m_serverPath->setText(
-          configured.isEmpty() ? OcrManager::instance()->serverExecutable()
-                               : configured);
+        const QString configured = config.ocrServerPath().trimmed();
+        const bool configuredUsable =
+          !configured.isEmpty() && QFileInfo(configured).isExecutable();
+        const QString resolved = OcrManager::instance()->serverExecutable();
+
+        // Do not display a stale remembered path (for example /usr/lib from a
+        // previously installed .deb) when the AppImage is actually using its
+        // own bundled runtime.
+        m_serverPath->setText(configuredUsable ? configured : resolved);
     }
     {
         const QSignalBlocker blocker(m_modelRoot);
