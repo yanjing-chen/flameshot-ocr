@@ -64,6 +64,8 @@ public:
     QString cudaRuntimeVersion() const;
     bool cudaRuntimeBusy() const;
     bool cudaRuntimeUpdateAvailable() const;
+    qint64 cudaRuntimeDownloadSize() const;
+    qint64 cudaRuntimeInstalledSize() const;
 
     void checkCudaRuntimeUpdates(
       QObject* context,
@@ -165,9 +167,12 @@ private:
                                     const QString& previousVersion,
                                     const QString& archivePath);
     void stopCudaRuntimeSelfTestProcess();
-    void finishCudaRuntimeInstall(const QString& archivePath);
+    void finishCudaRuntimeInstall(const QString& previousVersion,
+                                  const QString& archivePath);
     void failCudaRuntimeSelfTest(const QString& reason,
                                  const QString& previousVersion);
+    bool recordPreviousCudaRuntime(const QString& previousVersion,
+                                   QString* error = nullptr);
     bool rollbackCudaRuntime(const QString& previousVersion,
                              QString* error = nullptr);
     void failCudaRuntime(const QString& message);

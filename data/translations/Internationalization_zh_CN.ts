@@ -3767,6 +3767,16 @@ Installed size: approximately 899 MB</source>
         <source>Not installed. NVIDIA Vulkan remains available as fallback.</source>
         <translation>未安装。仍可使用 NVIDIA Vulkan 作为备用方案。</translation>
     </message>
+    <message>
+        <source>Download and install the verified CUDA runtime?
+
+Download size: %1
+Installed size: %2</source>
+        <translation>是否下载并安装已验证的 CUDA 运行环境？
+
+下载大小：%1
+安装后大小：%2</translation>
+    </message>
 </context>
 <context>
     <name>OcrManager</name>
@@ -4133,6 +4143,18 @@ The new runtime was deactivated.</source>
 Rolled back to %2.</source>
         <translation>CUDA 运行环境安装后验证失败：%1
 已回滚到 %2。</translation>
+    </message>
+    <message>
+        <source>The new CUDA runtime passed verification, but the rollback state could not be recorded: %1
+Rolled back to %2.</source>
+        <translation>新的 CUDA 运行环境已通过验证，但无法记录回滚状态：%1
+已回滚到 %2。</translation>
+    </message>
+    <message>
+        <source>The new CUDA runtime passed verification, but the rollback state could not be recorded: %1
+Automatic rollback also failed: %2</source>
+        <translation>新的 CUDA 运行环境已通过验证，但无法记录回滚状态：%1
+自动回滚也失败：%2</translation>
     </message>
 </context>
 </TS>

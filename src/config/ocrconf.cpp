@@ -3,6 +3,8 @@
 
 #include "ocrconf.h"
 
+#include <QLocale>
+
 #include "ocr/ocrmanager.h"
 #include "utils/confighandler.h"
 
@@ -301,12 +303,32 @@ OcrConf::OcrConf(QWidget* parent)
             });
 
     connect(m_installCudaButton, &QPushButton::clicked, this, [this]() {
+        auto* manager = OcrManager::instance();
+
+        const QString downloadSize =
+          QLocale().formattedDataSize(
+            manager->cudaRuntimeDownloadSize(),
+            1,
+            QLocale::DataSizeTraditionalFormat);
+
+        const QString installedSize =
+          QLocale().formattedDataSize(
+            manager->cudaRuntimeInstalledSize(),
+            1,
+            QLocale::DataSizeTraditionalFormat);
+
+        const QString title =
+          manager->cudaRuntimeUpdateAvailable()
+            ? tr("Update CUDA runtime")
+            : tr("Install CUDA runtime");
+
         if (QMessageBox::question(
               this,
-              tr("Install CUDA runtime"),
+              title,
               tr("Download and install the verified CUDA runtime?\n\n"
-                 "Download size: approximately 492 MB\n"
-                 "Installed size: approximately 899 MB"),
+                 "Download size: %1\n"
+                 "Installed size: %2")
+                .arg(downloadSize, installedSize),
               QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
             return;
         }

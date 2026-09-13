@@ -1126,6 +1126,32 @@ bool OcrManager::cudaRuntimeUpdateAvailable() const
            m_cudaRuntimeInfo.version.trimmed();
 }
 
+qint64 OcrManager::cudaRuntimeDownloadSize() const
+{
+    const CudaRuntimeInfo info =
+      m_cudaRuntimeInfo.isValid()
+        ? m_cudaRuntimeInfo
+        : builtInCudaRuntimeInfo();
+
+    return info.archiveSize;
+}
+
+qint64 OcrManager::cudaRuntimeInstalledSize() const
+{
+    const CudaRuntimeInfo info =
+      m_cudaRuntimeInfo.isValid()
+        ? m_cudaRuntimeInfo
+        : builtInCudaRuntimeInfo();
+
+    qint64 total = 0;
+
+    for (const CudaRuntimeFileInfo& file : info.requiredFiles) {
+        total += file.size;
+    }
+
+    return total;
+}
+
 void OcrManager::checkCudaRuntimeUpdates(
   QObject* context,
   std::function<void(bool, const QString&)> callback)
@@ -1814,10 +1840,6 @@ void OcrManager::startCudaRuntimeExtraction(const QString& archivePath)
             QDir(base).filePath(QStringLiteral("current"));
           const QString currentNew =
             QDir(base).filePath(QStringLiteral(".current-new"));
-          const QString previous =
-            QDir(base).filePath(QStringLiteral("previous"));
-          const QString previousNew =
-            QDir(base).filePath(QStringLiteral(".previous-new"));
 
           const QFileInfo currentInfo(current);
           if (currentInfo.exists() && !currentInfo.isSymLink()) {
@@ -1840,44 +1862,10 @@ void OcrManager::startCudaRuntimeExtraction(const QString& archivePath)
               }
           }
 
-          // Before activating an upgrade, atomically remember the old runtime
-          // as "previous". First installations have no old current symlink and
-          // therefore do not create a previous link.
-          if (!oldVersionName.isEmpty() &&
-              oldVersionName != versionName) {
-              const QFileInfo previousInfo(previous);
-
-              if (previousInfo.exists() && !previousInfo.isSymLink()) {
-                  failCudaRuntime(
-                    tr("The CUDA runtime 'previous' path is not a symbolic link."));
-                  return;
-              }
-
-              QFile::remove(previousNew);
-
-              const QByteArray oldTargetNative =
-                QFile::encodeName(oldVersionName);
-              const QByteArray previousNewNative =
-                QFile::encodeName(previousNew);
-              const QByteArray previousNative =
-                QFile::encodeName(previous);
-
-              if (::symlink(oldTargetNative.constData(),
-                            previousNewNative.constData()) != 0) {
-                  failCudaRuntime(
-                    tr("Could not create the CUDA runtime rollback link."));
-                  return;
-              }
-
-              if (::rename(previousNewNative.constData(),
-                           previousNative.constData()) != 0) {
-                  QFile::remove(previousNew);
-                  failCudaRuntime(
-                    tr("Could not record the previous CUDA runtime."));
-                  return;
-              }
-          }
-
+          // Do not change "previous" yet. The old current version is kept in
+          // oldVersionName and becomes "previous" only after the new runtime
+          // has passed the isolated post-install health test. This preserves
+          // the existing rollback history when an upgrade fails.
           QFile::remove(currentNew);
 
           const QByteArray targetNative =
@@ -1940,7 +1928,7 @@ void OcrManager::startCudaRuntimeSelfTest(
     // verification. If no OCR model is installed yet, there is nothing that
     // can be loaded for a full HTTP health test.
     if (!modelInstalled(model)) {
-        finishCudaRuntimeInstall(archivePath);
+        finishCudaRuntimeInstall(previousVersion, archivePath);
         return;
     }
 
@@ -2069,7 +2057,7 @@ void OcrManager::waitForCudaRuntimeSelfTest(
 
           if (ok) {
               stopCudaRuntimeSelfTestProcess();
-              finishCudaRuntimeInstall(archivePath);
+              finishCudaRuntimeInstall(previousVersion, archivePath);
               return;
           }
 
@@ -2143,6 +2131,73 @@ void OcrManager::stopCudaRuntimeSelfTestProcess()
     m_cudaSelfTestProcess = nullptr;
 }
 
+bool OcrManager::recordPreviousCudaRuntime(
+  const QString& previousVersion,
+  QString* error)
+{
+    if (previousVersion.isEmpty()) {
+        return true;
+    }
+
+    const QString base = cudaRuntimeBaseDir();
+    const QString versionDir =
+      QDir(base).filePath(previousVersion);
+
+    if (!QDir(versionDir).exists()) {
+        if (error) {
+            *error =
+              tr("The previous CUDA runtime is unavailable or invalid.");
+        }
+        return false;
+    }
+
+    const QString previous =
+      QDir(base).filePath(QStringLiteral("previous"));
+    const QString previousNew =
+      QDir(base).filePath(QStringLiteral(".previous-new"));
+
+    const QFileInfo previousInfo(previous);
+
+    if ((previousInfo.exists() || previousInfo.isSymLink()) &&
+        !previousInfo.isSymLink()) {
+        if (error) {
+            *error =
+              tr("The CUDA runtime 'previous' path is not a symbolic link.");
+        }
+        return false;
+    }
+
+    QFile::remove(previousNew);
+
+    const QByteArray targetNative =
+      QFile::encodeName(previousVersion);
+    const QByteArray previousNewNative =
+      QFile::encodeName(previousNew);
+    const QByteArray previousNative =
+      QFile::encodeName(previous);
+
+    if (::symlink(targetNative.constData(),
+                  previousNewNative.constData()) != 0) {
+        if (error) {
+            *error =
+              tr("Could not create the CUDA runtime rollback link.");
+        }
+        return false;
+    }
+
+    if (::rename(previousNewNative.constData(),
+                 previousNative.constData()) != 0) {
+        QFile::remove(previousNew);
+        if (error) {
+            *error =
+              tr("Could not record the previous CUDA runtime.");
+        }
+        return false;
+    }
+
+    return true;
+}
+
 bool OcrManager::rollbackCudaRuntime(
   const QString& previousVersion,
   QString* error)
@@ -2175,25 +2230,27 @@ bool OcrManager::rollbackCudaRuntime(
         return true;
     }
 
-    const QString previous =
-      QDir(base).filePath(QStringLiteral("previous"));
-    const QFileInfo previousInfo(previous);
+    const QString rollbackVersion =
+      previousVersion.trimmed();
+    const QString rollbackRoot =
+      QDir(base).filePath(rollbackVersion);
 
-    if (!previousInfo.isSymLink()) {
+    if (rollbackVersion.isEmpty() ||
+        !QDir(rollbackRoot).exists()) {
         if (error) {
             *error =
-              tr("The CUDA runtime rollback link is unavailable.");
+              tr("The previous CUDA runtime is unavailable or invalid.");
         }
         return false;
     }
 
-    const QString rollbackVersion =
-      QFileInfo(QDir::cleanPath(previousInfo.symLinkTarget()))
-        .fileName();
+    const QString wrapper =
+      QDir(rollbackRoot).filePath(QStringLiteral("llama-server-cuda"));
+    const QString server =
+      QDir(rollbackRoot).filePath(QStringLiteral("llama-server-cuda.bin"));
 
-    if (rollbackVersion.isEmpty() ||
-        rollbackVersion != previousVersion ||
-        !QDir(QDir(base).filePath(rollbackVersion)).exists()) {
+    if (!QFileInfo(wrapper).isExecutable() ||
+        !QFileInfo(server).isExecutable()) {
         if (error) {
             *error =
               tr("The previous CUDA runtime is unavailable or invalid.");
@@ -2236,9 +2293,40 @@ bool OcrManager::rollbackCudaRuntime(
 }
 
 void OcrManager::finishCudaRuntimeInstall(
+  const QString& previousVersion,
   const QString& archivePath)
 {
     stopCudaRuntimeSelfTestProcess();
+
+    if (!previousVersion.isEmpty()) {
+        QString recordError;
+
+        if (!recordPreviousCudaRuntime(
+              previousVersion, &recordError)) {
+            QString rollbackError;
+            const bool rolledBack =
+              rollbackCudaRuntime(
+                previousVersion, &rollbackError);
+
+            emit cudaRuntimeChanged();
+
+            if (rolledBack) {
+                failCudaRuntime(
+                  tr("The new CUDA runtime passed verification, but the "
+                     "rollback state could not be recorded: %1\n"
+                     "Rolled back to %2.")
+                    .arg(recordError, previousVersion));
+            } else {
+                failCudaRuntime(
+                  tr("The new CUDA runtime passed verification, but the "
+                     "rollback state could not be recorded: %1\n"
+                     "Automatic rollback also failed: %2")
+                    .arg(recordError, rollbackError));
+            }
+
+            return;
+        }
+    }
 
     QFile::remove(archivePath);
     m_cudaArchivePath.clear();
