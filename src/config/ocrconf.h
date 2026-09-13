@@ -41,6 +41,7 @@ private:
     QLabel* m_deviceStatus;
     QLabel* m_latestStatus;
     QLabel* m_cudaRuntimeStatus;
+    QLabel* m_cudaUpdateStatus;
     QLabel* m_cudaDownloadLabel;
 
     QCheckBox* m_autoStart;
@@ -55,6 +56,7 @@ private:
     QPushButton* m_checkUpdatesButton;
 
     QPushButton* m_installCudaButton;
+    QPushButton* m_checkCudaUpdatesButton;
     QPushButton* m_cancelCudaButton;
 
     QProgressBar* m_downloadProgress;

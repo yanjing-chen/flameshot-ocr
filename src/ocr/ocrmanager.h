@@ -64,6 +64,10 @@ public:
     QString cudaRuntimeVersion() const;
     bool cudaRuntimeBusy() const;
 
+    void checkCudaRuntimeUpdates(
+      QObject* context,
+      std::function<void(bool, const QString&)> callback);
+
     bool startServer(QString* error = nullptr);
     void stopServer();
     bool managedServerRunning() const;

@@ -3702,6 +3702,18 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <translation>CUDA 运行环境：</translation>
     </message>
     <message>
+        <source>Updates:</source>
+        <translation>更新：</translation>
+    </message>
+    <message>
+        <source>Not checked</source>
+        <translation>未检查</translation>
+    </message>
+    <message>
+        <source>Check CUDA updates</source>
+        <translation>检查 CUDA 更新</translation>
+    </message>
+    <message>
         <source>Install CUDA runtime (~492 MB)</source>
         <translation>安装 CUDA 运行环境（约 492 MB）</translation>
     </message>
@@ -3742,10 +3754,6 @@ Installed size: approximately 899 MB</source>
     <message>
         <source>Installed and verified — %1</source>
         <translation>已安装并通过验证 — %1</translation>
-    </message>
-    <message>
-        <source>unknown version</source>
-        <translation>未知版本</translation>
     </message>
     <message>
         <source>Downloading or installing the CUDA runtime...</source>
@@ -3991,6 +3999,46 @@ Installed size: approximately 899 MB</source>
     <message>
         <source>Could not start CUDA runtime extraction.</source>
         <translation>无法启动 CUDA 运行环境解压过程。</translation>
+    </message>
+    <message>
+        <source>Could not check CUDA runtime updates: %1</source>
+        <translation>无法检查 CUDA 运行环境更新：%1</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime manifest is invalid JSON.</source>
+        <translation>CUDA 运行环境清单不是有效的 JSON。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime manifest uses an unsupported schema version.</source>
+        <translation>CUDA 运行环境清单使用了不受支持的格式版本。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime manifest does not define a latest version.</source>
+        <translation>CUDA 运行环境清单未指定最新版本。</translation>
+    </message>
+    <message>
+        <source>The latest CUDA runtime is not available for Linux x86_64.</source>
+        <translation>最新 CUDA 运行环境不适用于 Linux x86_64。</translation>
+    </message>
+    <message>
+        <source>The latest CUDA runtime entry is incomplete or invalid.</source>
+        <translation>最新 CUDA 运行环境条目信息不完整或无效。</translation>
+    </message>
+    <message>
+        <source>Latest available CUDA runtime: %1</source>
+        <translation>可用的最新 CUDA 运行环境：%1</translation>
+    </message>
+    <message>
+        <source>CUDA runtime %1 is up to date.</source>
+        <translation>CUDA 运行环境 %1 已是最新版本。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime update available: %1 → %2</source>
+        <translation>发现 CUDA 运行环境更新：%1 → %2</translation>
+    </message>
+    <message>
+        <source>unknown version</source>
+        <translation>未知版本</translation>
     </message>
 </context>
 </TS>

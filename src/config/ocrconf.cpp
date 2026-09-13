@@ -91,16 +91,23 @@ OcrConf::OcrConf(QWidget* parent)
     m_cudaRuntimeStatus->setWordWrap(true);
     cudaForm->addRow(tr("CUDA runtime:"), m_cudaRuntimeStatus);
 
+    m_cudaUpdateStatus = new QLabel(tr("Not checked"), cudaBox);
+    m_cudaUpdateStatus->setWordWrap(true);
+    cudaForm->addRow(tr("Updates:"), m_cudaUpdateStatus);
+
     auto* cudaButtons = new QWidget(cudaBox);
     auto* cudaButtonsLayout = new QHBoxLayout(cudaButtons);
     cudaButtonsLayout->setContentsMargins(0, 0, 0, 0);
 
     m_installCudaButton =
       new QPushButton(tr("Install CUDA runtime (~492 MB)"), cudaButtons);
+    m_checkCudaUpdatesButton =
+      new QPushButton(tr("Check CUDA updates"), cudaButtons);
     m_cancelCudaButton =
       new QPushButton(tr("Cancel"), cudaButtons);
 
     cudaButtonsLayout->addWidget(m_installCudaButton);
+    cudaButtonsLayout->addWidget(m_checkCudaUpdatesButton);
     cudaButtonsLayout->addWidget(m_cancelCudaButton);
     cudaButtonsLayout->addStretch();
     cudaForm->addRow(QString(), cudaButtons);
@@ -266,6 +273,27 @@ OcrConf::OcrConf(QWidget* parent)
     connect(m_manifestUrl, &QLineEdit::editingFinished, this, [this]() {
         ConfigHandler().setOcrManifestUrl(m_manifestUrl->text().trimmed());
     });
+
+    connect(m_checkCudaUpdatesButton,
+            &QPushButton::clicked,
+            this,
+            [this]() {
+                m_checkCudaUpdatesButton->setEnabled(false);
+                m_cudaUpdateStatus->setText(tr("Checking..."));
+
+                OcrManager::instance()->checkCudaRuntimeUpdates(
+                  this,
+                  [this](bool ok, const QString& message) {
+                      m_cudaUpdateStatus->setText(message);
+                      m_checkCudaUpdatesButton->setEnabled(
+                        !OcrManager::instance()->cudaRuntimeBusy());
+
+                      if (!ok) {
+                          QMessageBox::warning(
+                            this, tr("CUDA Runtime"), message);
+                      }
+                  });
+            });
 
     connect(m_installCudaButton, &QPushButton::clicked, this, [this]() {
         if (QMessageBox::question(
@@ -578,6 +606,7 @@ void OcrConf::refreshCudaRuntimeStatus()
 
     m_installCudaButton->setEnabled(
       nvidia && !installed && !busy && !managed);
+    m_checkCudaUpdatesButton->setEnabled(!busy);
     m_cancelCudaButton->setEnabled(busy);
 
     m_cudaDownloadLabel->setVisible(busy);

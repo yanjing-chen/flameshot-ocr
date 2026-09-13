@@ -49,6 +49,10 @@ constexpr qint64 CUDA_RUNTIME_ARCHIVE_SIZE = 515204221;
 constexpr auto CUDA_RUNTIME_ARCHIVE_SHA256 =
   "21d4febc94847568194457170f9563371c5e244513087b167164b1e874efda45";
 
+constexpr auto CUDA_RUNTIME_MANIFEST_URL =
+  "https://github.com/yanjing-chen/flameshot-ocr/releases/download/"
+  "cuda-runtime-manifest/cuda-runtimes.json";
+
 constexpr qint64 CUDA_WRAPPER_SIZE = 206;
 constexpr qint64 CUDA_SERVER_SIZE = 73419736;
 constexpr qint64 CUDA_CUDART_SIZE = 728800;
@@ -1049,6 +1053,162 @@ QString OcrManager::cudaRuntimeVersion() const
 bool OcrManager::cudaRuntimeBusy() const
 {
     return m_cudaDownloadReply != nullptr || m_cudaExtractProcess != nullptr;
+}
+
+void OcrManager::checkCudaRuntimeUpdates(
+  QObject* context,
+  std::function<void(bool, const QString&)> callback)
+{
+    if (!context) {
+        return;
+    }
+
+    QPointer<QObject> guard(context);
+
+    QNetworkRequest request(
+      QUrl(QString::fromLatin1(CUDA_RUNTIME_MANIFEST_URL)));
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::NoLessSafeRedirectPolicy);
+
+    QNetworkReply* reply = m_network.get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, guard, callback]() {
+        const auto error = reply->error();
+        const QString errorText = reply->errorString();
+        const QByteArray payload = reply->readAll();
+        reply->deleteLater();
+
+        if (!guard) {
+            return;
+        }
+
+        if (error != QNetworkReply::NoError) {
+            callback(
+              false,
+              tr("Could not check CUDA runtime updates: %1").arg(errorText));
+            return;
+        }
+
+        QJsonParseError parseError;
+        const QJsonDocument doc =
+          QJsonDocument::fromJson(payload, &parseError);
+
+        if (parseError.error != QJsonParseError::NoError ||
+            !doc.isObject()) {
+            callback(false, tr("The CUDA runtime manifest is invalid JSON."));
+            return;
+        }
+
+        const QJsonObject root = doc.object();
+
+        if (root.value(QStringLiteral("schema_version")).toInt(-1) != 1) {
+            callback(
+              false,
+              tr("The CUDA runtime manifest uses an unsupported schema version."));
+            return;
+        }
+
+        const QString latest =
+          root.value(QStringLiteral("latest")).toString().trimmed();
+
+        if (latest.isEmpty()) {
+            callback(
+              false,
+              tr("The CUDA runtime manifest does not define a latest version."));
+            return;
+        }
+
+        QJsonObject latestRuntime;
+        const QJsonArray runtimes =
+          root.value(QStringLiteral("runtimes")).toArray();
+
+        for (const QJsonValue& value : runtimes) {
+            if (!value.isObject()) {
+                continue;
+            }
+
+            const QJsonObject runtime = value.toObject();
+
+            if (runtime.value(QStringLiteral("version")).toString() != latest) {
+                continue;
+            }
+
+            if (runtime.value(QStringLiteral("platform")).toString() !=
+                  QStringLiteral("linux-x86_64") ||
+                runtime.value(QStringLiteral("backend")).toString() !=
+                  QStringLiteral("cuda")) {
+                continue;
+            }
+
+            latestRuntime = runtime;
+            break;
+        }
+
+        if (latestRuntime.isEmpty()) {
+            callback(
+              false,
+              tr("The latest CUDA runtime is not available for Linux x86_64."));
+            return;
+        }
+
+        const QJsonObject archive =
+          latestRuntime.value(QStringLiteral("archive")).toObject();
+
+        const QString archiveUrl =
+          archive.value(QStringLiteral("url")).toString().trimmed();
+        const QString sha256 =
+          archive.value(QStringLiteral("sha256")).toString().trimmed();
+        const qint64 archiveSize =
+          archive.value(QStringLiteral("size")).toVariant().toLongLong();
+
+        const bool validSha256 =
+          QRegularExpression(QStringLiteral("^[0-9a-fA-F]{64}$"))
+            .match(sha256)
+            .hasMatch();
+
+        const QUrl parsedArchiveUrl(archiveUrl);
+
+        if (!parsedArchiveUrl.isValid() ||
+            parsedArchiveUrl.scheme().compare(
+              QStringLiteral("https"), Qt::CaseInsensitive) != 0 ||
+            archiveSize <= 0 || !validSha256) {
+            callback(
+              false,
+              tr("The latest CUDA runtime entry is incomplete or invalid."));
+            return;
+        }
+
+        QString displayVersion =
+          latestRuntime.value(QStringLiteral("display_version"))
+            .toString()
+            .trimmed();
+
+        if (displayVersion.isEmpty()) {
+            displayVersion = latest;
+        }
+
+        if (!cudaRuntimeInstalled()) {
+            callback(
+              true,
+              tr("Latest available CUDA runtime: %1").arg(displayVersion));
+            return;
+        }
+
+        const QString current = cudaRuntimeVersion().trimmed();
+
+        if (current == latest) {
+            callback(
+              true,
+              tr("CUDA runtime %1 is up to date.").arg(displayVersion));
+            return;
+        }
+
+        callback(
+          true,
+          tr("CUDA runtime update available: %1 → %2")
+            .arg(current.isEmpty() ? tr("unknown version") : current,
+                 displayVersion));
+    });
 }
 
 void OcrManager::installCudaRuntime()
