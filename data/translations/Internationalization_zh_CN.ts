@@ -3718,6 +3718,10 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <translation>安装 CUDA 运行环境（约 492 MB）</translation>
     </message>
     <message>
+        <source>Update CUDA runtime</source>
+        <translation>更新 CUDA 运行环境</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
@@ -4039,6 +4043,96 @@ Installed size: approximately 899 MB</source>
     <message>
         <source>unknown version</source>
         <translation>未知版本</translation>
+    </message>
+    <message>
+        <source>CUDA runtime verification did not report a usable CUDA device.
+%1</source>
+        <translation>CUDA 运行环境验证未检测到可用的 CUDA 设备。
+%1</translation>
+    </message>
+    <message>
+        <source>CUDA runtime installation was canceled.</source>
+        <translation>CUDA 运行环境安装已取消。</translation>
+    </message>
+    <message>
+        <source>The newly activated CUDA runtime executable is unavailable.</source>
+        <translation>新激活的 CUDA 运行环境可执行文件不可用。</translation>
+    </message>
+    <message>
+        <source>Could not allocate a temporary port for CUDA runtime verification.</source>
+        <translation>无法为 CUDA 运行环境验证分配临时端口。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime self-test could not be started: %1</source>
+        <translation>无法启动 CUDA 运行环境自检：%1</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime self-test process disappeared unexpectedly.</source>
+        <translation>CUDA 运行环境自检进程意外终止。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime self-test exited before becoming healthy.
+%1</source>
+        <translation>CUDA 运行环境自检在服务就绪前退出。
+%1</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime self-test did not become healthy: %1</source>
+        <translation>CUDA 运行环境自检未能进入正常运行状态：%1</translation>
+    </message>
+    <message>
+        <source>Could not determine the currently active CUDA runtime.</source>
+        <translation>无法确定当前激活的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime 'previous' path is not a symbolic link.</source>
+        <translation>CUDA 运行环境的“previous”路径不是符号链接。</translation>
+    </message>
+    <message>
+        <source>Could not create the CUDA runtime rollback link.</source>
+        <translation>无法创建 CUDA 运行环境回滚链接。</translation>
+    </message>
+    <message>
+        <source>Could not record the previous CUDA runtime.</source>
+        <translation>无法记录上一版本的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>Could not deactivate the failed CUDA runtime.</source>
+        <translation>无法停用验证失败的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime rollback link is unavailable.</source>
+        <translation>CUDA 运行环境回滚链接不可用。</translation>
+    </message>
+    <message>
+        <source>The previous CUDA runtime is unavailable or invalid.</source>
+        <translation>上一版本的 CUDA 运行环境不可用或无效。</translation>
+    </message>
+    <message>
+        <source>Could not create the CUDA runtime rollback activation link.</source>
+        <translation>无法创建用于恢复上一版本 CUDA 运行环境的激活链接。</translation>
+    </message>
+    <message>
+        <source>Could not reactivate the previous CUDA runtime.</source>
+        <translation>无法重新激活上一版本的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime post-install verification failed: %1
+Automatic rollback also failed: %2</source>
+        <translation>CUDA 运行环境安装后验证失败：%1
+自动回滚也失败：%2</translation>
+    </message>
+    <message>
+        <source>CUDA runtime post-install verification failed: %1
+The new runtime was deactivated.</source>
+        <translation>CUDA 运行环境安装后验证失败：%1
+新的运行环境已停用。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime post-install verification failed: %1
+Rolled back to %2.</source>
+        <translation>CUDA 运行环境安装后验证失败：%1
+已回滚到 %2。</translation>
     </message>
 </context>
 </TS>

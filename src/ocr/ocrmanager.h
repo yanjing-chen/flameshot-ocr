@@ -63,6 +63,7 @@ public:
     bool cudaRuntimeInstalled() const;
     QString cudaRuntimeVersion() const;
     bool cudaRuntimeBusy() const;
+    bool cudaRuntimeUpdateAvailable() const;
 
     void checkCudaRuntimeUpdates(
       QObject* context,
@@ -111,7 +112,38 @@ private:
         qint64 expectedSize{ 0 };
     };
 
+    struct CudaRuntimeFileInfo
+    {
+        QString path;
+        qint64 size{ 0 };
+    };
+
+    struct CudaRuntimeInfo
+    {
+        QString version;
+        QString displayVersion;
+        QString archiveName;
+        QUrl url;
+        qint64 archiveSize{ 0 };
+        QByteArray sha256;
+        QList<CudaRuntimeFileInfo> requiredFiles;
+
+        bool isValid() const
+        {
+            return !version.isEmpty() &&
+                   !displayVersion.isEmpty() &&
+                   !archiveName.isEmpty() &&
+                   url.isValid() &&
+                   url.scheme().compare(
+                     QStringLiteral("https"), Qt::CaseInsensitive) == 0 &&
+                   archiveSize > 0 &&
+                   sha256.size() == 64 &&
+                   !requiredFiles.isEmpty();
+        }
+    };
+
     static QList<OcrModelInfo> builtInModels();
+    static CudaRuntimeInfo builtInCudaRuntimeInfo();
     QList<OcrModelInfo> cachedRemoteModels() const;
     QString manifestCachePath() const;
     OcrModelInfo modelById(const QString& id) const;
@@ -125,6 +157,19 @@ private:
     void failDownload(const QString& message);
 
     void startCudaRuntimeExtraction(const QString& archivePath);
+    void startCudaRuntimeSelfTest(const QString& previousVersion,
+                                  const QString& cudaDevice,
+                                  const QString& archivePath);
+    void waitForCudaRuntimeSelfTest(const QUrl& healthUrl,
+                                    int attemptsLeft,
+                                    const QString& previousVersion,
+                                    const QString& archivePath);
+    void stopCudaRuntimeSelfTestProcess();
+    void finishCudaRuntimeInstall(const QString& archivePath);
+    void failCudaRuntimeSelfTest(const QString& reason,
+                                 const QString& previousVersion);
+    bool rollbackCudaRuntime(const QString& previousVersion,
+                             QString* error = nullptr);
     void failCudaRuntime(const QString& message);
     QString cudaRuntimeBaseDir() const;
     QString cudaRuntimeCurrentDir() const;
@@ -146,8 +191,10 @@ private:
     QFile* m_cudaDownloadFile{ nullptr };
     QNetworkReply* m_cudaDownloadReply{ nullptr };
     QProcess* m_cudaExtractProcess{ nullptr };
+    QProcess* m_cudaSelfTestProcess{ nullptr };
     qint64 m_cudaDownloadOffset{ 0 };
     bool m_cudaCanceled{ false };
     QString m_cudaArchivePath;
     QString m_cudaStagingDir;
+    CudaRuntimeInfo m_cudaRuntimeInfo;
 };

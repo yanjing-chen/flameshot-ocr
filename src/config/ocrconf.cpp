@@ -285,8 +285,13 @@ OcrConf::OcrConf(QWidget* parent)
                   this,
                   [this](bool ok, const QString& message) {
                       m_cudaUpdateStatus->setText(message);
-                      m_checkCudaUpdatesButton->setEnabled(
-                        !OcrManager::instance()->cudaRuntimeBusy());
+
+                      if (ok) {
+                          refreshCudaRuntimeStatus();
+                      } else {
+                          m_checkCudaUpdatesButton->setEnabled(
+                            !OcrManager::instance()->cudaRuntimeBusy());
+                      }
 
                       if (!ok) {
                           QMessageBox::warning(
@@ -580,6 +585,8 @@ void OcrConf::refreshCudaRuntimeStatus()
 
     const bool nvidia = manager->nvidiaDriverAvailable();
     const bool installed = manager->cudaRuntimeInstalled();
+    const bool updateAvailable =
+      manager->cudaRuntimeUpdateAvailable();
     const bool busy = manager->cudaRuntimeBusy();
     const bool managed = manager->managedServerRunning();
 
@@ -604,8 +611,19 @@ void OcrConf::refreshCudaRuntimeStatus()
           tr("Not installed. NVIDIA Vulkan remains available as fallback."));
     }
 
+    if (installed && updateAvailable) {
+        m_installCudaButton->setText(tr("Update CUDA runtime"));
+    } else {
+        m_installCudaButton->setText(
+          tr("Install CUDA runtime (~492 MB)"));
+    }
+
     m_installCudaButton->setEnabled(
-      nvidia && !installed && !busy && !managed);
+      nvidia &&
+      (!installed || updateAvailable) &&
+      !busy &&
+      !managed);
+
     m_checkCudaUpdatesButton->setEnabled(!busy);
     m_cancelCudaButton->setEnabled(busy);
 
