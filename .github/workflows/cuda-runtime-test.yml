@@ -244,8 +244,8 @@ jobs:
 
           lines = [
               f"version={version}",
-              "cuda_architectures=sm75,sm86,sm89,sm120",
-              "ptx_architecture=compute_120",
+              "cuda_architectures=sm75,sm86,sm89,sm120a",
+              "ptx_architecture=compute_120a",
               f"archive_name={archive.name}",
               f"archive_size={archive.stat().st_size}",
               f"archive_sha256={sha256}",
