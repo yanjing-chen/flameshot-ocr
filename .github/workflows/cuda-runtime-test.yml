@@ -1,4 +1,4 @@
-name: Build CUDA Runtime Test
+name: Build CUDA Runtime Multi-Arch
 
 on:
   workflow_dispatch:
@@ -9,12 +9,14 @@ permissions:
 env:
   LLAMA_CPP_REF: "72797e891"
   CUDA_IMAGE: "nvidia/cuda:12.8.1-devel-ubuntu24.04"
+  CUDA_ARCHS: "75-real;86-real;89-real;120-real;120-virtual"
+  CUDA_RUNTIME_VERSION: "12.8-r2"
 
 jobs:
   cuda-runtime:
-    name: CUDA 12.8 runtime / RTX 30 test
+    name: CUDA 12.8 runtime / RTX 20-50
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
@@ -22,109 +24,254 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build llama-server CUDA runtime
+      - name: Install packaging dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends zstd
+
+      - name: Build self-contained llama-server CUDA runtime
         shell: bash
         run: |
           set -euo pipefail
 
-          rm -rf "$GITHUB_WORKSPACE/runtime-cuda-test"
-          mkdir -p "$GITHUB_WORKSPACE/runtime-cuda-test"
+          RUNTIME_DIR="$GITHUB_WORKSPACE/runtime-cuda-multiarch"
 
-          docker run --rm \
+          rm -rf "$RUNTIME_DIR"
+          mkdir -p "$RUNTIME_DIR"
+
+          docker run --rm -i \
             -e LLAMA_CPP_REF="$LLAMA_CPP_REF" \
+            -e CUDA_ARCHS="$CUDA_ARCHS" \
+            -e CUDA_RUNTIME_VERSION="$CUDA_RUNTIME_VERSION" \
             -v "$GITHUB_WORKSPACE:/workspace" \
             -w /workspace \
             "$CUDA_IMAGE" \
-            bash -lc '
-              set -euo pipefail
-              export DEBIAN_FRONTEND=noninteractive
+            bash -s <<'CUDA_BUILD_SCRIPT'
+          set -euo pipefail
+          export DEBIAN_FRONTEND=noninteractive
 
-              apt-get update -qq
-              apt-get install -y --no-install-recommends \
-                ca-certificates cmake build-essential git file binutils
+          apt-get update -qq
+          apt-get install -y --no-install-recommends \
+            ca-certificates cmake build-essential git file binutils
 
-              WORK=/tmp/flameshot-ocr-llama-cuda
-              rm -rf "$WORK"
-              mkdir -p "$WORK"
+          WORK=/tmp/flameshot-ocr-llama-cuda
+          OUT=/workspace/runtime-cuda-multiarch
 
-              echo "CUDA compiler:"
-              nvcc --version
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          mkdir -p "$OUT/lib"
 
-              echo
-              echo "Building llama.cpp revision: $LLAMA_CPP_REF"
-              git clone --filter=blob:none \
-                https://github.com/ggml-org/llama.cpp.git \
-                "$WORK/llama.cpp"
-              git -C "$WORK/llama.cpp" checkout "$LLAMA_CPP_REF"
-
-              cmake \
-                -S "$WORK/llama.cpp" \
-                -B "$WORK/build-cuda" \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DGGML_NATIVE=OFF \
-                -DBUILD_SHARED_LIBS=OFF \
-                -DLLAMA_CURL=OFF \
-                -DLLAMA_BUILD_TESTS=OFF \
-                -DLLAMA_BUILD_EXAMPLES=OFF \
-                -DGGML_VULKAN=OFF \
-                -DGGML_CUDA=ON \
-                -DGGML_CUDA_NCCL=OFF \
-                -DCMAKE_CUDA_ARCHITECTURES=86
-
-              cmake --build "$WORK/build-cuda" \
-                --target llama-server \
-                -j"$(nproc)"
-
-              cp "$WORK/build-cuda/bin/llama-server" \
-                /workspace/runtime-cuda-test/llama-server-cuda
-              chmod 0755 /workspace/runtime-cuda-test/llama-server-cuda
-
-              if command -v strip >/dev/null 2>&1; then
-                strip --strip-unneeded \
-                  /workspace/runtime-cuda-test/llama-server-cuda || true
-              fi
-
-              nvcc --version \
-                > /workspace/runtime-cuda-test/cuda-toolkit.txt
-
-              {
-                echo "llama.cpp revision: $LLAMA_CPP_REF"
-                echo "CUDA image: nvidia/cuda:12.8.1-devel-ubuntu24.04"
-                echo "CUDA architectures: 86"
-                echo "Build shared libs: OFF"
-                echo "GGML CUDA: ON"
-              } > /workspace/runtime-cuda-test/build-info.txt
-
-              ldd /workspace/runtime-cuda-test/llama-server-cuda \
-                > /workspace/runtime-cuda-test/ldd-build.txt || true
-
-              file /workspace/runtime-cuda-test/llama-server-cuda \
-                > /workspace/runtime-cuda-test/file-info.txt
-
-              chmod -R a+rX /workspace/runtime-cuda-test
-            '
+          echo "===== CUDA COMPILER ====="
+          nvcc --version
 
           echo
-          echo "===== CUDA test runtime ====="
-          ls -lh "$GITHUB_WORKSPACE/runtime-cuda-test"
+          echo "===== LLAMA.CPP ====="
+          echo "revision: $LLAMA_CPP_REF"
+          echo "architectures: $CUDA_ARCHS"
+
+          git clone --filter=blob:none \
+            https://github.com/ggml-org/llama.cpp.git \
+            "$WORK/llama.cpp"
+
+          git -C "$WORK/llama.cpp" checkout "$LLAMA_CPP_REF"
+
+          cmake \
+            -S "$WORK/llama.cpp" \
+            -B "$WORK/build-cuda" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGGML_NATIVE=OFF \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DLLAMA_CURL=OFF \
+            -DLLAMA_BUILD_TESTS=OFF \
+            -DLLAMA_BUILD_EXAMPLES=OFF \
+            -DGGML_VULKAN=OFF \
+            -DGGML_CUDA=ON \
+            -DGGML_CUDA_NCCL=OFF \
+            -DCMAKE_CUDA_ARCHITECTURES="$CUDA_ARCHS"
+
+          cmake --build "$WORK/build-cuda" \
+            --target llama-server \
+            -j"$(nproc)"
+
+          cp "$WORK/build-cuda/bin/llama-server" \
+            "$OUT/llama-server-cuda.bin"
+
+          chmod 0755 "$OUT/llama-server-cuda.bin"
+
+          if command -v strip >/dev/null 2>&1; then
+            strip --strip-unneeded \
+              "$OUT/llama-server-cuda.bin" || true
+          fi
+
+          # Bundle the CUDA user-space libraries required by llama-server.
+          # libcuda.so.1 is intentionally NOT bundled. It must come from
+          # the NVIDIA driver installed on the user's machine.
+          ldd "$OUT/llama-server-cuda.bin" \
+            | awk '$3 ~ "^/usr/local/cuda/" { print $3 }' \
+            | sort -u \
+            > /tmp/flameshot-cuda-libs.txt
+
+          while IFS= read -r lib; do
+            [[ -n "$lib" ]] || continue
+            cp -L "$lib" "$OUT/lib/"
+          done < /tmp/flameshot-cuda-libs.txt
+
+          cat > "$OUT/llama-server-cuda" <<'WRAPPER'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+          export LD_LIBRARY_PATH="$DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          exec "$DIR/llama-server-cuda.bin" "$@"
+          WRAPPER
+
+          sed -i 's/^          //' "$OUT/llama-server-cuda"
+          chmod 0755 "$OUT/llama-server-cuda"
+
+          nvcc --version > "$OUT/cuda-toolkit.txt"
+
+          {
+            echo "llama.cpp revision: $LLAMA_CPP_REF"
+            echo "CUDA image: nvidia/cuda:12.8.1-devel-ubuntu24.04"
+            echo "CUDA architectures: $CUDA_ARCHS"
+            echo "Build shared libs: OFF"
+            echo "GGML CUDA: ON"
+          } > "$OUT/build-info.txt"
+
+          {
+            echo "Bundled CUDA user-space libraries:"
+            find "$OUT/lib" \
+              -maxdepth 1 -type f -printf "%f\n" | sort
+
+            echo
+            echo "Host requirement:"
+            echo "libcuda.so.1 from the NVIDIA driver"
+          } > "$OUT/bundled-libs.txt"
+
+          LD_LIBRARY_PATH="$OUT/lib" \
+            ldd "$OUT/llama-server-cuda.bin" \
+            > "$OUT/ldd-build.txt" || true
+
+          file "$OUT/llama-server-cuda.bin" \
+            > "$OUT/file-info.txt"
+
+          # Record the CUDA code embedded in the final binary. These commands
+          # are diagnostic only; absence of a particular cuobjdump listing
+          # format must not fail the build.
+          {
+            echo "===== ELF/CUBIN IMAGES ====="
+            cuobjdump --list-elf "$OUT/llama-server-cuda.bin" || true
+
+            echo
+            echo "===== PTX IMAGES ====="
+            cuobjdump --list-ptx "$OUT/llama-server-cuda.bin" || true
+          } > "$OUT/cuda-code.txt" 2>&1
+
+          chmod -R a+rX "$OUT"
+          CUDA_BUILD_SCRIPT
 
           echo
-          echo "===== Binary type ====="
-          cat "$GITHUB_WORKSPACE/runtime-cuda-test/file-info.txt"
+          echo "===== CUDA MULTI-ARCH RUNTIME ====="
+          du -sh "$RUNTIME_DIR"
+
+          find "$RUNTIME_DIR" \
+            -maxdepth 2 -type f \
+            -printf '%P\t%s bytes\n' | sort
 
           echo
-          echo "===== Build-container dependencies ====="
-          cat "$GITHUB_WORKSPACE/runtime-cuda-test/ldd-build.txt"
+          echo "===== BUILD INFO ====="
+          cat "$RUNTIME_DIR/build-info.txt"
 
           echo
-          echo "===== SHA256 ====="
-          sha256sum "$GITHUB_WORKSPACE/runtime-cuda-test/llama-server-cuda" \
-            | tee "$GITHUB_WORKSPACE/runtime-cuda-test/llama-server-cuda.sha256sum"
+          echo "===== BUNDLED CUDA LIBRARIES ====="
+          cat "$RUNTIME_DIR/bundled-libs.txt"
 
-      - name: Upload CUDA test artifact
+          echo
+          echo "===== CUDA CODE SUMMARY ====="
+          cat "$RUNTIME_DIR/cuda-code.txt"
+
+          echo
+          echo "===== REQUIRED FILE SHA256 ====="
+          (
+            cd "$RUNTIME_DIR"
+            sha256sum \
+              llama-server-cuda \
+              llama-server-cuda.bin \
+              lib/libcudart.so.12 \
+              lib/libcublas.so.12 \
+              lib/libcublasLt.so.12 \
+              | tee SHA256SUMS
+          )
+
+          ARCHIVE="$GITHUB_WORKSPACE/Flameshot-OCR-CUDA-${CUDA_RUNTIME_VERSION}-multiarch.tar.zst"
+
+          tar \
+            --use-compress-program="zstd -19 -T0" \
+            -cf "$ARCHIVE" \
+            -C "$RUNTIME_DIR" .
+
+          echo
+          echo "===== FINAL ARCHIVE ====="
+          ls -lh "$ARCHIVE"
+          sha256sum "$ARCHIVE"
+
+          python3 <<'METADATA'
+          from pathlib import Path
+          import hashlib
+          import os
+
+          root = Path(os.environ["GITHUB_WORKSPACE"])
+          runtime = root / "runtime-cuda-multiarch"
+          version = os.environ["CUDA_RUNTIME_VERSION"]
+
+          archive = root / f"Flameshot-OCR-CUDA-{version}-multiarch.tar.zst"
+
+          required = [
+              "llama-server-cuda",
+              "llama-server-cuda.bin",
+              "lib/libcudart.so.12",
+              "lib/libcublas.so.12",
+              "lib/libcublasLt.so.12",
+          ]
+
+          sha256 = hashlib.sha256(archive.read_bytes()).hexdigest()
+
+          installed_size = sum(
+              (runtime / name).stat().st_size
+              for name in required
+          )
+
+          lines = [
+              f"version={version}",
+              "cuda_architectures=sm75,sm86,sm89,sm120a",
+              "ptx_architecture=compute_120a",
+              f"archive_name={archive.name}",
+              f"archive_size={archive.stat().st_size}",
+              f"archive_sha256={sha256}",
+              f"installed_size={installed_size}",
+              "",
+              "[required_files]",
+          ]
+
+          for name in required:
+              lines.append(
+                  f"{name}={(runtime / name).stat().st_size}"
+              )
+
+          metadata = "\n".join(lines) + "\n"
+
+          (root / "cuda-runtime-metadata.txt").write_text(metadata)
+
+          print(metadata, end="")
+          METADATA
+
+      - name: Upload CUDA multi-arch artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Flameshot-OCR-CUDA12.8-sm86-test-${{ github.sha }}
-          path: runtime-cuda-test/
+          name: Flameshot-OCR-CUDA-${{ env.CUDA_RUNTIME_VERSION }}-multiarch-${{ github.sha }}
+          path: |
+            Flameshot-OCR-CUDA-${{ env.CUDA_RUNTIME_VERSION }}-multiarch.tar.zst
+            cuda-runtime-metadata.txt
           if-no-files-found: error
           retention-days: 3

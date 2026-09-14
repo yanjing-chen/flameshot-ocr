@@ -24,7 +24,9 @@ public slots:
 
 private:
     void rebuildModelList();
+    void rebuildDeviceList();
     void refreshModelStatus();
+    void refreshCudaRuntimeStatus();
     void refreshRuntimeStatus();
 
     QLineEdit* m_serverUrl;
@@ -33,10 +35,14 @@ private:
     QLineEdit* m_manifestUrl;
 
     QComboBox* m_modelCombo;
+    QComboBox* m_deviceCombo;
     QLabel* m_modelStatus;
     QLabel* m_runtimeStatus;
     QLabel* m_deviceStatus;
     QLabel* m_latestStatus;
+    QLabel* m_cudaRuntimeStatus;
+    QLabel* m_cudaUpdateStatus;
+    QLabel* m_cudaDownloadLabel;
 
     QCheckBox* m_autoStart;
     QCheckBox* m_autoCheckUpdates;
@@ -49,5 +55,10 @@ private:
     QPushButton* m_testButton;
     QPushButton* m_checkUpdatesButton;
 
+    QPushButton* m_installCudaButton;
+    QPushButton* m_checkCudaUpdatesButton;
+    QPushButton* m_cancelCudaButton;
+
     QProgressBar* m_downloadProgress;
+    QProgressBar* m_cudaDownloadProgress;
 };

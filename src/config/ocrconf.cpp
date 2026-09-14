@@ -3,6 +3,8 @@
 
 #include "ocrconf.h"
 
+#include <QLocale>
+
 #include "ocr/ocrmanager.h"
 #include "utils/confighandler.h"
 
@@ -10,6 +12,7 @@
 #include <QComboBox>
 #include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -52,6 +55,9 @@ OcrConf::OcrConf(QWidget* parent)
     serverPathLayout->addWidget(browseServer);
     serviceForm->addRow(tr("llama-server:"), serverPathRow);
 
+    m_deviceCombo = new QComboBox(serviceBox);
+    serviceForm->addRow(tr("Inference device:"), m_deviceCombo);
+
     m_autoStart = new QCheckBox(
       tr("Automatically start the local OCR service when OCR is used"),
       serviceBox);
@@ -78,6 +84,57 @@ OcrConf::OcrConf(QWidget* parent)
     serviceForm->addRow(QString(), serviceButtons);
 
     layout->addWidget(serviceBox);
+
+    auto* cudaBox =
+      new QGroupBox(tr("NVIDIA CUDA Acceleration"), content);
+    auto* cudaForm = new QFormLayout(cudaBox);
+
+    m_cudaRuntimeStatus = new QLabel(cudaBox);
+    m_cudaRuntimeStatus->setWordWrap(true);
+    cudaForm->addRow(tr("CUDA runtime:"), m_cudaRuntimeStatus);
+
+    m_cudaUpdateStatus = new QLabel(tr("Not checked"), cudaBox);
+    m_cudaUpdateStatus->setWordWrap(true);
+    cudaForm->addRow(tr("Updates:"), m_cudaUpdateStatus);
+
+    auto* cudaButtons = new QWidget(cudaBox);
+    auto* cudaButtonsLayout = new QHBoxLayout(cudaButtons);
+    cudaButtonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    m_installCudaButton =
+      new QPushButton(tr("Install CUDA runtime (%1)")
+        .arg(QLocale().formattedDataSize(
+          OcrManager::instance()->cudaRuntimeDownloadSize(),
+          1,
+          QLocale::DataSizeTraditionalFormat)), cudaButtons);
+    m_checkCudaUpdatesButton =
+      new QPushButton(tr("Check CUDA updates"), cudaButtons);
+    m_cancelCudaButton =
+      new QPushButton(tr("Cancel"), cudaButtons);
+
+    cudaButtonsLayout->addWidget(m_installCudaButton);
+    cudaButtonsLayout->addWidget(m_checkCudaUpdatesButton);
+    cudaButtonsLayout->addWidget(m_cancelCudaButton);
+    cudaButtonsLayout->addStretch();
+    cudaForm->addRow(QString(), cudaButtons);
+
+    m_cudaDownloadLabel = new QLabel(tr("Download:"), cudaBox);
+    m_cudaDownloadProgress = new QProgressBar(cudaBox);
+    m_cudaDownloadProgress->setRange(0, 1000);
+
+    m_cudaDownloadLabel->setVisible(false);
+    m_cudaDownloadProgress->setVisible(false);
+
+    cudaForm->addRow(m_cudaDownloadLabel, m_cudaDownloadProgress);
+
+    auto* cudaNote = new QLabel(
+      tr("CUDA support is downloaded separately and is not bundled in the "
+         "AppImage. The NVIDIA driver remains managed by the operating system."),
+      cudaBox);
+    cudaNote->setWordWrap(true);
+    cudaForm->addRow(QString(), cudaNote);
+
+    layout->addWidget(cudaBox);
 
     auto* modelBox = new QGroupBox(tr("OCR Model"), content);
     auto* modelForm = new QFormLayout(modelBox);
@@ -156,6 +213,7 @@ OcrConf::OcrConf(QWidget* parent)
     });
     connect(m_serverPath, &QLineEdit::editingFinished, this, [this]() {
         ConfigHandler().setOcrServerPath(m_serverPath->text().trimmed());
+        rebuildDeviceList();
         refreshRuntimeStatus();
     });
     connect(browseServer, &QPushButton::clicked, this, [this]() {
@@ -164,6 +222,7 @@ OcrConf::OcrConf(QWidget* parent)
         if (!path.isEmpty()) {
             m_serverPath->setText(path);
             ConfigHandler().setOcrServerPath(path);
+            rebuildDeviceList();
             refreshRuntimeStatus();
         }
     });
@@ -184,6 +243,19 @@ OcrConf::OcrConf(QWidget* parent)
             refreshModelStatus();
         }
     });
+
+    connect(m_deviceCombo,
+            &QComboBox::currentIndexChanged,
+            this,
+            [this](int index) {
+                if (index < 0) {
+                    return;
+                }
+
+                ConfigHandler().setOcrDeviceId(
+                  m_deviceCombo->itemData(index).toString());
+                refreshRuntimeStatus();
+            });
 
     connect(m_modelCombo,
             &QComboBox::currentIndexChanged,
@@ -207,6 +279,77 @@ OcrConf::OcrConf(QWidget* parent)
     connect(m_manifestUrl, &QLineEdit::editingFinished, this, [this]() {
         ConfigHandler().setOcrManifestUrl(m_manifestUrl->text().trimmed());
     });
+
+    connect(m_checkCudaUpdatesButton,
+            &QPushButton::clicked,
+            this,
+            [this]() {
+                m_checkCudaUpdatesButton->setEnabled(false);
+                m_cudaUpdateStatus->setText(tr("Checking..."));
+
+                OcrManager::instance()->checkCudaRuntimeUpdates(
+                  this,
+                  [this](bool ok, const QString& message) {
+                      m_cudaUpdateStatus->setText(message);
+
+                      if (ok) {
+                          refreshCudaRuntimeStatus();
+                      } else {
+                          m_checkCudaUpdatesButton->setEnabled(
+                            !OcrManager::instance()->cudaRuntimeBusy());
+                      }
+
+                      if (!ok) {
+                          QMessageBox::warning(
+                            this, tr("CUDA Runtime"), message);
+                      }
+                  });
+            });
+
+    connect(m_installCudaButton, &QPushButton::clicked, this, [this]() {
+        auto* manager = OcrManager::instance();
+
+        const QString downloadSize =
+          QLocale().formattedDataSize(
+            manager->cudaRuntimeDownloadSize(),
+            1,
+            QLocale::DataSizeTraditionalFormat);
+
+        const QString installedSize =
+          QLocale().formattedDataSize(
+            manager->cudaRuntimeInstalledSize(),
+            1,
+            QLocale::DataSizeTraditionalFormat);
+
+        const QString title =
+          manager->cudaRuntimeUpdateAvailable()
+            ? tr("Update CUDA runtime")
+            : tr("Install CUDA runtime");
+
+        if (QMessageBox::question(
+              this,
+              title,
+              tr("Download and install the verified CUDA runtime?\n\n"
+                 "Download size: %1\n"
+                 "Installed size: %2")
+                .arg(downloadSize, installedSize),
+              QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+            return;
+        }
+
+        m_cudaDownloadProgress->setValue(0);
+        m_cudaDownloadLabel->setVisible(true);
+        m_cudaDownloadProgress->setVisible(true);
+        m_installCudaButton->setEnabled(false);
+        m_cancelCudaButton->setEnabled(true);
+
+        OcrManager::instance()->installCudaRuntime();
+    });
+
+    connect(m_cancelCudaButton,
+            &QPushButton::clicked,
+            OcrManager::instance(),
+            &OcrManager::cancelCudaRuntimeInstall);
 
     connect(m_downloadButton, &QPushButton::clicked, this, [this]() {
         const QString id = m_modelCombo->currentData().toString();
@@ -302,6 +445,72 @@ OcrConf::OcrConf(QWidget* parent)
             });
 
     connect(OcrManager::instance(),
+            &OcrManager::cudaRuntimeProgress,
+            this,
+            [this](qint64 done, qint64 total) {
+                if (total <= 0) {
+                    return;
+                }
+
+                const int value =
+                  static_cast<int>((done * 1000) / total);
+                m_cudaDownloadProgress->setValue(
+                  qBound(0, value, 1000));
+            });
+
+    connect(OcrManager::instance(),
+            &OcrManager::cudaRuntimeFinished,
+            this,
+            [this](bool ok, const QString& message) {
+                m_cudaDownloadLabel->setVisible(false);
+                m_cudaDownloadProgress->setVisible(false);
+                m_cancelCudaButton->setEnabled(false);
+
+                if (ok) {
+                    QMessageBox::information(
+                      this, tr("CUDA Runtime"), message);
+                } else {
+                    QMessageBox::warning(
+                      this, tr("CUDA Runtime"), message);
+                }
+
+                rebuildDeviceList();
+                refreshCudaRuntimeStatus();
+                refreshRuntimeStatus();
+
+                const QString configured =
+                  ConfigHandler().ocrServerPath().trimmed();
+                const bool configuredUsable =
+                  !configured.isEmpty() &&
+                  QFileInfo(configured).isExecutable();
+
+                if (!configuredUsable) {
+                    m_serverPath->setText(
+                      OcrManager::instance()->serverExecutable());
+                }
+            });
+
+    connect(OcrManager::instance(),
+            &OcrManager::cudaRuntimeChanged,
+            this,
+            [this]() {
+                rebuildDeviceList();
+                refreshCudaRuntimeStatus();
+                refreshRuntimeStatus();
+
+                const QString configured =
+                  ConfigHandler().ocrServerPath().trimmed();
+                const bool configuredUsable =
+                  !configured.isEmpty() &&
+                  QFileInfo(configured).isExecutable();
+
+                if (!configuredUsable) {
+                    m_serverPath->setText(
+                      OcrManager::instance()->serverExecutable());
+                }
+            });
+
+    connect(OcrManager::instance(),
             &OcrManager::serverStateChanged,
             this,
             &OcrConf::refreshRuntimeStatus);
@@ -350,6 +559,38 @@ void OcrConf::rebuildModelList()
     }
 }
 
+void OcrConf::rebuildDeviceList()
+{
+    QString selected = ConfigHandler().ocrDeviceId().trimmed();
+    if (selected.isEmpty()) {
+        selected = QStringLiteral("auto");
+    }
+
+    const QSignalBlocker blocker(m_deviceCombo);
+    m_deviceCombo->clear();
+
+    m_deviceCombo->addItem(tr("Automatic (recommended)"),
+                           QStringLiteral("auto"));
+
+    const auto devices = OcrManager::instance()->availableDevices();
+    for (const auto& device : devices) {
+        const QString label =
+          tr("%1 — %2 [%3]").arg(device.name, device.backend, device.id);
+        m_deviceCombo->addItem(label, device.id);
+    }
+
+    m_deviceCombo->addItem(tr("CPU"), QStringLiteral("cpu"));
+
+    int index = m_deviceCombo->findData(selected);
+    if (index < 0) {
+        m_deviceCombo->addItem(
+          tr("%1 (currently unavailable)").arg(selected), selected);
+        index = m_deviceCombo->count() - 1;
+    }
+
+    m_deviceCombo->setCurrentIndex(index);
+}
+
 void OcrConf::refreshModelStatus()
 {
     const OcrModelInfo model = OcrManager::instance()->activeModel();
@@ -364,13 +605,78 @@ void OcrConf::refreshModelStatus()
       QDir(OcrManager::instance()->modelDirectory(model)).exists());
 }
 
+void OcrConf::refreshCudaRuntimeStatus()
+{
+    auto* manager = OcrManager::instance();
+
+    const bool nvidia = manager->nvidiaDriverAvailable();
+    const bool installed = manager->cudaRuntimeInstalled();
+    const bool updateAvailable =
+      manager->cudaRuntimeUpdateAvailable();
+    const bool busy = manager->cudaRuntimeBusy();
+    const bool managed = manager->managedServerRunning();
+
+    if (!nvidia) {
+        if (installed) {
+            m_cudaRuntimeStatus->setText(
+              tr("Installed, but no active NVIDIA driver was detected."));
+        } else {
+            m_cudaRuntimeStatus->setText(
+              tr("No active NVIDIA driver detected. Vulkan or CPU will be used."));
+        }
+    } else if (installed) {
+        const QString version = manager->cudaRuntimeVersion();
+        m_cudaRuntimeStatus->setText(
+          tr("Installed and verified — %1")
+            .arg(version.isEmpty() ? tr("unknown version") : version));
+    } else if (busy) {
+        m_cudaRuntimeStatus->setText(
+          tr("Downloading or installing the CUDA runtime..."));
+    } else {
+        m_cudaRuntimeStatus->setText(
+          tr("Not installed. NVIDIA Vulkan remains available as fallback."));
+    }
+
+    if (installed && updateAvailable) {
+        m_installCudaButton->setText(tr("Update CUDA runtime"));
+    } else {
+        m_installCudaButton->setText(
+          tr("Install CUDA runtime (%1)")
+        .arg(QLocale().formattedDataSize(
+          OcrManager::instance()->cudaRuntimeDownloadSize(),
+          1,
+          QLocale::DataSizeTraditionalFormat)));
+    }
+
+    m_installCudaButton->setEnabled(
+      nvidia &&
+      (!installed || updateAvailable) &&
+      !busy &&
+      !managed);
+
+    m_checkCudaUpdatesButton->setEnabled(!busy);
+    m_cancelCudaButton->setEnabled(busy);
+
+    m_cudaDownloadLabel->setVisible(busy);
+    m_cudaDownloadProgress->setVisible(busy);
+}
+
 void OcrConf::refreshRuntimeStatus()
 {
     const QString executable = OcrManager::instance()->serverExecutable();
+    const QString preference = ConfigHandler().ocrDeviceId().trimmed();
+    const bool automatic =
+      preference.isEmpty() ||
+      preference.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0;
+
     m_deviceStatus->setText(
       executable.isEmpty()
         ? tr("llama-server not found")
-        : tr("%1 (auto-selected)").arg(OcrManager::instance()->detectedDevice()));
+        : automatic
+            ? tr("%1 (auto-selected)")
+                .arg(OcrManager::instance()->detectedDevice())
+            : tr("%1 (manually selected)")
+                .arg(OcrManager::instance()->detectedDevice()));
 
     if (OcrManager::instance()->managedServerRunning()) {
         m_runtimeStatus->setText(tr("Managed llama-server process is running"));
@@ -379,9 +685,12 @@ void OcrConf::refreshRuntimeStatus()
           tr("No managed process (an external server may still be running)"));
     }
 
-    m_startButton->setEnabled(
-      !OcrManager::instance()->managedServerRunning());
-    m_stopButton->setEnabled(OcrManager::instance()->managedServerRunning());
+    const bool managed = OcrManager::instance()->managedServerRunning();
+    m_startButton->setEnabled(!managed);
+    m_stopButton->setEnabled(managed);
+    m_deviceCombo->setEnabled(!managed);
+
+    refreshCudaRuntimeStatus();
 }
 
 void OcrConf::updateComponents()
@@ -394,10 +703,15 @@ void OcrConf::updateComponents()
     }
     {
         const QSignalBlocker blocker(m_serverPath);
-        const QString configured = config.ocrServerPath();
-        m_serverPath->setText(
-          configured.isEmpty() ? OcrManager::instance()->serverExecutable()
-                               : configured);
+        const QString configured = config.ocrServerPath().trimmed();
+        const bool configuredUsable =
+          !configured.isEmpty() && QFileInfo(configured).isExecutable();
+        const QString resolved = OcrManager::instance()->serverExecutable();
+
+        // Do not display a stale remembered path (for example /usr/lib from a
+        // previously installed .deb) when the AppImage is actually using its
+        // own bundled runtime.
+        m_serverPath->setText(configuredUsable ? configured : resolved);
     }
     {
         const QSignalBlocker blocker(m_modelRoot);
@@ -417,6 +731,7 @@ void OcrConf::updateComponents()
     }
 
     rebuildModelList();
+    rebuildDeviceList();
     refreshModelStatus();
     refreshRuntimeStatus();
 
@@ -429,4 +744,6 @@ void OcrConf::updateComponents()
     }
 
     m_cancelDownloadButton->setEnabled(false);
+    m_cancelCudaButton->setEnabled(
+      OcrManager::instance()->cudaRuntimeBusy());
 }

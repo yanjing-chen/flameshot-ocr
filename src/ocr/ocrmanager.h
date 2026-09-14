@@ -26,6 +26,13 @@ struct OcrModelInfo
     bool verified{ false };
 };
 
+struct OcrDeviceInfo
+{
+    QString id;
+    QString name;
+    QString backend;
+};
+
 class OcrManager : public QObject
 {
     Q_OBJECT
@@ -49,7 +56,20 @@ public:
     QUrl healthEndpoint() const;
     QUrl chatEndpoint() const;
     QString activePrompt() const;
+    QList<OcrDeviceInfo> availableDevices() const;
     QString detectedDevice() const;
+
+    bool nvidiaDriverAvailable() const;
+    bool cudaRuntimeInstalled() const;
+    QString cudaRuntimeVersion() const;
+    bool cudaRuntimeBusy() const;
+    bool cudaRuntimeUpdateAvailable() const;
+    qint64 cudaRuntimeDownloadSize() const;
+    qint64 cudaRuntimeInstalledSize() const;
+
+    void checkCudaRuntimeUpdates(
+      QObject* context,
+      std::function<void(bool, const QString&)> callback);
 
     bool startServer(QString* error = nullptr);
     void stopServer();
@@ -63,6 +83,10 @@ public:
 
     void downloadModel(const QString& modelId);
     void cancelDownload();
+
+    void installCudaRuntime();
+    void cancelCudaRuntimeInstall();
+
     bool removeModel(const QString& modelId, QString* error = nullptr);
 
     void checkRemoteManifest(
@@ -72,6 +96,11 @@ public:
 signals:
     void downloadProgress(qint64 done, qint64 total, const QString& fileName);
     void downloadFinished(bool ok, const QString& message);
+
+    void cudaRuntimeProgress(qint64 done, qint64 total);
+    void cudaRuntimeFinished(bool ok, const QString& message);
+    void cudaRuntimeChanged();
+
     void serverStateChanged();
     void manifestChanged();
 
@@ -85,7 +114,38 @@ private:
         qint64 expectedSize{ 0 };
     };
 
+    struct CudaRuntimeFileInfo
+    {
+        QString path;
+        qint64 size{ 0 };
+    };
+
+    struct CudaRuntimeInfo
+    {
+        QString version;
+        QString displayVersion;
+        QString archiveName;
+        QUrl url;
+        qint64 archiveSize{ 0 };
+        QByteArray sha256;
+        QList<CudaRuntimeFileInfo> requiredFiles;
+
+        bool isValid() const
+        {
+            return !version.isEmpty() &&
+                   !displayVersion.isEmpty() &&
+                   !archiveName.isEmpty() &&
+                   url.isValid() &&
+                   url.scheme().compare(
+                     QStringLiteral("https"), Qt::CaseInsensitive) == 0 &&
+                   archiveSize > 0 &&
+                   sha256.size() == 64 &&
+                   !requiredFiles.isEmpty();
+        }
+    };
+
     static QList<OcrModelInfo> builtInModels();
+    static CudaRuntimeInfo builtInCudaRuntimeInfo();
     QList<OcrModelInfo> cachedRemoteModels() const;
     QString manifestCachePath() const;
     OcrModelInfo modelById(const QString& id) const;
@@ -97,6 +157,28 @@ private:
 
     void startNextDownload();
     void failDownload(const QString& message);
+
+    void startCudaRuntimeExtraction(const QString& archivePath);
+    void startCudaRuntimeSelfTest(const QString& previousVersion,
+                                  const QString& cudaDevice,
+                                  const QString& archivePath);
+    void waitForCudaRuntimeSelfTest(const QUrl& healthUrl,
+                                    int attemptsLeft,
+                                    const QString& previousVersion,
+                                    const QString& archivePath);
+    void stopCudaRuntimeSelfTestProcess();
+    void finishCudaRuntimeInstall(const QString& previousVersion,
+                                  const QString& archivePath);
+    void failCudaRuntimeSelfTest(const QString& reason,
+                                 const QString& previousVersion);
+    bool recordPreviousCudaRuntime(const QString& previousVersion,
+                                   QString* error = nullptr);
+    bool rollbackCudaRuntime(const QString& previousVersion,
+                             QString* error = nullptr);
+    void failCudaRuntime(const QString& message);
+    QString cudaRuntimeBaseDir() const;
+    QString cudaRuntimeCurrentDir() const;
+
     QString chooseDevice(const QString& executable) const;
 
     QNetworkAccessManager m_network;
@@ -110,4 +192,14 @@ private:
     qint64 m_downloadCompleted{ 0 };
     bool m_downloadCanceled{ false };
     QString m_downloadModelDir;
+
+    QFile* m_cudaDownloadFile{ nullptr };
+    QNetworkReply* m_cudaDownloadReply{ nullptr };
+    QProcess* m_cudaExtractProcess{ nullptr };
+    QProcess* m_cudaSelfTestProcess{ nullptr };
+    qint64 m_cudaDownloadOffset{ 0 };
+    bool m_cudaCanceled{ false };
+    QString m_cudaArchivePath;
+    QString m_cudaStagingDir;
+    CudaRuntimeInfo m_cudaRuntimeInfo;
 };
