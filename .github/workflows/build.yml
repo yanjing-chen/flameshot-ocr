@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 env:
-  OCR_VERSION: "2.3"
+  OCR_VERSION: "2.4"
   LLAMA_CPP_REF: "72797e891"
 
 jobs:
@@ -181,7 +181,10 @@ jobs:
             --output appimage
 
           test -s "$OUTPUT"
-          sha256sum "$OUTPUT" | tee "${OUTPUT}.sha256sum"
+          (
+            cd "$(dirname "$OUTPUT")"
+            sha256sum "$(basename "$OUTPUT")"
+          ) | tee "${OUTPUT}.sha256sum"
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v7
@@ -306,7 +309,7 @@ jobs:
                   seen.add("Version")
               elif line.startswith("Depends:"):
                   deps = line[len("Depends:"):].strip()
-                  extras = ["libvulkan1", "qt6-wayland", "ca-certificates"]
+                  extras = ["libvulkan1", "qt6-wayland", "ca-certificates", "zstd"]
                   for dep in extras:
                       if dep not in deps:
                           deps = f"{deps}, {dep}" if deps else dep
@@ -330,7 +333,10 @@ jobs:
           dpkg-deb --build --root-owner-group "$ROOT" "$OUT_DEB"
 
           dpkg-deb -I "$OUT_DEB"
-          sha256sum "$OUT_DEB" | tee "${OUT_DEB}.sha256sum"
+          (
+            cd "$(dirname "$OUT_DEB")"
+            sha256sum "$(basename "$OUT_DEB")"
+          ) | tee "${OUT_DEB}.sha256sum"
 
       - name: Upload deb artifact
         uses: actions/upload-artifact@v7
