@@ -3714,10 +3714,6 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <translation>检查 CUDA 更新</translation>
     </message>
     <message>
-        <source>Install CUDA runtime (~492 MB)</source>
-        <translation>安装 CUDA 运行环境（约 492 MB）</translation>
-    </message>
-    <message>
         <source>Update CUDA runtime</source>
         <translation>更新 CUDA 运行环境</translation>
     </message>
@@ -3732,16 +3728,6 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
     <message>
         <source>Install CUDA runtime</source>
         <translation>安装 CUDA 运行环境</translation>
-    </message>
-    <message>
-        <source>Download and install the verified CUDA runtime?
-
-Download size: approximately 492 MB
-Installed size: approximately 899 MB</source>
-        <translation>是否下载并安装已验证的 CUDA 运行环境？
-
-下载大小：约 492 MB
-安装后大小：约 899 MB</translation>
     </message>
     <message>
         <source>CUDA Runtime</source>
@@ -3776,6 +3762,10 @@ Installed size: %2</source>
 
 下载大小：%1
 安装后大小：%2</translation>
+    </message>
+    <message>
+        <source>Install CUDA runtime (%1)</source>
+        <translation>安装 CUDA 运行环境（%1）</translation>
     </message>
 </context>
 <context>

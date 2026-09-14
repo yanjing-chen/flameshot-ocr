@@ -102,7 +102,11 @@ OcrConf::OcrConf(QWidget* parent)
     cudaButtonsLayout->setContentsMargins(0, 0, 0, 0);
 
     m_installCudaButton =
-      new QPushButton(tr("Install CUDA runtime (~492 MB)"), cudaButtons);
+      new QPushButton(tr("Install CUDA runtime (%1)")
+        .arg(QLocale().formattedDataSize(
+          OcrManager::instance()->cudaRuntimeDownloadSize(),
+          1,
+          QLocale::DataSizeTraditionalFormat)), cudaButtons);
     m_checkCudaUpdatesButton =
       new QPushButton(tr("Check CUDA updates"), cudaButtons);
     m_cancelCudaButton =
@@ -637,7 +641,11 @@ void OcrConf::refreshCudaRuntimeStatus()
         m_installCudaButton->setText(tr("Update CUDA runtime"));
     } else {
         m_installCudaButton->setText(
-          tr("Install CUDA runtime (~492 MB)"));
+          tr("Install CUDA runtime (%1)")
+        .arg(QLocale().formattedDataSize(
+          OcrManager::instance()->cudaRuntimeDownloadSize(),
+          1,
+          QLocale::DataSizeTraditionalFormat)));
     }
 
     m_installCudaButton->setEnabled(
