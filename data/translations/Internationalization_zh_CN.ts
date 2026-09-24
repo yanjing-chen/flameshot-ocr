@@ -4,24 +4,20 @@
 <context>
     <name>AbstractWidgetList</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/abstract_widget_list.cpp" line="52"/>
         <source>Add New</source>
-        <translation>新增</translation>
+        <translation type="vanished">新增</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/abstract_widget_list.cpp" line="103"/>
         <source>Move Up</source>
-        <translation>上移</translation>
+        <translation type="vanished">上移</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/abstract_widget_list.cpp" line="104"/>
         <source>Move Down</source>
-        <translation>下移</translation>
+        <translation type="vanished">下移</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/abstract_widget_list.cpp" line="105"/>
         <source>Remove</source>
-        <translation>移除</translation>
+        <translation type="vanished">移除</translation>
     </message>
 </context>
 <context>
@@ -53,33 +49,35 @@
 <context>
     <name>AppLauncherWidget</name>
     <message>
-        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="51"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="53"/>
         <source>Open With</source>
         <translation>用...打开</translation>
     </message>
     <message>
-        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="80"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="82"/>
         <source>Launch in terminal</source>
         <translation>在终端中启动</translation>
     </message>
     <message>
-        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="81"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="83"/>
         <source>Keep open after selection</source>
         <translation>选择后保持此窗口打开</translation>
     </message>
     <message>
-        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="117"/>
-        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="151"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="123"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="130"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="165"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="151"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="165"/>
         <source>Unable to launch in terminal.</source>
         <translation>无法在终端中启动。</translation>
     </message>
     <message>
-        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="117"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="123"/>
+        <location filename="../../src/tools/launcher/applauncherwidget.cpp" line="130"/>
         <source>Unable to write in</source>
         <translation>无法写入</translation>
     </message>
@@ -87,14 +85,29 @@
 <context>
     <name>ArrowTool</name>
     <message>
-        <location filename="../../src/tools/arrow/arrowtool.cpp" line="78"/>
+        <location filename="../../src/tools/arrow/arrowtool.cpp" line="145"/>
         <source>Arrow</source>
         <translation>箭头</translation>
     </message>
     <message>
-        <location filename="../../src/tools/arrow/arrowtool.cpp" line="88"/>
+        <location filename="../../src/tools/arrow/arrowtool.cpp" line="155"/>
         <source>Set the Arrow as the paint tool</source>
         <translation>选择箭头作为绘画工具</translation>
+    </message>
+    <message>
+        <location filename="../../src/tools/arrow/arrowtool.cpp" line="209"/>
+        <source>Arrow style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/tools/arrow/arrowtool.cpp" line="212"/>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/tools/arrow/arrowtool.cpp" line="213"/>
+        <source>Curved</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -150,26 +163,22 @@
     </message>
     <message>
         <location filename="../../src/widgets/capturelauncher.ui" line="94"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_capturelauncher.h" line="186"/>
         <location filename="../../src/widgets/capturelauncher.cpp" line="90"/>
         <source> seconds</source>
         <translation> 秒</translation>
     </message>
     <message>
         <location filename="../../src/widgets/capturelauncher.ui" line="166"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_capturelauncher.h" line="188"/>
         <source>Take new screenshot</source>
         <translation>获取新屏幕截图</translation>
     </message>
     <message>
         <location filename="../../src/widgets/capturelauncher.ui" line="47"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_capturelauncher.h" line="181"/>
         <source>Area:</source>
         <translation>区域：</translation>
     </message>
     <message>
         <location filename="../../src/widgets/capturelauncher.ui" line="14"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_capturelauncher.h" line="179"/>
         <source>Capture Launcher</source>
         <translation>捕获启动器</translation>
     </message>
@@ -179,25 +188,21 @@
     </message>
     <message>
         <location filename="../../src/widgets/capturelauncher.ui" line="32"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_capturelauncher.h" line="180"/>
         <source>Capture Mode</source>
         <translation>捕获模式</translation>
     </message>
     <message>
         <location filename="../../src/widgets/capturelauncher.ui" line="64"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_capturelauncher.h" line="183"/>
         <source>Delay:</source>
         <translation>延迟：</translation>
     </message>
     <message>
         <location filename="../../src/widgets/capturelauncher.ui" line="71"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_capturelauncher.h" line="184"/>
         <source>Monitor:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/widgets/capturelauncher.ui" line="87"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_capturelauncher.h" line="185"/>
         <source>WxH+x+y</source>
         <translation>宽x高+x+y</translation>
     </message>
@@ -210,72 +215,72 @@
         <translation type="vanished">无法捕获屏幕</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="468"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="490"/>
         <source>Mouse</source>
         <translation>鼠标</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="468"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="490"/>
         <source>Select screenshot area</source>
         <translation>选择截屏区域</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="482"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="504"/>
         <source>Mouse Wheel</source>
         <translation>鼠标滚轮</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="482"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="504"/>
         <source>Change tool size</source>
         <translation>改变工具大小</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="483"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="505"/>
         <source>Right Click</source>
         <translation>右键单击</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="483"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="505"/>
         <source>Show color picker</source>
         <translation>显示颜色选择器</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="485"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="507"/>
         <source>Open side panel</source>
         <translation>打开侧边栏</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="486"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="508"/>
         <source>Esc</source>
         <translation>Esc</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="486"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="508"/>
         <source>Exit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="527"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="549"/>
         <source>Quit Capture</source>
         <translation>退出截图</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="528"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="550"/>
         <source>Are you sure you want to quit capture?</source>
         <translation>确定要退出截屏吗？</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="533"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="555"/>
         <source>Do not show this again</source>
         <translation>不再显示</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="777"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="799"/>
         <source>Flameshot has lost focus. Keyboard shortcuts won&apos;t work until you click somewhere.</source>
         <translation>火焰截图丢失了屏幕焦点。您需要点击一次屏幕才能正常使用键盘快捷键。</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="783"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="805"/>
         <source>Configuration error resolved. Launch `flameshot gui` again to apply it.</source>
         <translation>已解决配置文件错误。请再次运行 `flameshot gui` 命令以应用更改。</translation>
     </message>
@@ -292,31 +297,43 @@ Press Space to open the side panel.</source>
 按下空格键以打开侧边面板。</translation>
     </message>
     <message>
-        <location filename="../../src/widgets/capture/capturewidget.cpp" line="1215"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="1236"/>
         <source>Tool Settings</source>
         <translation>工具设置</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2094"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2105"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2143"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2235"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2251"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2270"/>
         <source>OCR</source>
         <translation>OCR</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2095"/>
         <source>There is no image in the current selection.</source>
         <translation>当前选区中没有可识别的图像。</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2100"/>
         <source>Preparing PaddleOCR-VL service...</source>
         <translation>正在准备 PaddleOCR-VL 服务…</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2101"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2128"/>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2219"/>
         <source>OCR server unavailable</source>
         <translation>OCR 服务不可用</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2129"/>
         <source>PaddleOCR-VL is not ready.
 
 %1</source>
@@ -325,14 +342,17 @@ Press Space to open the side panel.</source>
 %1</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2133"/>
         <source>Recognizing text with PaddleOCR-VL...</source>
         <translation>正在使用 PaddleOCR-VL 识别文字…</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2144"/>
         <source>Failed to prepare the selected image for OCR.</source>
         <translation>无法准备用于 OCR 的选区图像。</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2220"/>
         <source>The OCR request failed.
 
 %1</source>
@@ -341,39 +361,44 @@ Press Space to open the side panel.</source>
 %1</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2236"/>
         <source>The OCR server returned invalid JSON.</source>
         <translation>OCR 服务返回了无效的 JSON 数据。</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2252"/>
         <source>The OCR server returned no recognition result.</source>
         <translation>OCR 服务没有返回识别结果。</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2271"/>
         <source>No text was recognized in the selected area.</source>
         <translation>所选区域中未识别到文字。</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2284"/>
         <source>OCR Result</source>
         <translation>OCR 识别结果</translation>
     </message>
     <message>
+        <location filename="../../src/widgets/capture/capturewidget.cpp" line="2296"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>关闭</translation>
+        <translation type="vanished">关闭</translation>
     </message>
 </context>
 <context>
     <name>CircleCountTool</name>
     <message>
-        <location filename="../../src/tools/circlecount/circlecounttool.cpp" line="69"/>
+        <location filename="../../src/tools/circlecount/circlecounttool.cpp" line="71"/>
         <source>Circle Counter</source>
         <translation>圆圈计数</translation>
     </message>
     <message>
-        <location filename="../../src/tools/circlecount/circlecounttool.cpp" line="87"/>
+        <location filename="../../src/tools/circlecount/circlecounttool.cpp" line="89"/>
         <source>Add an autoincrementing counter bubble</source>
         <translation>添加数字自动递增的计数圆圈</translation>
     </message>
@@ -394,58 +419,40 @@ Press Space to open the side panel.</source>
 <context>
     <name>ColorDialog</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="19"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="312"/>
         <source>Select Color</source>
-        <translation>选择颜色</translation>
+        <translation type="vanished">选择颜色</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="60"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="313"/>
         <source>Saturation</source>
-        <translation>饱和度</translation>
+        <translation type="vanished">饱和度</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="67"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="314"/>
         <source>Hue</source>
-        <translation>色相</translation>
+        <translation type="vanished">色相</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="84"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="315"/>
         <source>Hex</source>
-        <translation>Hex</translation>
+        <translation type="vanished">Hex</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="91"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="316"/>
         <source>Blue</source>
-        <translation>蓝</translation>
+        <translation type="vanished">蓝</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="128"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="317"/>
         <source>Value</source>
-        <translation>值</translation>
+        <translation type="vanished">值</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="135"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="318"/>
         <source>Green</source>
-        <translation>绿</translation>
+        <translation type="vanished">绿</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="142"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="319"/>
         <source>Alpha</source>
-        <translation>透明</translation>
+        <translation type="vanished">透明</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.ui" line="149"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_dialog.h" line="320"/>
         <source>Red</source>
-        <translation>红</translation>
+        <translation type="vanished">红</translation>
     </message>
 </context>
 <context>
@@ -579,40 +586,40 @@ Press Space to open the side panel.</source>
 <context>
     <name>ConfigHandler</name>
     <message>
-        <location filename="../../src/utils/confighandler.cpp" line="600"/>
+        <location filename="../../src/utils/confighandler.cpp" line="612"/>
         <source>Unrecognized setting: &apos;%1&apos;
 </source>
         <translation>无法识别的设置：“%1”
 </translation>
     </message>
     <message>
-        <location filename="../../src/utils/confighandler.cpp" line="608"/>
+        <location filename="../../src/utils/confighandler.cpp" line="620"/>
         <source>Unrecognized shortcut name: &apos;%1&apos;.
 </source>
         <translation>无法识别的快捷键名称：“%1”
 </translation>
     </message>
     <message>
-        <location filename="../../src/utils/confighandler.cpp" line="651"/>
+        <location filename="../../src/utils/confighandler.cpp" line="663"/>
         <source>Shortcut conflict: &apos;%1&apos; and &apos;%2&apos; have the same shortcut: %3
 </source>
         <translation>快捷键冲突：“%1”和“%2”有同样的快捷键：%3
 </translation>
     </message>
     <message>
-        <location filename="../../src/utils/confighandler.cpp" line="689"/>
+        <location filename="../../src/utils/confighandler.cpp" line="701"/>
         <source>Bad value in &apos;%1&apos;. Expected: %2
 </source>
         <translation>“%1”使用了不正确的值，期望为：%2
 </translation>
     </message>
     <message>
-        <location filename="../../src/utils/confighandler.cpp" line="738"/>
+        <location filename="../../src/utils/confighandler.cpp" line="750"/>
         <source>You have successfully resolved the configuration error.</source>
         <translation>您已成功解决配置文件错误。</translation>
     </message>
     <message>
-        <location filename="../../src/utils/confighandler.cpp" line="761"/>
+        <location filename="../../src/utils/confighandler.cpp" line="773"/>
         <source>The configuration contains an error. Open configuration to resolve.</source>
         <translation>配置文件存在错误。请打开配置界面进行处理。</translation>
     </message>
@@ -621,7 +628,7 @@ Press Space to open the side panel.</source>
         <translation type="vanished">配置文件存在错误。已回退到使用默认配置。</translation>
     </message>
     <message>
-        <location filename="../../src/utils/confighandler.cpp" line="816"/>
+        <location filename="../../src/utils/confighandler.cpp" line="828"/>
         <source>Bad config key &apos;%1&apos; in ConfigHandler. Please report this as a bug.</source>
         <translation>ConfigHandler 中存在错误的配置键“%1”。请向我们报告这个问题。</translation>
     </message>
@@ -686,41 +693,42 @@ Please solve them manually in the configuration file.</source>
 <context>
     <name>ConfigWindow</name>
     <message>
-        <location filename="../../src/config/configwindow.cpp" line="39"/>
+        <location filename="../../src/config/configwindow.cpp" line="45"/>
         <source>Configuration</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="../../src/config/configwindow.cpp" line="67"/>
+        <location filename="../../src/config/configwindow.cpp" line="81"/>
         <source>Interface</source>
         <translation>界面</translation>
     </message>
     <message>
-        <location filename="../../src/config/configwindow.cpp" line="77"/>
+        <location filename="../../src/config/configwindow.cpp" line="91"/>
         <source>Filename Editor</source>
         <translation>文件名编辑器</translation>
     </message>
     <message>
-        <location filename="../../src/config/configwindow.cpp" line="58"/>
+        <location filename="../../src/config/configwindow.cpp" line="64"/>
         <source>General</source>
         <translation>常规</translation>
     </message>
     <message>
-        <location filename="../../src/config/configwindow.cpp" line="86"/>
+        <location filename="../../src/config/configwindow.cpp" line="100"/>
         <source>Shortcuts</source>
         <translation>快捷键</translation>
     </message>
     <message>
-        <location filename="../../src/config/configwindow.cpp" line="119"/>
+        <location filename="../../src/config/configwindow.cpp" line="138"/>
         <source>Resolve</source>
         <translation>处理</translation>
     </message>
     <message>
-        <location filename="../../src/config/configwindow.cpp" line="123"/>
+        <location filename="../../src/config/configwindow.cpp" line="142"/>
         <source>&lt;b&gt;Configuration file has errors. Resolve them before continuing.&lt;/b&gt;</source>
         <translation>&lt;b&gt;配置文件存在错误。请在继续操作前进行处理。&lt;/b&gt;</translation>
     </message>
     <message>
+        <location filename="../../src/config/configwindow.cpp" line="72"/>
         <source>OCR</source>
         <translation>OCR</translation>
     </message>
@@ -876,17 +884,17 @@ Please solve them manually in the configuration file.</source>
 <context>
     <name>Flameshot</name>
     <message>
-        <location filename="../../src/core/flameshot.cpp" line="122"/>
+        <location filename="../../src/core/flameshot.cpp" line="164"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../../src/core/flameshot.cpp" line="122"/>
+        <location filename="../../src/core/flameshot.cpp" line="164"/>
         <source>Unable to close active modal widgets</source>
         <translation>无法关闭活动模态微件</translation>
     </message>
     <message>
-        <location filename="../../src/core/flameshot.cpp" line="441"/>
+        <location filename="../../src/core/flameshot.cpp" line="520"/>
         <source>URL copied to clipboard.</source>
         <translation>链接已复制至剪贴板。</translation>
     </message>
@@ -898,18 +906,18 @@ Please solve them manually in the configuration file.</source>
         <translation type="vanished">新版本 %1 可用</translation>
     </message>
     <message>
-        <location filename="../../src/core/flameshotdaemon.cpp" line="272"/>
-        <location filename="../../src/core/flameshotdaemon.cpp" line="436"/>
+        <location filename="../../src/core/flameshotdaemon.cpp" line="275"/>
+        <location filename="../../src/core/flameshotdaemon.cpp" line="435"/>
         <source>You have the latest version</source>
         <translation>你正在运行最新版本</translation>
     </message>
     <message>
-        <location filename="../../src/core/flameshotdaemon.cpp" line="445"/>
+        <location filename="../../src/core/flameshotdaemon.cpp" line="444"/>
         <source>Failed to get information about the latest version.</source>
         <translation>未能获取最新版本信息。</translation>
     </message>
     <message>
-        <location filename="../../src/core/flameshotdaemon.cpp" line="468"/>
+        <location filename="../../src/core/flameshotdaemon.cpp" line="467"/>
         <source>Unable to connect via DBus</source>
         <translation>无法使用 DBus 连接</translation>
     </message>
@@ -1037,7 +1045,7 @@ Please solve them manually in the configuration file.</source>
     <name>GeneralConf</name>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="195"/>
-        <location filename="../../src/config/generalconf.cpp" line="379"/>
+        <location filename="../../src/config/generalconf.cpp" line="377"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
@@ -1045,7 +1053,7 @@ Please solve them manually in the configuration file.</source>
         <location filename="../../src/config/generalconf.cpp" line="201"/>
         <location filename="../../src/config/generalconf.cpp" line="210"/>
         <location filename="../../src/config/generalconf.cpp" line="235"/>
-        <location filename="../../src/config/generalconf.cpp" line="754"/>
+        <location filename="../../src/config/generalconf.cpp" line="752"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
@@ -1099,7 +1107,7 @@ Please solve them manually in the configuration file.</source>
         <translation>显示桌面通知</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="339"/>
+        <location filename="../../src/config/generalconf.cpp" line="338"/>
         <source>Show tray icon</source>
         <translation>显示托盘图标</translation>
     </message>
@@ -1108,32 +1116,32 @@ Please solve them manually in the configuration file.</source>
         <translation type="vanished">显示任务栏图标</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="352"/>
+        <location filename="../../src/config/generalconf.cpp" line="350"/>
         <source>Confirmation required to delete screenshot from the latest uploads</source>
         <translation>从最近的上传历史中删除屏幕截图需要进行确认</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="367"/>
+        <location filename="../../src/config/generalconf.cpp" line="365"/>
         <source>Configuration File</source>
         <translation>配置文件</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="372"/>
+        <location filename="../../src/config/generalconf.cpp" line="370"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="386"/>
+        <location filename="../../src/config/generalconf.cpp" line="384"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="397"/>
+        <location filename="../../src/config/generalconf.cpp" line="395"/>
         <source>Automatic check for updates</source>
         <translation>自动检查更新</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="411"/>
+        <location filename="../../src/config/generalconf.cpp" line="409"/>
         <source>Allow multiple flameshot GUI instances simultaneously</source>
         <translation>允许同时运行多个 flameshot GUI 实例</translation>
     </message>
@@ -1154,17 +1162,17 @@ Please solve them manually in the configuration file.</source>
         <translation type="vanished">启动火焰截图</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="448"/>
+        <location filename="../../src/config/generalconf.cpp" line="446"/>
         <source>Show welcome message on launch</source>
         <translation>启动时显示欢迎消息</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="476"/>
+        <location filename="../../src/config/generalconf.cpp" line="474"/>
         <source>Use large predefined color palette</source>
         <translation>使用大型预定义调色盘</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="500"/>
+        <location filename="../../src/config/generalconf.cpp" line="498"/>
         <source>Copy URL after upload</source>
         <translation>上传后复制 URL</translation>
     </message>
@@ -1173,7 +1181,7 @@ Please solve them manually in the configuration file.</source>
         <translation type="vanished">上传后复制 URL 并关闭窗口</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="512"/>
+        <location filename="../../src/config/generalconf.cpp" line="510"/>
         <source>Save image after copy</source>
         <translation>复制后保存图像</translation>
     </message>
@@ -1217,7 +1225,7 @@ Please solve them manually in the configuration file.</source>
         <translation>启用中断通知</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="340"/>
+        <location filename="../../src/config/generalconf.cpp" line="339"/>
         <source>Show icon in the system tray</source>
         <translation>在系统托盘中显示图标</translation>
     </message>
@@ -1230,17 +1238,17 @@ Please solve them manually in the configuration file.</source>
         <translation type="vanished">Grim是一个只用于wayland的截图工具,基于screencopy protocol, 通常仅在最小化的wayland合成器中启用,如sway,hyprland等.</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="355"/>
+        <location filename="../../src/config/generalconf.cpp" line="353"/>
         <source>Ask for confirmation to delete screenshot from the latest uploads</source>
         <translation>从最近的上传历史中删除屏幕截图需要进行确认</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="398"/>
+        <location filename="../../src/config/generalconf.cpp" line="396"/>
         <source>Check for updates automatically</source>
         <translation>自动检查更新</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="412"/>
+        <location filename="../../src/config/generalconf.cpp" line="410"/>
         <source>This allows you to take screenshots of Flameshot itself for example</source>
         <translation>例如，这允许您截取 Flameshot 本身作为屏幕截图</translation>
     </message>
@@ -1249,17 +1257,17 @@ Please solve them manually in the configuration file.</source>
         <translation type="vanished">开机自启动</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="451"/>
+        <location filename="../../src/config/generalconf.cpp" line="449"/>
         <source>Show the welcome message box in the middle of the screen while taking a screenshot</source>
         <translation>在截取屏幕截图时在屏幕中间显示欢迎消息框</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="478"/>
+        <location filename="../../src/config/generalconf.cpp" line="476"/>
         <source>Use a large predefined color palette</source>
         <translation>使用一个大的预定义调色板</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="488"/>
+        <location filename="../../src/config/generalconf.cpp" line="486"/>
         <source>Copy on double click</source>
         <translation>双击以复制</translation>
     </message>
@@ -1272,248 +1280,258 @@ Please solve them manually in the configuration file.</source>
         <translation type="vanished">上传成功后复制 URL 并关闭窗口</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="424"/>
+        <location filename="../../src/config/generalconf.cpp" line="422"/>
         <source>Automatically unload from memory when it is not needed</source>
         <translation>在不需要时自动从内存中卸载</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="425"/>
+        <location filename="../../src/config/generalconf.cpp" line="423"/>
         <source>Automatically close daemon (background process) when it is not needed</source>
         <translation>在不需要时自动关闭守护程序（后台进程）</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="436"/>
+        <location filename="../../src/config/generalconf.cpp" line="434"/>
         <source>Launch in background at startup</source>
         <translation>在启动时在后台启动</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="437"/>
+        <location filename="../../src/config/generalconf.cpp" line="435"/>
         <source>Launch Flameshot daemon (background process) when computer is booted</source>
         <translation>当计算机启动时启动 Flameshot 守护进程（后台进程）</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="462"/>
+        <location filename="../../src/config/generalconf.cpp" line="460"/>
         <source>Ask before quit capture</source>
         <translation>退出截图前请询问</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="465"/>
+        <location filename="../../src/config/generalconf.cpp" line="463"/>
         <source>Show the confirmation prompt before ESC quit</source>
         <translation>在退出时显示确认提示</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="490"/>
+        <location filename="../../src/config/generalconf.cpp" line="488"/>
         <source>Enable Copy to clipboard on Double Click</source>
         <translation>在双击时启用复制到剪贴板</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="502"/>
+        <location filename="../../src/config/generalconf.cpp" line="500"/>
         <source>Copy URL after uploading was successful</source>
         <translation>上传成功后复制网址</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="514"/>
+        <location filename="../../src/config/generalconf.cpp" line="512"/>
         <source>After copying the screenshot, save it to a file as well</source>
         <translation>复制屏幕截图后，也将其保存到文件中</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="521"/>
+        <location filename="../../src/config/generalconf.cpp" line="519"/>
         <source>Save Path</source>
         <translation>保存路径</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="537"/>
+        <location filename="../../src/config/generalconf.cpp" line="535"/>
         <source>Change...</source>
         <translation>变更…</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="545"/>
+        <location filename="../../src/config/generalconf.cpp" line="543"/>
         <source>Use fixed path for screenshots to save</source>
         <translation>使用固定的屏幕截图保存路径</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="557"/>
+        <location filename="../../src/config/generalconf.cpp" line="555"/>
         <source>Preferred save file extension:</source>
         <translation>偏好的保存文件扩展名：</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="586"/>
+        <location filename="../../src/config/generalconf.cpp" line="584"/>
         <source>Latest Uploads Max Size</source>
         <translation>之前的上传最大数量</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="608"/>
+        <location filename="../../src/config/generalconf.cpp" line="606"/>
         <source>Imgur Application Client ID</source>
         <translation>Imgur 应用程序客户端 ID</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="639"/>
+        <location filename="../../src/config/generalconf.cpp" line="637"/>
         <source>Undo limit</source>
         <translation>撤销次数限制</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="668"/>
+        <location filename="../../src/config/generalconf.cpp" line="666"/>
         <source>Use JPG format for clipboard (PNG default)</source>
         <translation>剪贴板使用 JPG 格式（默认为 PNG）</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="675"/>
+        <location filename="../../src/config/generalconf.cpp" line="673"/>
         <source>Use lossy JPG format for clipboard (lossless PNG default)</source>
         <translation>对剪贴板使用有损JPG格式（默认无损PNG）</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="702"/>
+        <location filename="../../src/config/generalconf.cpp" line="700"/>
         <source>Copy file path after save</source>
         <translation>保存文件后复制文件路径</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="703"/>
+        <location filename="../../src/config/generalconf.cpp" line="701"/>
         <source>Copy the file path to clipboard after the file is saved</source>
         <translation>文件保存后将文件路径复制到剪贴板上</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="714"/>
+        <location filename="../../src/config/generalconf.cpp" line="712"/>
         <source>Anti-aliasing image when zoom the pinned image</source>
         <translation>缩放贴图时应用反锯齿</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="716"/>
+        <location filename="../../src/config/generalconf.cpp" line="714"/>
         <source>After zooming the pinned image, should the image get smoothened or stay pixelated</source>
         <translation>对贴图进行缩放后，对图像进行平滑处理还是维持像素化状态</translation>
     </message>
     <message>
+        <location filename="../../src/config/generalconf.cpp" line="725"/>
         <location filename="../../src/config/generalconf.cpp" line="727"/>
-        <location filename="../../src/config/generalconf.cpp" line="729"/>
         <source>Upload image without confirmation</source>
         <translation>上传图像无需确认</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="745"/>
+        <location filename="../../src/config/generalconf.cpp" line="743"/>
         <source>Choose a Folder</source>
         <translation>选择文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="754"/>
+        <location filename="../../src/config/generalconf.cpp" line="752"/>
         <source>Unable to write to directory.</source>
         <translation>无法写入目录。</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="763"/>
+        <location filename="../../src/config/generalconf.cpp" line="761"/>
         <source>Show magnifier</source>
         <translation>显示放大镜</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="764"/>
+        <location filename="../../src/config/generalconf.cpp" line="762"/>
         <source>Enable a magnifier while selecting the screenshot area</source>
         <translation>选择屏幕截图区域时启用放大镜</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="775"/>
+        <location filename="../../src/config/generalconf.cpp" line="773"/>
         <source>Square shaped magnifier</source>
         <translation>方形放大镜</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="776"/>
+        <location filename="../../src/config/generalconf.cpp" line="774"/>
         <source>Make the magnifier to be square-shaped</source>
         <translation>使放大镜呈方形</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="792"/>
+        <location filename="../../src/config/generalconf.cpp" line="790"/>
         <source>Milliseconds before geometry display hides; 0 means do not hide</source>
         <translation>几何显示隐藏前的毫秒数；设为0则不隐藏</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="795"/>
+        <location filename="../../src/config/generalconf.cpp" line="793"/>
         <source>Set geometry display timeout (ms)</source>
         <translation>设置几何显示时间(毫秒）</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="803"/>
+        <location filename="../../src/config/generalconf.cpp" line="801"/>
         <source>Selection Geometry Display</source>
         <translation>选取几何显示</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="810"/>
+        <location filename="../../src/config/generalconf.cpp" line="808"/>
         <source>Display Location</source>
         <translation>显示位置</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="813"/>
+        <location filename="../../src/config/generalconf.cpp" line="811"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="814"/>
+        <location filename="../../src/config/generalconf.cpp" line="812"/>
         <source>Top Left</source>
         <translation>左上</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="816"/>
+        <location filename="../../src/config/generalconf.cpp" line="814"/>
         <source>Top Right</source>
         <translation>右上</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="818"/>
+        <location filename="../../src/config/generalconf.cpp" line="816"/>
         <source>Bottom Left</source>
         <translation>左下</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="820"/>
+        <location filename="../../src/config/generalconf.cpp" line="818"/>
         <source>Bottom Right</source>
         <translation>右下</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="822"/>
+        <location filename="../../src/config/generalconf.cpp" line="820"/>
         <source>Center</source>
         <translation>中心</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="847"/>
+        <location filename="../../src/config/generalconf.cpp" line="845"/>
         <source>Quality range of 0-100; Higher number is better quality and larger file size</source>
         <translation>质量范围为0-100；数字越大，质量越好，文件大小也越大</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="851"/>
+        <location filename="../../src/config/generalconf.cpp" line="849"/>
         <source>JPEG Quality</source>
         <translation>JPEG质量</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="862"/>
+        <location filename="../../src/config/generalconf.cpp" line="860"/>
         <source>Reverse arrow</source>
         <translation>反向箭头</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="863"/>
+        <location filename="../../src/config/generalconf.cpp" line="861"/>
         <source>Draw the arrow head first</source>
         <translation>先画箭头</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="872"/>
+        <location filename="../../src/config/generalconf.cpp" line="870"/>
         <source>Insecure Pixelate</source>
         <translation>不安全Pixelate</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="874"/>
+        <location filename="../../src/config/generalconf.cpp" line="872"/>
         <source>Draw the pixelation effect in an insecure but more asethetic way.</source>
         <translation>用一种不安全但更美观的方式画出像素效果。</translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="929"/>
-        <source>Capture active monitor (skip monitor selection)</source>
+        <location filename="../../src/config/generalconf.cpp" line="927"/>
+        <source>Capture active monitor in X11 and Windows (skip monitor selection)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="931"/>
-        <source>Automatically capture the monitor where the cursor is located instead of showing the monitor selection dialog. This feature is not supported on Wayland.</source>
+        <location filename="../../src/config/generalconf.cpp" line="930"/>
+        <source>Automatically capture the monitor where the cursor is located instead of showing the monitor selection dialog. This feature is not supported on macOS and Wayland.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="952"/>
-        <source>Use legacy X11 screenshot method (deprecated)</source>
+        <location filename="../../src/config/generalconf.cpp" line="951"/>
+        <source>Use native fullscreen for capture overlay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/config/generalconf.cpp" line="954"/>
+        <location filename="../../src/config/generalconf.cpp" line="953"/>
+        <source>Use macOS native fullscreen mode for the capture overlay. When disabled (default), the overlay avoids the fullscreen desktop animation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/generalconf.cpp" line="974"/>
+        <source>Use legacy X11 screenshot method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/generalconf.cpp" line="976"/>
         <source>Bypass the freedesktop portal and use Qt&apos;s native X11 screen capture. Enable this if your window manager lacks xdg-desktop-portal (e.g. xmonad, i3). Only effective on X11; ignored on Wayland.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1741,49 +1759,41 @@ Please solve them manually in the configuration file.</source>
     <name>InfoWindow</name>
     <message>
         <location filename="../../src/widgets/infowindow.ui" line="14"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_infowindow.h" line="116"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
         <location filename="../../src/widgets/infowindow.ui" line="26"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_infowindow.h" line="117"/>
         <source>Icon</source>
         <translation>图标</translation>
     </message>
     <message>
         <location filename="../../src/widgets/infowindow.ui" line="43"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_infowindow.h" line="118"/>
         <source>License</source>
         <translation>许可证</translation>
     </message>
     <message>
         <location filename="../../src/widgets/infowindow.ui" line="56"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_infowindow.h" line="119"/>
         <source>GPLv3+</source>
         <translation>GPLv3+</translation>
     </message>
     <message>
         <location filename="../../src/widgets/infowindow.ui" line="89"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_infowindow.h" line="120"/>
         <source>Version</source>
         <translation>版本</translation>
     </message>
     <message>
         <location filename="../../src/widgets/infowindow.ui" line="102"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_infowindow.h" line="121"/>
         <source>Flameshot v</source>
         <translation>Flameshot v</translation>
     </message>
     <message>
         <location filename="../../src/widgets/infowindow.ui" line="115"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_infowindow.h" line="122"/>
         <source>OS Info</source>
         <translation>操作系统信息</translation>
     </message>
     <message>
         <location filename="../../src/widgets/infowindow.ui" line="128"/>
-        <location filename="../../build/src/flameshot_autogen/include/ui_infowindow.h" line="123"/>
         <source>Copy Info</source>
         <translation>复制信息</translation>
     </message>
@@ -1887,6 +1897,316 @@ Please solve them manually in the configuration file.</source>
     </message>
 </context>
 <context>
+    <name>LocalAiRuntimeInstaller</name>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="409"/>
+        <source>Local AI Runtime is installed, but the service is not running.</source>
+        <translation>本地 AI 运行环境已安装，但服务未运行。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="411"/>
+        <source>Local AI Runtime is not installed.</source>
+        <translation>本地 AI 运行环境尚未安装。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="433"/>
+        <source>Port 8111 is occupied by another service.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="505"/>
+        <source>Shared Local AI Runtime is running.</source>
+        <translation>共享本地 AI 运行环境正在运行。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="507"/>
+        <source>Runtime is running, but model status could not be read: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="541"/>
+        <source>Checking Local AI Runtime...</source>
+        <translation>正在检查本地 AI 运行环境……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="558"/>
+        <source>Port 8111 is already occupied by another service. Stop that service before installing the shared Local AI Runtime.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="577"/>
+        <source>Checking the Local AI Runtime release...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="587"/>
+        <source>Could not download the Local AI Runtime manifest: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="611"/>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1218"/>
+        <source>Local AI Runtime %1 is installed and running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="636"/>
+        <source>Unsupported Local AI Runtime manifest schema.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="651"/>
+        <source>The Local AI Runtime manifest has no latest version.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="683"/>
+        <source>No compatible Linux x86_64 Local AI Runtime package was found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="730"/>
+        <source>The Local AI Runtime archive metadata is invalid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="752"/>
+        <source>The selected Local AI Runtime package unexpectedly requires root.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="762"/>
+        <source>The Local AI Runtime installer path is not permitted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="784"/>
+        <source>The Local AI Runtime installer does not request user-service startup.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="814"/>
+        <source>Could not create a temporary installation directory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="829"/>
+        <source>Could not create the temporary runtime archive.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="839"/>
+        <source>Downloading Local AI Runtime %1...</source>
+        <translation>正在下载本地 AI 运行环境 %1……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="886"/>
+        <source>Downloading Local AI Runtime %1 — %2 / %3 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="944"/>
+        <source>Unknown download error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="952"/>
+        <source>Local AI Runtime download failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="960"/>
+        <source>Could not write the downloaded runtime archive.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="987"/>
+        <source>Local AI Runtime archive size verification failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="998"/>
+        <source>Could not open the downloaded runtime archive for verification.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1021"/>
+        <source>Local AI Runtime SHA256 verification failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1035"/>
+        <source>The temporary installation directory is unavailable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1048"/>
+        <source>Could not create the runtime extraction directory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1056"/>
+        <source>Verifying and extracting Local AI Runtime...</source>
+        <translation>正在校验并解压本地 AI 运行环境……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1073"/>
+        <source>Could not extract Local AI Runtime: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1088"/>
+        <source>The Local AI Runtime archive has an unexpected layout.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1103"/>
+        <source>The Local AI Runtime installer is missing from the archive.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1119"/>
+        <source>Installing Local AI Runtime for the current user...</source>
+        <translation>正在为当前用户安装本地 AI 运行环境……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1136"/>
+        <source>Local AI Runtime installation failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1157"/>
+        <source>Restarting the Local AI Runtime user service...</source>
+        <translation>正在重启本地 AI 运行环境用户服务……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1159"/>
+        <source>Starting the Local AI Runtime user service...</source>
+        <translation>正在启动本地 AI 运行环境用户服务……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1178"/>
+        <source>Could not start the Local AI Runtime user service: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1210"/>
+        <source>Port 8111 became occupied by another service.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1234"/>
+        <source>Local AI Runtime did not become ready in time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1252"/>
+        <source>Checking the shared llama.cpp runtime...</source>
+        <translation>正在检查共享 llama.cpp 运行环境……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1264"/>
+        <source>Could not query the llama.cpp runtime: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1290"/>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1384"/>
+        <source>Shared llama.cpp runtime is installed.</source>
+        <translation>共享 llama.cpp 运行环境已安装。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1316"/>
+        <source>Could not start the llama.cpp runtime installation: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1338"/>
+        <source>Downloading and installing the shared llama.cpp runtime...</source>
+        <translation>正在下载并安装共享 llama.cpp 运行环境……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1354"/>
+        <source>Lost contact with Local AI Runtime while installing llama.cpp: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1394"/>
+        <source>llama.cpp runtime installation failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1408"/>
+        <source>The llama.cpp runtime reported success but is not installed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1418"/>
+        <source>Timed out while installing the shared llama.cpp runtime.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1498"/>
+        <source>Checking PaddleOCR-VL 1.6...</source>
+        <translation>正在检查 PaddleOCR-VL 1.6……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1510"/>
+        <source>Could not query the Local AI Runtime model catalog: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1528"/>
+        <source>PaddleOCR-VL 1.6 is not available in the shared model catalog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1565"/>
+        <source>Could not start PaddleOCR-VL installation: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1587"/>
+        <source>Downloading and verifying PaddleOCR-VL 1.6...</source>
+        <translation>正在下载并校验 PaddleOCR-VL 1.6……</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1601"/>
+        <source>Lost contact with Local AI Runtime while installing PaddleOCR-VL: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1622"/>
+        <source>PaddleOCR-VL disappeared from the model catalog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1637"/>
+        <source>PaddleOCR-VL installation failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1647"/>
+        <source>PaddleOCR-VL reported success but is not installed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1656"/>
+        <source>Timed out while installing PaddleOCR-VL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1758"/>
+        <source>Local AI Runtime, llama.cpp and PaddleOCR-VL are ready.</source>
+        <translation>本地 AI 运行环境、llama.cpp 和 PaddleOCR-VL 已准备就绪。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="1763"/>
+        <source>Local AI Runtime is ready for OCR.</source>
+        <translation>本地 AI 运行环境已可用于 OCR。</translation>
+    </message>
+</context>
+<context>
     <name>MarkerTool</name>
     <message>
         <location filename="../../src/tools/marker/markertool.cpp" line="24"/>
@@ -1902,7 +2222,13 @@ Please solve them manually in the configuration file.</source>
 <context>
     <name>MonitorPreview</name>
     <message>
-        <location filename="../../src/utils/monitorpreview.cpp" line="31"/>
+        <location filename="../../src/utils/monitorpreview.cpp" line="45"/>
+        <source>Monitor %1: %2
+Click or press %1 to select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/utils/monitorpreview.cpp" line="48"/>
         <source>Monitor %1: %2
 Click to select</source>
         <translation type="unfinished"></translation>
@@ -1919,6 +2245,1061 @@ Click to select</source>
         <location filename="../../src/tools/move/movetool.cpp" line="34"/>
         <source>Move the selection area</source>
         <translation>移动选择区域</translation>
+    </message>
+</context>
+<context>
+    <name>OcrConf</name>
+    <message>
+        <source>PaddleOCR-VL Service</source>
+        <translation type="vanished">PaddleOCR-VL 服务</translation>
+    </message>
+    <message>
+        <source>Server URL:</source>
+        <translation type="vanished">服务器地址：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="112"/>
+        <location filename="../../src/config/ocrconf.cpp" line="220"/>
+        <source>Browse...</source>
+        <translation>浏览…</translation>
+    </message>
+    <message>
+        <source>llama-server:</source>
+        <translation type="vanished">llama-server：</translation>
+    </message>
+    <message>
+        <source>Automatically start the local OCR service when OCR is used</source>
+        <translation type="vanished">使用 OCR 时自动启动本地 OCR 服务</translation>
+    </message>
+    <message>
+        <source>Service status:</source>
+        <translation type="vanished">服务状态：</translation>
+    </message>
+    <message>
+        <source>Acceleration:</source>
+        <translation type="vanished">硬件加速：</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="vanished">启动</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="vanished">停止</translation>
+    </message>
+    <message>
+        <source>Test connection</source>
+        <translation type="vanished">测试连接</translation>
+    </message>
+    <message>
+        <source>OCR Model</source>
+        <translation type="vanished">OCR 模型</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="214"/>
+        <source>Model:</source>
+        <translation>模型：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="223"/>
+        <source>Model storage:</source>
+        <translation>模型存储位置：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="63"/>
+        <location filename="../../src/config/ocrconf.cpp" line="227"/>
+        <source>Status:</source>
+        <translation>状态：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="232"/>
+        <source>Download model</source>
+        <translation>下载模型</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="234"/>
+        <source>Cancel download</source>
+        <translation>取消下载</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="235"/>
+        <source>Delete model</source>
+        <translation>删除模型</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="190"/>
+        <location filename="../../src/config/ocrconf.cpp" line="245"/>
+        <source>Download:</source>
+        <translation>下载：</translation>
+    </message>
+    <message>
+        <source>Model Updates</source>
+        <translation type="vanished">模型更新</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="254"/>
+        <source>Optional HTTPS URL to a verified models.json manifest</source>
+        <translation>可选：经过验证的 models.json 清单 HTTPS 地址</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="255"/>
+        <source>Remote manifest:</source>
+        <translation>远程模型清单：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="258"/>
+        <source>Automatically check the configured manifest</source>
+        <translation>自动检查已配置的模型清单</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="264"/>
+        <source>Latest supported:</source>
+        <translation>最新支持版本：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="267"/>
+        <source>Check model updates</source>
+        <translation>检查模型更新</translation>
+    </message>
+    <message>
+        <source>Flameshot OCR ships with a built-in verified model list. Models are never bundled inside the AppImage. A remote manifest can add newer models after compatibility has been verified.</source>
+        <translation type="vanished">Flameshot OCR 内置经过验证的模型列表。模型不会打包到 AppImage 中。兼容性验证通过后，可通过远程清单添加新模型。</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="430"/>
+        <source>Choose llama-server executable</source>
+        <translation>选择 llama-server 可执行文件</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="447"/>
+        <source>Choose OCR model storage</source>
+        <translation>选择 OCR 模型存储位置</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="585"/>
+        <source>Delete OCR model</source>
+        <translation>删除 OCR 模型</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="586"/>
+        <source>Delete the selected OCR model from disk?</source>
+        <translation>是否从磁盘中删除所选 OCR 模型？</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="592"/>
+        <location filename="../../src/config/ocrconf.cpp" line="600"/>
+        <location filename="../../src/config/ocrconf.cpp" line="651"/>
+        <source>OCR</source>
+        <translation>OCR</translation>
+    </message>
+    <message>
+        <source>Testing...</source>
+        <translation type="vanished">正在测试…</translation>
+    </message>
+    <message>
+        <source>Connected — OCR service is healthy</source>
+        <translation type="vanished">已连接 — OCR 服务运行正常</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="615"/>
+        <source>Not connected — %1</source>
+        <translation>未连接 — %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="48"/>
+        <location filename="../../src/config/ocrconf.cpp" line="52"/>
+        <location filename="../../src/config/ocrconf.cpp" line="56"/>
+        <location filename="../../src/config/ocrconf.cpp" line="497"/>
+        <location filename="../../src/config/ocrconf.cpp" line="621"/>
+        <location filename="../../src/config/ocrconf.cpp" line="878"/>
+        <location filename="../../src/config/ocrconf.cpp" line="879"/>
+        <location filename="../../src/config/ocrconf.cpp" line="880"/>
+        <source>Checking...</source>
+        <translation>正在检查……</translation>
+    </message>
+    <message>
+        <source>llama-server not found</source>
+        <translation type="vanished">未找到 llama-server</translation>
+    </message>
+    <message>
+        <source>%1 (auto-selected)</source>
+        <translation type="vanished">%1（自动选择）</translation>
+    </message>
+    <message>
+        <source>Managed llama-server process is running</source>
+        <translation type="vanished">由 Flameshot 管理的 llama-server 进程正在运行</translation>
+    </message>
+    <message>
+        <source>No managed process (an external server may still be running)</source>
+        <translation type="vanished">没有由 Flameshot 管理的进程（外部服务可能仍在运行）</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="1005"/>
+        <source>%1 — current</source>
+        <translation>%1 — 当前版本</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="1007"/>
+        <source>%1 — update available</source>
+        <translation>%1 — 有可用更新</translation>
+    </message>
+    <message>
+        <source>Inference device:</source>
+        <translation type="vanished">推理设备：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="781"/>
+        <source>Automatic (recommended)</source>
+        <translation>自动（推荐）</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="796"/>
+        <source>%1 (currently unavailable)</source>
+        <translation>%1（当前不可用）</translation>
+    </message>
+    <message>
+        <source>%1 (manually selected)</source>
+        <translation type="vanished">%1（手动选择）</translation>
+    </message>
+    <message>
+        <source>NVIDIA CUDA Acceleration</source>
+        <translation type="vanished">NVIDIA CUDA 加速</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="163"/>
+        <source>CUDA runtime:</source>
+        <translation>CUDA 运行环境：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="167"/>
+        <source>Updates:</source>
+        <translation>更新：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="165"/>
+        <source>Not checked</source>
+        <translation>未检查</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="180"/>
+        <source>Check CUDA updates</source>
+        <translation>检查 CUDA 更新</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="535"/>
+        <location filename="../../src/config/ocrconf.cpp" line="850"/>
+        <source>Update CUDA runtime</source>
+        <translation>更新 CUDA 运行环境</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="182"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>CUDA support is downloaded separately and is not bundled in the AppImage. The NVIDIA driver remains managed by the operating system.</source>
+        <translation type="vanished">CUDA 支持将单独下载，不会打包进 AppImage。NVIDIA 驱动仍由操作系统负责管理。</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="536"/>
+        <source>Install CUDA runtime</source>
+        <translation>安装 CUDA 运行环境</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="513"/>
+        <location filename="../../src/config/ocrconf.cpp" line="680"/>
+        <location filename="../../src/config/ocrconf.cpp" line="683"/>
+        <source>CUDA Runtime</source>
+        <translation>CUDA 运行环境</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="45"/>
+        <location filename="../../src/config/ocrconf.cpp" line="401"/>
+        <source>Local AI Runtime</source>
+        <translation>本地 AI 运行环境</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="50"/>
+        <source>Runtime application:</source>
+        <translation>运行环境程序：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="54"/>
+        <source>llama.cpp runtime:</source>
+        <translation>llama.cpp 运行环境：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="58"/>
+        <source>PaddleOCR-VL:</source>
+        <translation>PaddleOCR-VL：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="61"/>
+        <location filename="../../src/config/ocrconf.cpp" line="882"/>
+        <source>Checking Local AI Runtime...</source>
+        <translation>正在检查本地 AI 运行环境……</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="70"/>
+        <location filename="../../src/config/ocrconf.cpp" line="374"/>
+        <source>Download and install</source>
+        <translation>下载并安装</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="72"/>
+        <source>Refresh status</source>
+        <translation>刷新状态</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="85"/>
+        <source>Step %v of %m</source>
+        <translation>第 %v / %m 步</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="88"/>
+        <source>Installation:</source>
+        <translation>安装进度：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="91"/>
+        <source>The shared Local AI Runtime is installed only for the current user and does not require sudo. Flameshot verifies the runtime package with SHA256 before installation. The installer then installs the shared llama.cpp runtime and PaddleOCR-VL 1.6.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="102"/>
+        <source>OCR Backend (Advanced / Compatibility)</source>
+        <translation>OCR 后端（高级 / 兼容）</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="106"/>
+        <source>API endpoint:</source>
+        <translation>API 接口：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="115"/>
+        <source>Legacy llama-server:</source>
+        <translation>旧版 llama-server：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="118"/>
+        <source>Legacy fallback device:</source>
+        <translation>旧版回退设备：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="121"/>
+        <source>Automatically start the legacy Flameshot OCR service if the shared runtime is unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="128"/>
+        <source>Runtime status:</source>
+        <translation>运行状态：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="132"/>
+        <source>Legacy fallback acceleration:</source>
+        <translation>旧版回退加速：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="137"/>
+        <source>Start legacy fallback</source>
+        <translation>启动旧版回退</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="138"/>
+        <source>Stop legacy fallback</source>
+        <translation>停止旧版回退</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="139"/>
+        <source>Test AI endpoint</source>
+        <translation>测试 AI 接口</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="147"/>
+        <source>Flameshot v2.5 prefers the shared OpenAI-compatible Local AI Runtime at the API endpoint above. If it is unavailable and automatic fallback is enabled, Flameshot can temporarily use the legacy v2.4 managed llama-server.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="158"/>
+        <source>Legacy NVIDIA CUDA Runtime (Compatibility)</source>
+        <translation>旧版 NVIDIA CUDA 运行环境（兼容）</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="200"/>
+        <source>This CUDA Runtime Manager belongs to the v2.4 compatibility fallback. The shared Local AI Runtime will manage acceleration independently after migration. The NVIDIA driver remains managed by the operating system.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="210"/>
+        <source>Legacy OCR Model (Compatibility)</source>
+        <translation>旧版 OCR 模型（兼容）</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="249"/>
+        <source>Legacy Model Updates (Compatibility)</source>
+        <translation>旧版模型更新（兼容）</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="271"/>
+        <source>These model controls belong to the legacy v2.4 fallback. The shared Local AI Runtime manages its own verified models independently. Models are never bundled inside the AppImage.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="320"/>
+        <location filename="../../src/config/ocrconf.cpp" line="840"/>
+        <source>unknown version</source>
+        <translation>未知版本</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="326"/>
+        <source>Installed — %1 — running</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="327"/>
+        <source>Running — %1 (external/development installation)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="332"/>
+        <source>Installed — %1 — service stopped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="334"/>
+        <location filename="../../src/config/ocrconf.cpp" line="343"/>
+        <location filename="../../src/config/ocrconf.cpp" line="351"/>
+        <source>Not installed</source>
+        <translation>未安装</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="339"/>
+        <location filename="../../src/config/ocrconf.cpp" line="347"/>
+        <source>Installed — %1</source>
+        <translation>已安装 — %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="341"/>
+        <source>version unknown</source>
+        <translation>版本未知</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="363"/>
+        <source>Port 8111 is in use</source>
+        <translation>端口 8111 正在使用</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="368"/>
+        <source>Repair / check for updates</source>
+        <translation>修复 / 检查更新</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="371"/>
+        <source>Install missing components</source>
+        <translation>安装缺失组件</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="609"/>
+        <source>Testing AI endpoint...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="614"/>
+        <source>Connected — AI endpoint is healthy</source>
+        <translation>已连接 — AI 接口运行正常</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="787"/>
+        <source>%1 — %2 [%3]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="791"/>
+        <source>CPU</source>
+        <translation type="unfinished">CPU</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="808"/>
+        <source>%1
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="831"/>
+        <source>Installed, but no active NVIDIA driver was detected.</source>
+        <translation>已安装，但未检测到正在工作的 NVIDIA 驱动。</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="834"/>
+        <source>No active NVIDIA driver detected. Vulkan or CPU will be used.</source>
+        <translation>未检测到正在工作的 NVIDIA 驱动，将使用 Vulkan 或 CPU。</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="839"/>
+        <source>Installed and verified — %1</source>
+        <translation>已安装并通过验证 — %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="843"/>
+        <source>Downloading or installing the CUDA runtime...</source>
+        <translation>正在下载或安装 CUDA 运行环境……</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="846"/>
+        <source>Not installed. NVIDIA Vulkan remains available as fallback.</source>
+        <translation>未安装。仍可使用 NVIDIA Vulkan 作为备用方案。</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="903"/>
+        <source>Legacy llama-server not found</source>
+        <translation>未找到旧版 llama-server</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="905"/>
+        <source>%1 (legacy fallback, auto-selected)</source>
+        <translation>%1（旧版回退，自动选择）</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="907"/>
+        <source>%1 (legacy fallback, manually selected)</source>
+        <translation>%1（旧版回退，手动选择）</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="918"/>
+        <source>Checking AI endpoint...</source>
+        <translation>正在检查 AI 接口……</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="930"/>
+        <source>Connected — legacy Flameshot-managed OCR fallback is running.</source>
+        <translation>已连接 — Flameshot 管理的旧版 OCR 回退服务正在运行。</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="934"/>
+        <source>Connected — shared/local AI runtime is available at %1</source>
+        <translation>已连接 — 共享本地 AI 运行环境可通过 %1 使用</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="939"/>
+        <source>Legacy fallback process exists, but the AI endpoint is not healthy — %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="944"/>
+        <source>Shared Local AI Runtime is not connected. The legacy fallback can be started if needed. — %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="541"/>
+        <source>Download and install the verified CUDA runtime?
+
+Download size: %1
+Installed size: %2</source>
+        <translation>是否下载并安装已验证的 CUDA 运行环境？
+
+下载大小：%1
+安装后大小：%2</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="174"/>
+        <location filename="../../src/config/ocrconf.cpp" line="853"/>
+        <source>Install CUDA runtime (%1)</source>
+        <translation>安装 CUDA 运行环境（%1）</translation>
+    </message>
+</context>
+<context>
+    <name>OcrManager</name>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="520"/>
+        <source>Unknown model</source>
+        <translation>未知模型</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="527"/>
+        <source>Installed and verified by file size</source>
+        <translation>已安装，并已通过文件大小校验</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="530"/>
+        <source>Not installed</source>
+        <translation>未安装</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="532"/>
+        <source>Incomplete or file size does not match</source>
+        <translation>模型不完整或文件大小不匹配</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="787"/>
+        <source>CPU</source>
+        <translation>CPU</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="802"/>
+        <source>Automatic server start is only allowed for localhost.</source>
+        <translation>仅允许为本机地址自动启动 OCR 服务。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="810"/>
+        <source>The selected OCR model is not installed completely.</source>
+        <translation>所选 OCR 模型尚未完整安装。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="819"/>
+        <source>llama-server was not found. Set its path in OCR settings.</source>
+        <translation>未找到 llama-server。请在 OCR 设置中指定其路径。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="861"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="870"/>
+        <source>Could not start llama-server: %1</source>
+        <translation>无法启动 llama-server：%1</translation>
+    </message>
+    <message>
+        <source>llama-server did not become ready: %1</source>
+        <translation type="vanished">llama-server 未能就绪：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="990"/>
+        <source>OCR service is not running and automatic start is disabled.
+%1</source>
+        <translation>OCR 服务未运行，并且已关闭自动启动。
+%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2430"/>
+        <source>A model download is already running.</source>
+        <translation>已有模型下载任务正在进行。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2436"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2666"/>
+        <source>Unknown OCR model.</source>
+        <translation>未知的 OCR 模型。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2442"/>
+        <source>Could not create the model directory.</source>
+        <translation>无法创建模型目录。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2462"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2587"/>
+        <source>Download canceled. Partial files were kept for resume.</source>
+        <translation>下载已取消。已保留未完成文件，可用于断点续传。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2502"/>
+        <source>Could not write %1</source>
+        <translation>无法写入 %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1608"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2578"/>
+        <source>Unknown network error</source>
+        <translation>未知网络错误</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2594"/>
+        <source>Download failed for %1: %2</source>
+        <translation>下载 %1 失败：%2</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2603"/>
+        <source>Downloaded file size is incorrect for %1 (%2 bytes, expected %3).</source>
+        <translation>下载的 %1 文件大小不正确（实际 %2 字节，应为 %3 字节）。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2614"/>
+        <source>Could not finalize downloaded file %1.</source>
+        <translation>无法完成下载文件 %1 的保存。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2633"/>
+        <source>OCR model download completed.</source>
+        <translation>OCR 模型下载完成。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2678"/>
+        <source>Could not remove model directory: %1</source>
+        <translation>无法删除模型目录：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2693"/>
+        <source>Remote model manifest URL is not configured. The built-in verified model list remains available.</source>
+        <translation>尚未配置远程模型清单地址。仍可使用内置的已验证模型列表。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2702"/>
+        <source>The remote model manifest URL is invalid.</source>
+        <translation>远程模型清单地址无效。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2734"/>
+        <source>Remote model manifest is not valid JSON.</source>
+        <translation>远程模型清单不是有效的 JSON 数据。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2757"/>
+        <source>Remote manifest contains no compatible verified OCR models.</source>
+        <translation>远程清单中没有兼容且经过验证的 OCR 模型。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2769"/>
+        <source>Could not save the remote model manifest.</source>
+        <translation>无法保存远程模型清单。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2779"/>
+        <source>Model list updated. Latest supported model: %1</source>
+        <translation>模型列表已更新。最新支持的模型：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1449"/>
+        <source>A CUDA runtime installation is already running.</source>
+        <translation>CUDA 运行环境安装任务正在进行。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="951"/>
+        <source>The local AI/OCR service did not become ready: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1456"/>
+        <source>No active NVIDIA driver was detected. CUDA runtime installation is not required on this system.</source>
+        <translation>未检测到正在工作的 NVIDIA 驱动，本系统无需安装 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1464"/>
+        <source>Stop the managed OCR service before installing the CUDA runtime.</source>
+        <translation>请先停止由 Flameshot 管理的 OCR 服务，再安装 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1473"/>
+        <source>CUDA runtime %1 is already installed.</source>
+        <translation>CUDA 运行环境 %1 已安装。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1484"/>
+        <source>Could not create the CUDA runtime download directory.</source>
+        <translation>无法创建 CUDA 运行环境下载目录。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1528"/>
+        <source>Could not write CUDA runtime download file.</source>
+        <translation>无法写入 CUDA 运行环境下载文件。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1617"/>
+        <source>CUDA runtime download canceled. The partial file was kept for resume.</source>
+        <translation>已取消 CUDA 运行环境下载，部分文件已保留，可供下次续传。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1624"/>
+        <source>CUDA runtime download failed: %1</source>
+        <translation>CUDA 运行环境下载失败：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1632"/>
+        <source>CUDA runtime download size is incorrect (%1 bytes, expected %2).</source>
+        <translation>CUDA 运行环境下载文件大小不正确（%1 字节，预期 %2 字节）。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1642"/>
+        <source>Could not finalize the CUDA runtime download.</source>
+        <translation>无法完成 CUDA 运行环境下载文件的保存。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1653"/>
+        <source>CUDA runtime SHA256 verification failed. The downloaded archive was removed.</source>
+        <translation>CUDA 运行环境 SHA256 校验失败，已删除下载的压缩包。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1667"/>
+        <source>zstd was not found. CUDA runtime extraction cannot continue.</source>
+        <translation>未找到 zstd，无法继续解压 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1675"/>
+        <source>tar was not found. CUDA runtime extraction cannot continue.</source>
+        <translation>未找到 tar，无法继续解压 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1681"/>
+        <source>Could not create the CUDA runtime directory.</source>
+        <translation>无法创建 CUDA 运行环境目录。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1692"/>
+        <source>Could not clear the previous CUDA runtime staging directory.</source>
+        <translation>无法清理之前的 CUDA 运行环境临时安装目录。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1698"/>
+        <source>Could not create the CUDA runtime staging directory.</source>
+        <translation>无法创建 CUDA 运行环境临时安装目录。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1731"/>
+        <source>CUDA runtime installation canceled.</source>
+        <translation>已取消 CUDA 运行环境安装。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1738"/>
+        <source>Could not extract the CUDA runtime.
+%1</source>
+        <translation>无法解压 CUDA 运行环境。
+%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1768"/>
+        <source>The extracted CUDA runtime is incomplete or invalid.</source>
+        <translation>解压后的 CUDA 运行环境不完整或无效。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1780"/>
+        <source>The CUDA runtime could not be started for verification.</source>
+        <translation>无法启动 CUDA 运行环境进行验证。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1789"/>
+        <source>CUDA runtime verification timed out.</source>
+        <translation>CUDA 运行环境验证超时。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1802"/>
+        <source>CUDA runtime verification failed.
+%1</source>
+        <translation>CUDA 运行环境验证失败。
+%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1836"/>
+        <source>Could not replace the existing CUDA runtime directory.</source>
+        <translation>无法替换现有的 CUDA 运行环境目录。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1847"/>
+        <source>Could not finalize the CUDA runtime directory.</source>
+        <translation>无法完成 CUDA 运行环境目录的安装。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1859"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2227"/>
+        <source>The CUDA runtime &apos;current&apos; path is not a symbolic link.</source>
+        <translation>CUDA 运行环境的“current”路径不是符号链接。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1893"/>
+        <source>Could not create the CUDA runtime version link.</source>
+        <translation>无法创建 CUDA 运行环境版本链接。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1904"/>
+        <source>Could not activate the new CUDA runtime.</source>
+        <translation>无法启用新的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2350"/>
+        <source>CUDA runtime %1 was installed and verified successfully.</source>
+        <translation>CUDA 运行环境 %1 已成功安装并通过验证。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1921"/>
+        <source>Could not start CUDA runtime extraction.</source>
+        <translation>无法启动 CUDA 运行环境解压过程。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1197"/>
+        <source>Could not check CUDA runtime updates: %1</source>
+        <translation>无法检查 CUDA 运行环境更新：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1207"/>
+        <source>The CUDA runtime manifest is invalid JSON.</source>
+        <translation>CUDA 运行环境清单不是有效的 JSON。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1216"/>
+        <source>The CUDA runtime manifest uses an unsupported schema version.</source>
+        <translation>CUDA 运行环境清单使用了不受支持的格式版本。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1226"/>
+        <source>The CUDA runtime manifest does not define a latest version.</source>
+        <translation>CUDA 运行环境清单未指定最新版本。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1259"/>
+        <source>The latest CUDA runtime is not available for Linux x86_64.</source>
+        <translation>最新 CUDA 运行环境不适用于 Linux x86_64。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1374"/>
+        <source>The latest CUDA runtime entry is incomplete or invalid.</source>
+        <translation>最新 CUDA 运行环境条目信息不完整或无效。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1385"/>
+        <source>Latest available CUDA runtime: %1</source>
+        <translation>可用的最新 CUDA 运行环境：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1395"/>
+        <source>CUDA runtime %1 is up to date.</source>
+        <translation>CUDA 运行环境 %1 已是最新版本。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1402"/>
+        <source>CUDA runtime update available: %1 → %2</source>
+        <translation>发现 CUDA 运行环境更新：%1 → %2</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1403"/>
+        <source>unknown version</source>
+        <translation>未知版本</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1815"/>
+        <source>CUDA runtime verification did not report a usable CUDA device.
+%1</source>
+        <translation>CUDA 运行环境验证未检测到可用的 CUDA 设备。
+%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1932"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2020"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2065"/>
+        <source>CUDA runtime installation was canceled.</source>
+        <translation>CUDA 运行环境安装已取消。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1953"/>
+        <source>The newly activated CUDA runtime executable is unavailable.</source>
+        <translation>新激活的 CUDA 运行环境可执行文件不可用。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1962"/>
+        <source>Could not allocate a temporary port for CUDA runtime verification.</source>
+        <translation>无法为 CUDA 运行环境验证分配临时端口。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1990"/>
+        <source>The CUDA runtime self-test could not be started: %1</source>
+        <translation>无法启动 CUDA 运行环境自检：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2027"/>
+        <source>The CUDA runtime self-test process disappeared unexpectedly.</source>
+        <translation>CUDA 运行环境自检进程意外终止。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2038"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2086"/>
+        <source>The CUDA runtime self-test exited before becoming healthy.
+%1</source>
+        <translation>CUDA 运行环境自检在服务就绪前退出。
+%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2098"/>
+        <source>The CUDA runtime self-test did not become healthy: %1</source>
+        <translation>CUDA 运行环境自检未能进入正常运行状态：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="1872"/>
+        <source>Could not determine the currently active CUDA runtime.</source>
+        <translation>无法确定当前激活的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2177"/>
+        <source>The CUDA runtime &apos;previous&apos; path is not a symbolic link.</source>
+        <translation>CUDA 运行环境的“previous”路径不是符号链接。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2195"/>
+        <source>Could not create the CUDA runtime rollback link.</source>
+        <translation>无法创建 CUDA 运行环境回滚链接。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2205"/>
+        <source>Could not record the previous CUDA runtime.</source>
+        <translation>无法记录上一版本的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2238"/>
+        <source>Could not deactivate the failed CUDA runtime.</source>
+        <translation>无法停用验证失败的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <source>The CUDA runtime rollback link is unavailable.</source>
+        <translation type="vanished">CUDA 运行环境回滚链接不可用。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2161"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2254"/>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2268"/>
+        <source>The previous CUDA runtime is unavailable or invalid.</source>
+        <translation>上一版本的 CUDA 运行环境不可用或无效。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2289"/>
+        <source>Could not create the CUDA runtime rollback activation link.</source>
+        <translation>无法创建用于恢复上一版本 CUDA 运行环境的激活链接。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2299"/>
+        <source>Could not reactivate the previous CUDA runtime.</source>
+        <translation>无法重新激活上一版本的 CUDA 运行环境。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2370"/>
+        <source>CUDA runtime post-install verification failed: %1
+Automatic rollback also failed: %2</source>
+        <translation>CUDA 运行环境安装后验证失败：%1
+自动回滚也失败：%2</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2378"/>
+        <source>CUDA runtime post-install verification failed: %1
+The new runtime was deactivated.</source>
+        <translation>CUDA 运行环境安装后验证失败：%1
+新的运行环境已停用。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2385"/>
+        <source>CUDA runtime post-install verification failed: %1
+Rolled back to %2.</source>
+        <translation>CUDA 运行环境安装后验证失败：%1
+已回滚到 %2。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2327"/>
+        <source>The new CUDA runtime passed verification, but the rollback state could not be recorded: %1
+Rolled back to %2.</source>
+        <translation>新的 CUDA 运行环境已通过验证，但无法记录回滚状态：%1
+已回滚到 %2。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="2333"/>
+        <source>The new CUDA runtime passed verification, but the rollback state could not be recorded: %1
+Automatic rollback also failed: %2</source>
+        <translation>新的 CUDA 运行环境已通过验证，但无法记录回滚状态：%1
+自动回滚也失败：%2</translation>
+    </message>
+</context>
+<context>
+    <name>OcrTool</name>
+    <message>
+        <location filename="../../src/tools/ocr/ocrtool.cpp" line="23"/>
+        <source>OCR</source>
+        <translation>OCR</translation>
+    </message>
+    <message>
+        <location filename="../../src/tools/ocr/ocrtool.cpp" line="33"/>
+        <source>Recognize text in selection with PaddleOCR-VL</source>
+        <translation>使用 PaddleOCR-VL 识别选区中的文字</translation>
     </message>
 </context>
 <context>
@@ -1950,42 +3331,42 @@ Click to select</source>
 <context>
     <name>PinWidget</name>
     <message>
-        <location filename="../../src/tools/pin/pinwidget.cpp" line="282"/>
+        <location filename="../../src/tools/pin/pinwidget.cpp" line="281"/>
         <source>Context menu</source>
         <translation>上下文菜单</translation>
     </message>
     <message>
-        <location filename="../../src/tools/pin/pinwidget.cpp" line="284"/>
+        <location filename="../../src/tools/pin/pinwidget.cpp" line="283"/>
         <source>Copy to clipboard</source>
         <translation>复制到剪贴板</translation>
     </message>
     <message>
-        <location filename="../../src/tools/pin/pinwidget.cpp" line="291"/>
+        <location filename="../../src/tools/pin/pinwidget.cpp" line="290"/>
         <source>Save to file</source>
         <translation>保存到文件</translation>
     </message>
     <message>
-        <location filename="../../src/tools/pin/pinwidget.cpp" line="298"/>
+        <location filename="../../src/tools/pin/pinwidget.cpp" line="297"/>
         <source>Rotate Right</source>
         <translation>向右旋转</translation>
     </message>
     <message>
-        <location filename="../../src/tools/pin/pinwidget.cpp" line="303"/>
+        <location filename="../../src/tools/pin/pinwidget.cpp" line="302"/>
         <source>Rotate Left</source>
         <translation>向左旋转</translation>
     </message>
     <message>
-        <location filename="../../src/tools/pin/pinwidget.cpp" line="308"/>
+        <location filename="../../src/tools/pin/pinwidget.cpp" line="307"/>
         <source>Increase Opacity</source>
         <translation>增加不透明度</translation>
     </message>
     <message>
-        <location filename="../../src/tools/pin/pinwidget.cpp" line="315"/>
+        <location filename="../../src/tools/pin/pinwidget.cpp" line="314"/>
         <source>Decrease Opacity</source>
         <translation>降低不透明度</translation>
     </message>
     <message>
-        <location filename="../../src/tools/pin/pinwidget.cpp" line="322"/>
+        <location filename="../../src/tools/pin/pinwidget.cpp" line="321"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
@@ -2010,14 +3391,12 @@ Click to select</source>
 <context>
     <name>PrimaryInstanceWidget</name>
     <message>
-        <location filename="../../build/_deps/kdsingleapplication-src/examples/widgetsingleapplication/primaryinstancewidget.cpp" line="21"/>
         <source>Primary instance</source>
-        <translation>主实例</translation>
+        <translation type="vanished">主实例</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/kdsingleapplication-src/examples/widgetsingleapplication/primaryinstancewidget.cpp" line="22"/>
         <source>&lt;b&gt;Primary instance.&lt;/b&gt; Messages received from secondaries:</source>
-        <translation>&lt;b&gt;主要实例。&lt;/b&gt;从secondary收到的消息：</translation>
+        <translation type="vanished">&lt;b&gt;主要实例。&lt;/b&gt;从secondary收到的消息：</translation>
     </message>
 </context>
 <context>
@@ -2034,20 +3413,20 @@ Click to select</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="369"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="339"/>
         <source>Save Error</source>
         <translation>保存错误</translation>
     </message>
     <message>
         <location filename="../../src/utils/screenshotsaver.cpp" line="64"/>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="349"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="319"/>
         <source>Capture saved as </source>
         <translation>捕获已保存为 </translation>
     </message>
     <message>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="204"/>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="206"/>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="270"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="172"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="174"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="240"/>
         <source>Capture saved to clipboard.</source>
         <translation>捕获已保存至剪贴板。</translation>
     </message>
@@ -2056,23 +3435,23 @@ Click to select</source>
         <translation type="vanished">捕获已保存至剪贴板</translation>
     </message>
     <message>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="190"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="158"/>
         <source>Error while saving to clipboard</source>
         <translation>保存到剪贴板时出错</translation>
     </message>
     <message>
         <location filename="../../src/utils/screenshotsaver.cpp" line="69"/>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="362"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="332"/>
         <source>Error trying to save as </source>
         <translation>尝试另存为时出错 </translation>
     </message>
     <message>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="326"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="296"/>
         <source>Save screenshot</source>
         <translation>保存屏幕截图</translation>
     </message>
     <message>
-        <location filename="../../src/utils/screenshotsaver.cpp" line="358"/>
+        <location filename="../../src/utils/screenshotsaver.cpp" line="328"/>
         <source>Path copied to clipboard as </source>
         <translation>路径已复制到剪贴板 </translation>
     </message>
@@ -2089,17 +3468,17 @@ Click to select</source>
         <translation type="vanished">捕获已保存并复制到剪贴板，作为 </translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="251"/>
+        <location filename="../../src/main.cpp" line="273"/>
         <source>Unable to connect via DBus</source>
         <translation>无法通过DBus进行连接</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="268"/>
+        <location filename="../../src/main.cpp" line="290"/>
         <source>Powerful yet simple to use screenshot software.</source>
         <translation>强大又易用的屏幕截图软件。</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="269"/>
+        <location filename="../../src/main.cpp" line="291"/>
         <source>See</source>
         <translation>参见</translation>
     </message>
@@ -2108,17 +3487,17 @@ Click to select</source>
         <translation type="vanished">捕获整个桌面。</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="275"/>
+        <location filename="../../src/main.cpp" line="297"/>
         <source>Open the capture launcher.</source>
         <translation>打开截图启动器。</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="278"/>
+        <location filename="../../src/main.cpp" line="300"/>
         <source>Start a manual capture in GUI mode.</source>
         <translation>以图形界面模式进行手动截图。</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="280"/>
+        <location filename="../../src/main.cpp" line="302"/>
         <source>Configure</source>
         <translation>配置</translation>
     </message>
@@ -2131,27 +3510,27 @@ Click to select</source>
         <translation type="vanished">截图保存路径</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="273"/>
+        <location filename="../../src/main.cpp" line="295"/>
         <source>Capture screenshot of all monitors at the same time.</source>
         <translation>同时截取所有显示器的屏幕截图。</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="283"/>
+        <location filename="../../src/main.cpp" line="305"/>
         <source>Capture a screenshot of the specified monitor.</source>
         <translation>截取指定显示器的屏幕截图。</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="288"/>
+        <location filename="../../src/main.cpp" line="310"/>
         <source>Existing directory or new file to save to</source>
         <translation>要保存的目标目录路径或新文件</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="291"/>
+        <location filename="../../src/main.cpp" line="313"/>
         <source>Save the capture to the clipboard</source>
         <translation>将截图保存至剪贴板</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="293"/>
+        <location filename="../../src/main.cpp" line="315"/>
         <source>Pin the capture to the screen</source>
         <translation>将捕获图像作为贴图放置在屏幕上</translation>
     </message>
@@ -2160,97 +3539,97 @@ Click to select</source>
         <translation type="vanished">上传截图</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="295"/>
+        <location filename="../../src/main.cpp" line="317"/>
         <source>Delay time in milliseconds</source>
         <translation>延迟时间，以毫秒计</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="300"/>
+        <location filename="../../src/main.cpp" line="322"/>
         <source>Repeat screenshot with previously selected region</source>
         <translation>使用之前的选区重复截图</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="303"/>
+        <location filename="../../src/main.cpp" line="325"/>
         <source>Screenshot region to select</source>
         <translation>要选择的屏幕区域</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="306"/>
+        <location filename="../../src/main.cpp" line="328"/>
         <source>Set the filename pattern</source>
         <translation>设置文件名模式</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="310"/>
+        <location filename="../../src/main.cpp" line="332"/>
         <source>Accept capture as soon as a selection is made</source>
         <translation>在选中选区后立刻接受捕获图像</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="312"/>
+        <location filename="../../src/main.cpp" line="334"/>
         <source>Enable or disable the trayicon</source>
         <translation>启用或禁用托盘图标</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="316"/>
+        <location filename="../../src/main.cpp" line="338"/>
         <source>Enable or disable run at startup</source>
         <translation>启用或禁用开机启动</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="320"/>
+        <location filename="../../src/main.cpp" line="342"/>
         <source>Enable or disable the notifications</source>
         <translation>启用或禁用通知</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="323"/>
+        <location filename="../../src/main.cpp" line="345"/>
         <source>Check the configuration for errors</source>
         <translation>检查配置文件错误</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="326"/>
+        <location filename="../../src/main.cpp" line="348"/>
         <source>Show the help message in the capture mode</source>
         <translation>在捕获模式中显示帮助信息</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="329"/>
+        <location filename="../../src/main.cpp" line="351"/>
         <source>Define the main UI color</source>
         <translation>定义用户界面主颜色</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="333"/>
+        <location filename="../../src/main.cpp" line="355"/>
         <source>Define the contrast UI color</source>
         <translation>定义用户界面对比色</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="336"/>
+        <location filename="../../src/main.cpp" line="358"/>
         <source>Print raw PNG capture</source>
         <translation>输出原始 PNG 图像</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="339"/>
+        <location filename="../../src/main.cpp" line="361"/>
         <source>Print geometry of the selection in the format WxH+X+Y. Does nothing if raw is specified</source>
         <translation>使用 WxH+X+Y 的格式输出选区几何参数。如果指定了 raw 参数则什么也不做</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="343"/>
+        <location filename="../../src/main.cpp" line="365"/>
         <source>Define the screen to capture (starting from 0)</source>
         <translation>定义要捕获的屏幕（从 0 开始）</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="349"/>
+        <location filename="../../src/main.cpp" line="371"/>
         <source>Interactively select and edit the screenshot region</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="366"/>
+        <location filename="../../src/main.cpp" line="388"/>
         <source>Invalid delay, it must be a number greater than 0</source>
         <translation>无效的延时，必须提供大于零的数值</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="369"/>
+        <location filename="../../src/main.cpp" line="391"/>
         <source>Invalid region, use &apos;WxH+X+Y&apos; or &apos;all&apos; or &apos;screen0/screen1/...&apos;.</source>
         <translation>无效的区域，请使用“WxH+X+Y”或“all”或“screen0/screen1/...”。</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="382"/>
+        <location filename="../../src/main.cpp" line="404"/>
         <source>Invalid path, must be an existing directory or a new file in an existing directory</source>
         <translation>无效的路径，必须为已有目录或者已有目录中的一个新文件</translation>
     </message>
@@ -2259,17 +3638,17 @@ Click to select</source>
         <translation type="vanished">定义要捕获的屏幕</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="344"/>
+        <location filename="../../src/main.cpp" line="366"/>
         <source>default: screen containing the cursor</source>
         <translation>默认：包含鼠标指针的屏幕</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="345"/>
+        <location filename="../../src/main.cpp" line="367"/>
         <source>Screen number</source>
         <translation>屏幕编号</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="357"/>
+        <location filename="../../src/main.cpp" line="379"/>
         <source>Invalid color, this flag supports the following formats:
 - #RGB (each of R, G, and B is a single hex digit)
 - #RRGGBB
@@ -2290,7 +3669,7 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <translation type="vanished">无效的延迟时间，数字必须大于0</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="368"/>
+        <location filename="../../src/main.cpp" line="390"/>
         <source>Invalid screen number, it must be non negative</source>
         <translation>无效的屏幕编号，编号不能为负数</translation>
     </message>
@@ -2299,7 +3678,7 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <translation type="vanished">无效的路径，必须为系统中真实存在的路径</translation>
     </message>
     <message>
-        <location filename="../../src/main.cpp" line="395"/>
+        <location filename="../../src/main.cpp" line="417"/>
         <source>Invalid value, it must be defined as &apos;true&apos; or &apos;false&apos;</source>
         <translation>无效的值，必须指定“true”或“false”</translation>
     </message>
@@ -2314,12 +3693,12 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <translation>无法写入</translation>
     </message>
     <message>
-        <location filename="../../src/core/flameshot.cpp" line="168"/>
+        <location filename="../../src/core/flameshot.cpp" line="213"/>
         <source>Requested screen exceeds screen count</source>
         <translation>请求的屏幕超出了屏幕编号</translation>
     </message>
     <message>
-        <location filename="../../src/core/flameshot.cpp" line="418"/>
+        <location filename="../../src/core/flameshot.cpp" line="497"/>
         <source>Full screen screenshot pinned to screen</source>
         <translation>已将全屏截图作为贴图固定到屏幕</translation>
     </message>
@@ -2451,6 +3830,12 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <source>Change the tool&apos;s thickness</source>
         <translation type="vanished">改变工具的厚度</translation>
     </message>
+    <message>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="267"/>
+        <location filename="../../src/ocr/localairuntimeinstaller.cpp" line="356"/>
+        <source>The service returned invalid JSON.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RectangleTool</name>
@@ -2522,106 +3907,117 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <translation type="vanished">提示：请尝试设置 XDG_CURRENT_DESKTOP 环境变量。</translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="61"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="65"/>
         <source>Could not locate the `org.freedesktop.portal.Desktop` service</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="109"/>
-        <source>Screenshot portal timed out after 30 seconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="132"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="176"/>
         <source>FreeDesktop portal screenshot size: %1x%2, DPR: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="159"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="251"/>
         <source>Capture Active Monitor is not supported on Wayland due to Wayland security model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="177"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="269"/>
         <source>Screenshot already in progress, please wait for the current screenshot to complete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="202"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="296"/>
         <source>Screenshot cancelled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="218"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="312"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="318"/>
         <source>Unable to get current screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="237"/>
-        <location filename="../../src/utils/screengrabber.cpp" line="243"/>
-        <location filename="../../src/utils/screengrabber.cpp" line="299"/>
-        <location filename="../../src/utils/screengrabber.cpp" line="304"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="198"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="221"/>
         <source>Unable to capture screen</source>
         <translation>无法捕获屏幕</translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="373"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="150"/>
+        <source>The `org.freedesktop.portal.Screenshot` request failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/utils/screengrabber.cpp" line="163"/>
+        <source>The xdg-desktop-portal backend did not respond If you are on wayland make sure an xdg-desktop-portal backend for your desktop is installed and properly configured.
+
+If on X11 enable Legacy X11 method in the General Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/utils/screengrabber.cpp" line="212"/>
+        <source>Screenshot portal unavailable, using direct X11 capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/utils/screengrabber.cpp" line="447"/>
         <source>=== All Screen Information ===</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="376"/>
-        <location filename="../../src/utils/screengrabber.cpp" line="551"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="450"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="733"/>
         <source>Screen %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="377"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="451"/>
         <source>  Logical geometry: %1x%2+%3+%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="382"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="456"/>
         <source>  DPR: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="488"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="670"/>
         <source>Total logical dimensions: %1x%2 (min: %3,%4)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="493"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="675"/>
         <source>Screenshot dimensions: %1x%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="509"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="691"/>
         <source>Screenshot scale factors: X=%1 Y=%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="542"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="724"/>
         <source>Calculated crop position for mixed DPI: X=%1 Y=%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="552"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="734"/>
         <source>  Logical geometry: %1x%2+%3+%4 DPR: %5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="558"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="740"/>
         <source>  Crop rect in screenshot: %1x%2+%3+%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="571"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="753"/>
         <source>Crop rect is empty, returning full screenshot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/utils/screengrabber.cpp" line="587"/>
+        <location filename="../../src/utils/screengrabber.cpp" line="769"/>
         <source>Scaling screenshot to: %1 %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2629,34 +4025,28 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
 <context>
     <name>SecondaryInstanceWidget</name>
     <message>
-        <location filename="../../build/_deps/kdsingleapplication-src/examples/widgetsingleapplication/secondaryinstancewidget.cpp" line="26"/>
         <source>Secondary instance</source>
-        <translation>次级实例</translation>
+        <translation type="vanished">次级实例</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/kdsingleapplication-src/examples/widgetsingleapplication/secondaryinstancewidget.cpp" line="27"/>
         <source>&lt;b&gt;Secondary instance.&lt;/b&gt; Send message to primary:</source>
-        <translation>&lt;b&gt;第二个例子。&lt;/b&gt;发送消息到主服务器：</translation>
+        <translation type="vanished">&lt;b&gt;第二个例子。&lt;/b&gt;发送消息到主服务器：</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/kdsingleapplication-src/examples/widgetsingleapplication/secondaryinstancewidget.cpp" line="29"/>
         <source>Type something here...</source>
-        <translation>在这里输入一些东西…</translation>
+        <translation type="vanished">在这里输入一些东西…</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/kdsingleapplication-src/examples/widgetsingleapplication/secondaryinstancewidget.cpp" line="31"/>
         <source>&amp;Send</source>
-        <translation>发送（&amp; S）</translation>
+        <translation type="vanished">发送（&amp; S）</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/kdsingleapplication-src/examples/widgetsingleapplication/secondaryinstancewidget.cpp" line="54"/>
         <source>Error sending message</source>
-        <translation>发送消息时出错</translation>
+        <translation type="vanished">发送消息时出错</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/kdsingleapplication-src/examples/widgetsingleapplication/secondaryinstancewidget.cpp" line="55"/>
         <source>The message &apos;%1&apos; could not be sent to the primary.</source>
-        <translation>无法将邮件&apos;%1&apos;发送到主服务器。</translation>
+        <translation type="vanished">无法将邮件&apos;%1&apos;发送到主服务器。</translation>
     </message>
 </context>
 <context>
@@ -3173,34 +4563,45 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
         <translation type="vanished">用户界面颜色编辑器</translation>
     </message>
     <message>
-        <location filename="../../src/config/uicoloreditor.cpp" line="89"/>
+        <location filename="../../src/config/uicoloreditor.cpp" line="104"/>
         <source>Change the color moving the selectors and see the changes in the preview buttons.</source>
         <translation>移动颜色选择并在预览按钮查看。</translation>
     </message>
     <message>
-        <location filename="../../src/config/uicoloreditor.cpp" line="100"/>
+        <location filename="../../src/config/uicoloreditor.cpp" line="115"/>
         <source>Select a Button to modify it</source>
         <translation>选择一个按钮以进行修改</translation>
     </message>
     <message>
-        <location filename="../../src/config/uicoloreditor.cpp" line="110"/>
+        <location filename="../../src/config/uicoloreditor.cpp" line="125"/>
         <source>Main Color</source>
         <translation>主色</translation>
     </message>
     <message>
-        <location filename="../../src/config/uicoloreditor.cpp" line="114"/>
+        <location filename="../../src/config/uicoloreditor.cpp" line="129"/>
         <source>Click on this button to set the edition mode of the main color.</source>
         <translation>点击按钮设置主色。</translation>
     </message>
     <message>
-        <location filename="../../src/config/uicoloreditor.cpp" line="125"/>
+        <location filename="../../src/config/uicoloreditor.cpp" line="140"/>
         <source>Contrast Color</source>
         <translation>对比色</translation>
     </message>
     <message>
-        <location filename="../../src/config/uicoloreditor.cpp" line="130"/>
+        <location filename="../../src/config/uicoloreditor.cpp" line="145"/>
         <source>Click on this button to set the edition mode of the contrast color.</source>
         <translation>点击按钮设置对比色。</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/uicoloreditor.cpp" line="169"/>
+        <location filename="../../src/config/uicoloreditor.cpp" line="196"/>
+        <source>Hex for Main Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/config/uicoloreditor.cpp" line="201"/>
+        <source>Hex for Contrast Color</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3344,807 +4745,124 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
 <context>
     <name>color_widgets::ColorDialog</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_dialog.cpp" line="63"/>
         <source>Pick</source>
-        <translation>选取</translation>
+        <translation type="vanished">选取</translation>
     </message>
 </context>
 <context>
     <name>color_widgets::ColorPalette</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette.cpp" line="422"/>
         <source>Unnamed</source>
-        <translation>未命名</translation>
+        <translation type="vanished">未命名</translation>
     </message>
 </context>
 <context>
     <name>color_widgets::ColorPaletteModel</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_model.cpp" line="55"/>
         <source>Unnamed</source>
-        <translation>未命名</translation>
+        <translation type="vanished">未命名</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_model.cpp" line="130"/>
         <source>%1 (%2 colors)</source>
-        <translation>%1（%2 个颜色）</translation>
+        <translation type="vanished">%1（%2 个颜色）</translation>
     </message>
 </context>
 <context>
     <name>color_widgets::ColorPaletteWidget</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.ui" line="64"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_palette_widget.h" line="231"/>
         <source>Open a new palette from file</source>
-        <translation>从文件打开新调色板</translation>
+        <translation type="vanished">从文件打开新调色板</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.ui" line="75"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_palette_widget.h" line="234"/>
         <source>Create a new palette</source>
-        <translation>创建新调色板</translation>
+        <translation type="vanished">创建新调色板</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.ui" line="86"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_palette_widget.h" line="237"/>
         <source>Duplicate the current palette</source>
-        <translation>制作当前调色板的副本</translation>
+        <translation type="vanished">制作当前调色板的副本</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.ui" line="170"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_palette_widget.h" line="240"/>
         <source>Delete the current palette</source>
-        <translation>删除当前调色板</translation>
+        <translation type="vanished">删除当前调色板</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.ui" line="181"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_palette_widget.h" line="243"/>
         <source>Revert changes to the current palette</source>
-        <translation>将修改回退到当前调色板</translation>
+        <translation type="vanished">将修改回退到当前调色板</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.ui" line="192"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_palette_widget.h" line="246"/>
         <source>Save changes to the current palette</source>
-        <translation>将修改保存到当前调色板</translation>
+        <translation type="vanished">将修改保存到当前调色板</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.ui" line="216"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_palette_widget.h" line="249"/>
         <source>Add a color to the palette</source>
-        <translation>向调色板添加颜色</translation>
+        <translation type="vanished">向调色板添加颜色</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.ui" line="227"/>
-        <location filename="../../build/_deps/qtcolorwidgets-build/QtColorWidgets_autogen/include/ui_color_palette_widget.h" line="252"/>
         <source>Remove the selected color from the palette</source>
-        <translation>从调色板移除选中的颜色</translation>
+        <translation type="vanished">从调色板移除选中的颜色</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="181"/>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="196"/>
         <source>New Palette</source>
-        <translation>新建调色板</translation>
+        <translation type="vanished">新建调色板</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="182"/>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="197"/>
         <source>Name</source>
-        <translation>名称</translation>
+        <translation type="vanished">名称</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="223"/>
         <source>GIMP Palettes (*.gpl)</source>
-        <translation>GIMP 调色板 (*.gpl)</translation>
+        <translation type="vanished">GIMP 调色板 (*.gpl)</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="224"/>
         <source>Palette Image (%1)</source>
-        <translation>调色板图像 (%1)</translation>
+        <translation type="vanished">调色板图像 (%1)</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="225"/>
         <source>All Files (*)</source>
-        <translation>所有文件 (*)</translation>
+        <translation type="vanished">所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="226"/>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="239"/>
         <source>Open Palette</source>
-        <translation>打开调色盘</translation>
+        <translation type="vanished">打开调色盘</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/color_palette_widget.cpp" line="240"/>
         <source>Failed to load the palette file
 %1</source>
-        <translation>加载调色板文件失败
+        <translation type="vanished">加载调色板文件失败
 %1</translation>
     </message>
 </context>
 <context>
     <name>color_widgets::GradientEditor</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/gradient_editor.cpp" line="321"/>
         <source>Add Color</source>
-        <translation>添加颜色</translation>
+        <translation type="vanished">添加颜色</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/gradient_editor.cpp" line="330"/>
         <source>Remove Color</source>
-        <translation>移除颜色</translation>
+        <translation type="vanished">移除颜色</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/gradient_editor.cpp" line="338"/>
         <source>Edit Color...</source>
-        <translation>编辑颜色……</translation>
+        <translation type="vanished">编辑颜色……</translation>
     </message>
 </context>
 <context>
     <name>color_widgets::GradientListModel</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/gradient_list_model.cpp" line="215"/>
         <source>%1 (%2 colors)</source>
-        <translation>%1（%2 个颜色）</translation>
+        <translation type="vanished">%1（%2 个颜色）</translation>
     </message>
 </context>
 <context>
     <name>color_widgets::Swatch</name>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/swatch.cpp" line="855"/>
         <source>Clear Color</source>
-        <translation>清除颜色</translation>
+        <translation type="vanished">清除颜色</translation>
     </message>
     <message>
-        <location filename="../../build/_deps/qtcolorwidgets-src/src/QtColorWidgets/swatch.cpp" line="864"/>
         <source>%1 (%2)</source>
-        <translation>%1 (%2)</translation>
-    </message>
-</context>
-<context>
-    <name>OcrTool</name>
-    <message>
-        <source>OCR</source>
-        <translation>OCR</translation>
-    </message>
-    <message>
-        <source>Recognize text in selection with PaddleOCR-VL</source>
-        <translation>使用 PaddleOCR-VL 识别选区中的文字</translation>
-    </message>
-</context>
-<context>
-    <name>OcrConf</name>
-    <message>
-        <source>PaddleOCR-VL Service</source>
-        <translation>PaddleOCR-VL 服务</translation>
-    </message>
-    <message>
-        <source>Server URL:</source>
-        <translation>服务器地址：</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>浏览…</translation>
-    </message>
-    <message>
-        <source>llama-server:</source>
-        <translation>llama-server：</translation>
-    </message>
-    <message>
-        <source>Automatically start the local OCR service when OCR is used</source>
-        <translation>使用 OCR 时自动启动本地 OCR 服务</translation>
-    </message>
-    <message>
-        <source>Service status:</source>
-        <translation>服务状态：</translation>
-    </message>
-    <message>
-        <source>Acceleration:</source>
-        <translation>硬件加速：</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation>启动</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>停止</translation>
-    </message>
-    <message>
-        <source>Test connection</source>
-        <translation>测试连接</translation>
-    </message>
-    <message>
-        <source>OCR Model</source>
-        <translation>OCR 模型</translation>
-    </message>
-    <message>
-        <source>Model:</source>
-        <translation>模型：</translation>
-    </message>
-    <message>
-        <source>Model storage:</source>
-        <translation>模型存储位置：</translation>
-    </message>
-    <message>
-        <source>Status:</source>
-        <translation>状态：</translation>
-    </message>
-    <message>
-        <source>Download model</source>
-        <translation>下载模型</translation>
-    </message>
-    <message>
-        <source>Cancel download</source>
-        <translation>取消下载</translation>
-    </message>
-    <message>
-        <source>Delete model</source>
-        <translation>删除模型</translation>
-    </message>
-    <message>
-        <source>Download:</source>
-        <translation>下载：</translation>
-    </message>
-    <message>
-        <source>Model Updates</source>
-        <translation>模型更新</translation>
-    </message>
-    <message>
-        <source>Optional HTTPS URL to a verified models.json manifest</source>
-        <translation>可选：经过验证的 models.json 清单 HTTPS 地址</translation>
-    </message>
-    <message>
-        <source>Remote manifest:</source>
-        <translation>远程模型清单：</translation>
-    </message>
-    <message>
-        <source>Automatically check the configured manifest</source>
-        <translation>自动检查已配置的模型清单</translation>
-    </message>
-    <message>
-        <source>Latest supported:</source>
-        <translation>最新支持版本：</translation>
-    </message>
-    <message>
-        <source>Check model updates</source>
-        <translation>检查模型更新</translation>
-    </message>
-    <message>
-        <source>Flameshot OCR ships with a built-in verified model list. Models are never bundled inside the AppImage. A remote manifest can add newer models after compatibility has been verified.</source>
-        <translation>Flameshot OCR 内置经过验证的模型列表。模型不会打包到 AppImage 中。兼容性验证通过后，可通过远程清单添加新模型。</translation>
-    </message>
-    <message>
-        <source>Choose llama-server executable</source>
-        <translation>选择 llama-server 可执行文件</translation>
-    </message>
-    <message>
-        <source>Choose OCR model storage</source>
-        <translation>选择 OCR 模型存储位置</translation>
-    </message>
-    <message>
-        <source>Delete OCR model</source>
-        <translation>删除 OCR 模型</translation>
-    </message>
-    <message>
-        <source>Delete the selected OCR model from disk?</source>
-        <translation>是否从磁盘中删除所选 OCR 模型？</translation>
-    </message>
-    <message>
-        <source>OCR</source>
-        <translation>OCR</translation>
-    </message>
-    <message>
-        <source>Testing...</source>
-        <translation>正在测试…</translation>
-    </message>
-    <message>
-        <source>Connected — OCR service is healthy</source>
-        <translation>已连接 — OCR 服务运行正常</translation>
-    </message>
-    <message>
-        <source>Not connected — %1</source>
-        <translation>未连接 — %1</translation>
-    </message>
-    <message>
-        <source>Checking...</source>
-        <translation>正在检查…</translation>
-    </message>
-    <message>
-        <source>llama-server not found</source>
-        <translation>未找到 llama-server</translation>
-    </message>
-    <message>
-        <source>%1 (auto-selected)</source>
-        <translation>%1（自动选择）</translation>
-    </message>
-    <message>
-        <source>Managed llama-server process is running</source>
-        <translation>由 Flameshot 管理的 llama-server 进程正在运行</translation>
-    </message>
-    <message>
-        <source>No managed process (an external server may still be running)</source>
-        <translation>没有由 Flameshot 管理的进程（外部服务可能仍在运行）</translation>
-    </message>
-    <message>
-        <source>%1 — current</source>
-        <translation>%1 — 当前版本</translation>
-    </message>
-    <message>
-        <source>%1 — update available</source>
-        <translation>%1 — 有可用更新</translation>
-    </message>
-
-    <message>
-        <source>Inference device:</source>
-        <translation>推理设备：</translation>
-    </message>
-
-    <message>
-        <source>Automatic (recommended)</source>
-        <translation>自动（推荐）</translation>
-    </message>
-
-    <message>
-        <source>%1 (currently unavailable)</source>
-        <translation>%1（当前不可用）</translation>
-    </message>
-
-    <message>
-        <source>%1 (manually selected)</source>
-        <translation>%1（手动选择）</translation>
-    </message>
-    <message>
-        <source>NVIDIA CUDA Acceleration</source>
-        <translation>NVIDIA CUDA 加速</translation>
-    </message>
-    <message>
-        <source>CUDA runtime:</source>
-        <translation>CUDA 运行环境：</translation>
-    </message>
-    <message>
-        <source>Updates:</source>
-        <translation>更新：</translation>
-    </message>
-    <message>
-        <source>Not checked</source>
-        <translation>未检查</translation>
-    </message>
-    <message>
-        <source>Check CUDA updates</source>
-        <translation>检查 CUDA 更新</translation>
-    </message>
-    <message>
-        <source>Update CUDA runtime</source>
-        <translation>更新 CUDA 运行环境</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>CUDA support is downloaded separately and is not bundled in the AppImage. The NVIDIA driver remains managed by the operating system.</source>
-        <translation>CUDA 支持将单独下载，不会打包进 AppImage。NVIDIA 驱动仍由操作系统负责管理。</translation>
-    </message>
-    <message>
-        <source>Install CUDA runtime</source>
-        <translation>安装 CUDA 运行环境</translation>
-    </message>
-    <message>
-        <source>CUDA Runtime</source>
-        <translation>CUDA 运行环境</translation>
-    </message>
-    <message>
-        <source>Installed, but no active NVIDIA driver was detected.</source>
-        <translation>已安装，但未检测到正在工作的 NVIDIA 驱动。</translation>
-    </message>
-    <message>
-        <source>No active NVIDIA driver detected. Vulkan or CPU will be used.</source>
-        <translation>未检测到正在工作的 NVIDIA 驱动，将使用 Vulkan 或 CPU。</translation>
-    </message>
-    <message>
-        <source>Installed and verified — %1</source>
-        <translation>已安装并通过验证 — %1</translation>
-    </message>
-    <message>
-        <source>Downloading or installing the CUDA runtime...</source>
-        <translation>正在下载或安装 CUDA 运行环境……</translation>
-    </message>
-    <message>
-        <source>Not installed. NVIDIA Vulkan remains available as fallback.</source>
-        <translation>未安装。仍可使用 NVIDIA Vulkan 作为备用方案。</translation>
-    </message>
-    <message>
-        <source>Download and install the verified CUDA runtime?
-
-Download size: %1
-Installed size: %2</source>
-        <translation>是否下载并安装已验证的 CUDA 运行环境？
-
-下载大小：%1
-安装后大小：%2</translation>
-    </message>
-    <message>
-        <source>Install CUDA runtime (%1)</source>
-        <translation>安装 CUDA 运行环境（%1）</translation>
-    </message>
-</context>
-<context>
-    <name>OcrManager</name>
-    <message>
-        <source>Unknown model</source>
-        <translation>未知模型</translation>
-    </message>
-    <message>
-        <source>Installed and verified by file size</source>
-        <translation>已安装，并已通过文件大小校验</translation>
-    </message>
-    <message>
-        <source>Not installed</source>
-        <translation>未安装</translation>
-    </message>
-    <message>
-        <source>Incomplete or file size does not match</source>
-        <translation>模型不完整或文件大小不匹配</translation>
-    </message>
-    <message>
-        <source>CPU</source>
-        <translation>CPU</translation>
-    </message>
-    <message>
-        <source>Automatic server start is only allowed for localhost.</source>
-        <translation>仅允许为本机地址自动启动 OCR 服务。</translation>
-    </message>
-    <message>
-        <source>The selected OCR model is not installed completely.</source>
-        <translation>所选 OCR 模型尚未完整安装。</translation>
-    </message>
-    <message>
-        <source>llama-server was not found. Set its path in OCR settings.</source>
-        <translation>未找到 llama-server。请在 OCR 设置中指定其路径。</translation>
-    </message>
-    <message>
-        <source>Could not start llama-server: %1</source>
-        <translation>无法启动 llama-server：%1</translation>
-    </message>
-    <message>
-        <source>llama-server did not become ready: %1</source>
-        <translation>llama-server 未能就绪：%1</translation>
-    </message>
-    <message>
-        <source>OCR service is not running and automatic start is disabled.
-%1</source>
-        <translation>OCR 服务未运行，并且已关闭自动启动。
-%1</translation>
-    </message>
-    <message>
-        <source>A model download is already running.</source>
-        <translation>已有模型下载任务正在进行。</translation>
-    </message>
-    <message>
-        <source>Unknown OCR model.</source>
-        <translation>未知的 OCR 模型。</translation>
-    </message>
-    <message>
-        <source>Could not create the model directory.</source>
-        <translation>无法创建模型目录。</translation>
-    </message>
-    <message>
-        <source>Download canceled. Partial files were kept for resume.</source>
-        <translation>下载已取消。已保留未完成文件，可用于断点续传。</translation>
-    </message>
-    <message>
-        <source>Could not write %1</source>
-        <translation>无法写入 %1</translation>
-    </message>
-    <message>
-        <source>Unknown network error</source>
-        <translation>未知网络错误</translation>
-    </message>
-    <message>
-        <source>Download failed for %1: %2</source>
-        <translation>下载 %1 失败：%2</translation>
-    </message>
-    <message>
-        <source>Downloaded file size is incorrect for %1 (%2 bytes, expected %3).</source>
-        <translation>下载的 %1 文件大小不正确（实际 %2 字节，应为 %3 字节）。</translation>
-    </message>
-    <message>
-        <source>Could not finalize downloaded file %1.</source>
-        <translation>无法完成下载文件 %1 的保存。</translation>
-    </message>
-    <message>
-        <source>OCR model download completed.</source>
-        <translation>OCR 模型下载完成。</translation>
-    </message>
-    <message>
-        <source>Could not remove model directory: %1</source>
-        <translation>无法删除模型目录：%1</translation>
-    </message>
-    <message>
-        <source>Remote model manifest URL is not configured. The built-in verified model list remains available.</source>
-        <translation>尚未配置远程模型清单地址。仍可使用内置的已验证模型列表。</translation>
-    </message>
-    <message>
-        <source>The remote model manifest URL is invalid.</source>
-        <translation>远程模型清单地址无效。</translation>
-    </message>
-    <message>
-        <source>Remote model manifest is not valid JSON.</source>
-        <translation>远程模型清单不是有效的 JSON 数据。</translation>
-    </message>
-    <message>
-        <source>Remote manifest contains no compatible verified OCR models.</source>
-        <translation>远程清单中没有兼容且经过验证的 OCR 模型。</translation>
-    </message>
-    <message>
-        <source>Could not save the remote model manifest.</source>
-        <translation>无法保存远程模型清单。</translation>
-    </message>
-    <message>
-        <source>Model list updated. Latest supported model: %1</source>
-        <translation>模型列表已更新。最新支持的模型：%1</translation>
-    </message>
-    <message>
-        <source>A CUDA runtime installation is already running.</source>
-        <translation>CUDA 运行环境安装任务正在进行。</translation>
-    </message>
-    <message>
-        <source>No active NVIDIA driver was detected. CUDA runtime installation is not required on this system.</source>
-        <translation>未检测到正在工作的 NVIDIA 驱动，本系统无需安装 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>Stop the managed OCR service before installing the CUDA runtime.</source>
-        <translation>请先停止由 Flameshot 管理的 OCR 服务，再安装 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime %1 is already installed.</source>
-        <translation>CUDA 运行环境 %1 已安装。</translation>
-    </message>
-    <message>
-        <source>Could not create the CUDA runtime download directory.</source>
-        <translation>无法创建 CUDA 运行环境下载目录。</translation>
-    </message>
-    <message>
-        <source>Could not write CUDA runtime download file.</source>
-        <translation>无法写入 CUDA 运行环境下载文件。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime download canceled. The partial file was kept for resume.</source>
-        <translation>已取消 CUDA 运行环境下载，部分文件已保留，可供下次续传。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime download failed: %1</source>
-        <translation>CUDA 运行环境下载失败：%1</translation>
-    </message>
-    <message>
-        <source>CUDA runtime download size is incorrect (%1 bytes, expected %2).</source>
-        <translation>CUDA 运行环境下载文件大小不正确（%1 字节，预期 %2 字节）。</translation>
-    </message>
-    <message>
-        <source>Could not finalize the CUDA runtime download.</source>
-        <translation>无法完成 CUDA 运行环境下载文件的保存。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime SHA256 verification failed. The downloaded archive was removed.</source>
-        <translation>CUDA 运行环境 SHA256 校验失败，已删除下载的压缩包。</translation>
-    </message>
-    <message>
-        <source>zstd was not found. CUDA runtime extraction cannot continue.</source>
-        <translation>未找到 zstd，无法继续解压 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>tar was not found. CUDA runtime extraction cannot continue.</source>
-        <translation>未找到 tar，无法继续解压 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>Could not create the CUDA runtime directory.</source>
-        <translation>无法创建 CUDA 运行环境目录。</translation>
-    </message>
-    <message>
-        <source>Could not clear the previous CUDA runtime staging directory.</source>
-        <translation>无法清理之前的 CUDA 运行环境临时安装目录。</translation>
-    </message>
-    <message>
-        <source>Could not create the CUDA runtime staging directory.</source>
-        <translation>无法创建 CUDA 运行环境临时安装目录。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime installation canceled.</source>
-        <translation>已取消 CUDA 运行环境安装。</translation>
-    </message>
-    <message>
-        <source>Could not extract the CUDA runtime.
-%1</source>
-        <translation>无法解压 CUDA 运行环境。
-%1</translation>
-    </message>
-    <message>
-        <source>The extracted CUDA runtime is incomplete or invalid.</source>
-        <translation>解压后的 CUDA 运行环境不完整或无效。</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime could not be started for verification.</source>
-        <translation>无法启动 CUDA 运行环境进行验证。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime verification timed out.</source>
-        <translation>CUDA 运行环境验证超时。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime verification failed.
-%1</source>
-        <translation>CUDA 运行环境验证失败。
-%1</translation>
-    </message>
-    <message>
-        <source>Could not replace the existing CUDA runtime directory.</source>
-        <translation>无法替换现有的 CUDA 运行环境目录。</translation>
-    </message>
-    <message>
-        <source>Could not finalize the CUDA runtime directory.</source>
-        <translation>无法完成 CUDA 运行环境目录的安装。</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime 'current' path is not a symbolic link.</source>
-        <translation>CUDA 运行环境的“current”路径不是符号链接。</translation>
-    </message>
-    <message>
-        <source>Could not create the CUDA runtime version link.</source>
-        <translation>无法创建 CUDA 运行环境版本链接。</translation>
-    </message>
-    <message>
-        <source>Could not activate the new CUDA runtime.</source>
-        <translation>无法启用新的 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime %1 was installed and verified successfully.</source>
-        <translation>CUDA 运行环境 %1 已成功安装并通过验证。</translation>
-    </message>
-    <message>
-        <source>Could not start CUDA runtime extraction.</source>
-        <translation>无法启动 CUDA 运行环境解压过程。</translation>
-    </message>
-    <message>
-        <source>Could not check CUDA runtime updates: %1</source>
-        <translation>无法检查 CUDA 运行环境更新：%1</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime manifest is invalid JSON.</source>
-        <translation>CUDA 运行环境清单不是有效的 JSON。</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime manifest uses an unsupported schema version.</source>
-        <translation>CUDA 运行环境清单使用了不受支持的格式版本。</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime manifest does not define a latest version.</source>
-        <translation>CUDA 运行环境清单未指定最新版本。</translation>
-    </message>
-    <message>
-        <source>The latest CUDA runtime is not available for Linux x86_64.</source>
-        <translation>最新 CUDA 运行环境不适用于 Linux x86_64。</translation>
-    </message>
-    <message>
-        <source>The latest CUDA runtime entry is incomplete or invalid.</source>
-        <translation>最新 CUDA 运行环境条目信息不完整或无效。</translation>
-    </message>
-    <message>
-        <source>Latest available CUDA runtime: %1</source>
-        <translation>可用的最新 CUDA 运行环境：%1</translation>
-    </message>
-    <message>
-        <source>CUDA runtime %1 is up to date.</source>
-        <translation>CUDA 运行环境 %1 已是最新版本。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime update available: %1 → %2</source>
-        <translation>发现 CUDA 运行环境更新：%1 → %2</translation>
-    </message>
-    <message>
-        <source>unknown version</source>
-        <translation>未知版本</translation>
-    </message>
-    <message>
-        <source>CUDA runtime verification did not report a usable CUDA device.
-%1</source>
-        <translation>CUDA 运行环境验证未检测到可用的 CUDA 设备。
-%1</translation>
-    </message>
-    <message>
-        <source>CUDA runtime installation was canceled.</source>
-        <translation>CUDA 运行环境安装已取消。</translation>
-    </message>
-    <message>
-        <source>The newly activated CUDA runtime executable is unavailable.</source>
-        <translation>新激活的 CUDA 运行环境可执行文件不可用。</translation>
-    </message>
-    <message>
-        <source>Could not allocate a temporary port for CUDA runtime verification.</source>
-        <translation>无法为 CUDA 运行环境验证分配临时端口。</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime self-test could not be started: %1</source>
-        <translation>无法启动 CUDA 运行环境自检：%1</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime self-test process disappeared unexpectedly.</source>
-        <translation>CUDA 运行环境自检进程意外终止。</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime self-test exited before becoming healthy.
-%1</source>
-        <translation>CUDA 运行环境自检在服务就绪前退出。
-%1</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime self-test did not become healthy: %1</source>
-        <translation>CUDA 运行环境自检未能进入正常运行状态：%1</translation>
-    </message>
-    <message>
-        <source>Could not determine the currently active CUDA runtime.</source>
-        <translation>无法确定当前激活的 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime 'previous' path is not a symbolic link.</source>
-        <translation>CUDA 运行环境的“previous”路径不是符号链接。</translation>
-    </message>
-    <message>
-        <source>Could not create the CUDA runtime rollback link.</source>
-        <translation>无法创建 CUDA 运行环境回滚链接。</translation>
-    </message>
-    <message>
-        <source>Could not record the previous CUDA runtime.</source>
-        <translation>无法记录上一版本的 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>Could not deactivate the failed CUDA runtime.</source>
-        <translation>无法停用验证失败的 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>The CUDA runtime rollback link is unavailable.</source>
-        <translation>CUDA 运行环境回滚链接不可用。</translation>
-    </message>
-    <message>
-        <source>The previous CUDA runtime is unavailable or invalid.</source>
-        <translation>上一版本的 CUDA 运行环境不可用或无效。</translation>
-    </message>
-    <message>
-        <source>Could not create the CUDA runtime rollback activation link.</source>
-        <translation>无法创建用于恢复上一版本 CUDA 运行环境的激活链接。</translation>
-    </message>
-    <message>
-        <source>Could not reactivate the previous CUDA runtime.</source>
-        <translation>无法重新激活上一版本的 CUDA 运行环境。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime post-install verification failed: %1
-Automatic rollback also failed: %2</source>
-        <translation>CUDA 运行环境安装后验证失败：%1
-自动回滚也失败：%2</translation>
-    </message>
-    <message>
-        <source>CUDA runtime post-install verification failed: %1
-The new runtime was deactivated.</source>
-        <translation>CUDA 运行环境安装后验证失败：%1
-新的运行环境已停用。</translation>
-    </message>
-    <message>
-        <source>CUDA runtime post-install verification failed: %1
-Rolled back to %2.</source>
-        <translation>CUDA 运行环境安装后验证失败：%1
-已回滚到 %2。</translation>
-    </message>
-    <message>
-        <source>The new CUDA runtime passed verification, but the rollback state could not be recorded: %1
-Rolled back to %2.</source>
-        <translation>新的 CUDA 运行环境已通过验证，但无法记录回滚状态：%1
-已回滚到 %2。</translation>
-    </message>
-    <message>
-        <source>The new CUDA runtime passed verification, but the rollback state could not be recorded: %1
-Automatic rollback also failed: %2</source>
-        <translation>新的 CUDA 运行环境已通过验证，但无法记录回滚状态：%1
-自动回滚也失败：%2</translation>
+        <translation type="vanished">%1 (%2)</translation>
     </message>
 </context>
 </TS>

@@ -16,8 +16,15 @@ int GlobalValues::buttonBaseSize()
 
 QString GlobalValues::versionInfo()
 {
+#ifdef FLAMESHOT_OCR_VERSION
+    return QStringLiteral(
+      "Flameshot OCR v" FLAMESHOT_OCR_VERSION
+      " (based on Flameshot " APP_VERSION ", " FLAMESHOT_GIT_HASH ")"
+      "\nCompiled with Qt " QT_VERSION_STR);
+#else
     return QStringLiteral("Flameshot " APP_VERSION " (" FLAMESHOT_GIT_HASH ")"
                           "\nCompiled with Qt " QT_VERSION_STR);
+#endif
 }
 
 QString GlobalValues::iconPath()

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 
 set(FLAMESHOT_VERSION 14.0.0)
 
+set(FLAMESHOT_OCR_VERSION 2.5)
 # Flameshot-org
 set(GIT_API_URL "https://api.github.com/repos/flameshot-org/flameshot/releases/latest")
 

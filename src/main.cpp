@@ -220,7 +220,13 @@ int main(int argc, char* argv[])
     // Required for saving button list QList<CaptureTool::Type>
     qRegisterMetaType<QList<int>>();
 
+#ifdef FLAMESHOT_OCR_VERSION
+    QCoreApplication::setApplicationVersion(
+      QStringLiteral("OCR v" FLAMESHOT_OCR_VERSION
+                     " (based on Flameshot " APP_VERSION ")"));
+#else
     QCoreApplication::setApplicationVersion(APP_VERSION);
+#endif
     QCoreApplication::setApplicationName(QStringLiteral("flameshot"));
     QCoreApplication::setOrganizationName(QStringLiteral("flameshot"));
     QNetworkProxyFactory::setUseSystemConfiguration(true);
