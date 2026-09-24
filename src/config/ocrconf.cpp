@@ -5,6 +5,7 @@
 
 #include <QLocale>
 
+#include "ocr/localairuntimeinstaller.h"
 #include "ocr/ocrmanager.h"
 #include "utils/confighandler.h"
 
@@ -40,7 +41,65 @@ OcrConf::OcrConf(QWidget* parent)
     auto* layout = new QVBoxLayout(content);
     layout->setAlignment(Qt::AlignTop);
 
-    auto* serviceBox = new QGroupBox(tr("Local AI Runtime"), content);
+    auto* sharedBox =
+      new QGroupBox(tr("Local AI Runtime"), content);
+    auto* sharedForm = new QFormLayout(sharedBox);
+
+    m_sharedAppStatus = new QLabel(tr("Checking..."), sharedBox);
+    m_sharedAppStatus->setWordWrap(true);
+    sharedForm->addRow(tr("Runtime application:"), m_sharedAppStatus);
+
+    m_sharedLlamaStatus = new QLabel(tr("Checking..."), sharedBox);
+    m_sharedLlamaStatus->setWordWrap(true);
+    sharedForm->addRow(tr("llama.cpp runtime:"), m_sharedLlamaStatus);
+
+    m_sharedPaddleStatus = new QLabel(tr("Checking..."), sharedBox);
+    m_sharedPaddleStatus->setWordWrap(true);
+    sharedForm->addRow(tr("PaddleOCR-VL:"), m_sharedPaddleStatus);
+
+    m_sharedInstallStatus =
+      new QLabel(tr("Checking Local AI Runtime..."), sharedBox);
+    m_sharedInstallStatus->setWordWrap(true);
+    sharedForm->addRow(tr("Status:"), m_sharedInstallStatus);
+
+    auto* sharedButtons = new QWidget(sharedBox);
+    auto* sharedButtonsLayout = new QHBoxLayout(sharedButtons);
+    sharedButtonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    m_installSharedRuntimeButton =
+      new QPushButton(tr("Download and install"), sharedButtons);
+    m_refreshSharedRuntimeButton =
+      new QPushButton(tr("Refresh status"), sharedButtons);
+
+    m_installSharedRuntimeButton->setEnabled(false);
+
+    sharedButtonsLayout->addWidget(m_installSharedRuntimeButton);
+    sharedButtonsLayout->addWidget(m_refreshSharedRuntimeButton);
+    sharedButtonsLayout->addStretch();
+
+    sharedForm->addRow(QString(), sharedButtons);
+
+    m_sharedInstallProgress = new QProgressBar(sharedBox);
+    m_sharedInstallProgress->setRange(0, 3);
+    m_sharedInstallProgress->setValue(0);
+    m_sharedInstallProgress->setFormat(tr("Step %v of %m"));
+    m_sharedInstallProgress->setVisible(false);
+
+    sharedForm->addRow(tr("Installation:"), m_sharedInstallProgress);
+
+    auto* sharedNote = new QLabel(
+      tr("The shared Local AI Runtime is installed only for the current "
+         "user and does not require sudo. Flameshot verifies the runtime "
+         "package with SHA256 before installation. The installer then "
+         "installs the shared llama.cpp runtime and PaddleOCR-VL 1.6."),
+      sharedBox);
+    sharedNote->setWordWrap(true);
+    sharedForm->addRow(QString(), sharedNote);
+
+    layout->addWidget(sharedBox);
+
+    auto* serviceBox =
+      new QGroupBox(tr("OCR Backend (Advanced / Compatibility)"), content);
     auto* serviceForm = new QFormLayout(serviceBox);
 
     m_serverUrl = new QLineEdit(serviceBox);
@@ -148,7 +207,7 @@ OcrConf::OcrConf(QWidget* parent)
 
     layout->addWidget(cudaBox);
 
-    auto* modelBox = new QGroupBox(tr("OCR Model"), content);
+    auto* modelBox = new QGroupBox(tr("Legacy OCR Model (Compatibility)"), content);
     auto* modelForm = new QFormLayout(modelBox);
 
     m_modelCombo = new QComboBox(modelBox);
@@ -187,7 +246,7 @@ OcrConf::OcrConf(QWidget* parent)
 
     layout->addWidget(modelBox);
 
-    auto* updateBox = new QGroupBox(tr("Model Updates"), content);
+    auto* updateBox = new QGroupBox(tr("Legacy Model Updates (Compatibility)"), content);
     auto* updateForm = new QFormLayout(updateBox);
 
     m_manifestUrl = new QLineEdit(updateBox);
@@ -209,15 +268,153 @@ OcrConf::OcrConf(QWidget* parent)
     updateForm->addRow(QString(), m_checkUpdatesButton);
 
     auto* note = new QLabel(
-      tr("Flameshot OCR ships with a built-in verified model list. "
-         "Models are never bundled inside the AppImage. A remote manifest "
-         "can add newer models after compatibility has been verified."),
+      tr("These model controls belong to the legacy v2.4 fallback. "
+         "The shared Local AI Runtime manages its own verified models "
+         "independently. Models are never bundled inside the AppImage."),
       updateBox);
     note->setWordWrap(true);
     updateForm->addRow(QString(), note);
 
     layout->addWidget(updateBox);
     layout->addStretch();
+
+    auto* sharedInstaller = LocalAiRuntimeInstaller::instance();
+
+    connect(m_installSharedRuntimeButton,
+            &QPushButton::clicked,
+            this,
+            [this, sharedInstaller]() {
+                // A Flameshot-managed v2.4 fallback cannot coexist on
+                // localhost:8111 with the shared Local AI Runtime.
+                if (OcrManager::instance()->managedServerRunning()) {
+                    OcrManager::instance()->stopServer();
+                }
+
+                m_sharedInstallProgress->setVisible(true);
+                m_sharedInstallProgress->setValue(0);
+                m_installSharedRuntimeButton->setEnabled(false);
+                m_refreshSharedRuntimeButton->setEnabled(false);
+
+                sharedInstaller->installOrRepair();
+            });
+
+    connect(m_refreshSharedRuntimeButton,
+            &QPushButton::clicked,
+            this,
+            &OcrConf::refreshSharedRuntimeStatus);
+
+    connect(sharedInstaller,
+            &LocalAiRuntimeInstaller::statusChanged,
+            this,
+            [this, sharedInstaller](bool appInstalled,
+                                    const QString& appVersion,
+                                    bool serviceRunning,
+                                    bool endpointConflict,
+                                    bool llamaInstalled,
+                                    const QString& llamaVersion,
+                                    bool paddleInstalled,
+                                    const QString& paddleVersion,
+                                    const QString& message) {
+                const QString version =
+                  appVersion.isEmpty()
+                    ? tr("unknown version")
+                    : appVersion;
+
+                if (serviceRunning) {
+                    m_sharedAppStatus->setText(
+                      appInstalled
+                        ? tr("Installed — %1 — running").arg(version)
+                        : tr("Running — %1 "
+                             "(external/development installation)")
+                            .arg(version));
+                } else if (appInstalled) {
+                    m_sharedAppStatus->setText(
+                      tr("Installed — %1 — service stopped").arg(version));
+                } else {
+                    m_sharedAppStatus->setText(tr("Not installed"));
+                }
+
+                m_sharedLlamaStatus->setText(
+                  llamaInstalled
+                    ? tr("Installed — %1")
+                        .arg(llamaVersion.isEmpty()
+                               ? tr("version unknown")
+                               : llamaVersion)
+                    : tr("Not installed"));
+
+                m_sharedPaddleStatus->setText(
+                  paddleInstalled
+                    ? tr("Installed — %1")
+                        .arg(paddleVersion.isEmpty()
+                               ? QStringLiteral("1.6")
+                               : paddleVersion)
+                    : tr("Not installed"));
+
+                m_sharedInstallStatus->setText(message);
+
+                const bool installerBusy = sharedInstaller->busy();
+
+                m_refreshSharedRuntimeButton->setEnabled(!installerBusy);
+                m_installSharedRuntimeButton->setEnabled(
+                  !installerBusy && !endpointConflict);
+
+                if (endpointConflict) {
+                    m_installSharedRuntimeButton->setText(
+                      tr("Port 8111 is in use"));
+                } else if (serviceRunning &&
+                           llamaInstalled &&
+                           paddleInstalled) {
+                    m_installSharedRuntimeButton->setText(
+                      tr("Repair / check for updates"));
+                } else if (appInstalled) {
+                    m_installSharedRuntimeButton->setText(
+                      tr("Install missing components"));
+                } else {
+                    m_installSharedRuntimeButton->setText(
+                      tr("Download and install"));
+                }
+            });
+
+    connect(sharedInstaller,
+            &LocalAiRuntimeInstaller::installProgress,
+            this,
+            [this](int step,
+                   int total,
+                   const QString& message) {
+                m_sharedInstallProgress->setVisible(true);
+                m_sharedInstallProgress->setRange(0, total);
+                m_sharedInstallProgress->setValue(step);
+                m_sharedInstallStatus->setText(message);
+            });
+
+    connect(sharedInstaller,
+            &LocalAiRuntimeInstaller::installFinished,
+            this,
+            [this](bool ok, const QString& message) {
+                m_sharedInstallStatus->setText(message);
+
+                if (!ok) {
+                    m_sharedInstallProgress->setVisible(false);
+
+                    QMessageBox::warning(
+                      this,
+                      tr("Local AI Runtime"),
+                      message);
+                } else {
+                    m_sharedInstallProgress->setRange(0, 3);
+                    m_sharedInstallProgress->setValue(3);
+
+                    QTimer::singleShot(
+                      1500,
+                      this,
+                      [this]() {
+                          m_sharedInstallProgress->setVisible(false);
+                      });
+                }
+
+                refreshSharedRuntimeStatus();
+                refreshRuntimeStatus();
+            });
 
     connect(m_serverUrl, &QLineEdit::editingFinished, this, [this]() {
         ConfigHandler().setOcrServerUrl(m_serverUrl->text().trimmed());
@@ -673,6 +870,24 @@ void OcrConf::refreshCudaRuntimeStatus()
     m_cudaDownloadProgress->setVisible(busy);
 }
 
+void OcrConf::refreshSharedRuntimeStatus()
+{
+    auto* installer = LocalAiRuntimeInstaller::instance();
+
+    if (!installer->busy()) {
+        m_sharedAppStatus->setText(tr("Checking..."));
+        m_sharedLlamaStatus->setText(tr("Checking..."));
+        m_sharedPaddleStatus->setText(tr("Checking..."));
+        m_sharedInstallStatus->setText(
+          tr("Checking Local AI Runtime..."));
+
+        m_installSharedRuntimeButton->setEnabled(false);
+        m_refreshSharedRuntimeButton->setEnabled(false);
+    }
+
+    installer->refreshStatus();
+}
+
 void OcrConf::refreshRuntimeStatus()
 {
     auto* manager = OcrManager::instance();
@@ -782,6 +997,7 @@ void OcrConf::updateComponents()
     rebuildDeviceList();
     refreshModelStatus();
     refreshRuntimeStatus();
+    refreshSharedRuntimeStatus();
 
     const QString latest = OcrManager::instance()->latestModelId();
     const QString active = OcrManager::instance()->activeModel().id;

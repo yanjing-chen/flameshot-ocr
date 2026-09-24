@@ -28,6 +28,7 @@ private:
     void refreshModelStatus();
     void refreshCudaRuntimeStatus();
     void refreshRuntimeStatus();
+    void refreshSharedRuntimeStatus();
 
     QLineEdit* m_serverUrl;
     QLineEdit* m_serverPath;
@@ -39,6 +40,11 @@ private:
     QLabel* m_modelStatus;
     QLabel* m_runtimeStatus;
     QLabel* m_deviceStatus;
+
+    QLabel* m_sharedAppStatus;
+    QLabel* m_sharedLlamaStatus;
+    QLabel* m_sharedPaddleStatus;
+    QLabel* m_sharedInstallStatus;
     QLabel* m_latestStatus;
     QLabel* m_cudaRuntimeStatus;
     QLabel* m_cudaUpdateStatus;
@@ -55,10 +61,14 @@ private:
     QPushButton* m_testButton;
     QPushButton* m_checkUpdatesButton;
 
+    QPushButton* m_installSharedRuntimeButton;
+    QPushButton* m_refreshSharedRuntimeButton;
+
     QPushButton* m_installCudaButton;
     QPushButton* m_checkCudaUpdatesButton;
     QPushButton* m_cancelCudaButton;
 
     QProgressBar* m_downloadProgress;
     QProgressBar* m_cudaDownloadProgress;
+    QProgressBar* m_sharedInstallProgress;
 };

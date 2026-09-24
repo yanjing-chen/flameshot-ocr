@@ -62,7 +62,7 @@ print("CUDA FALLBACK RETAINED     PASS")
 
 
 # This stage must not remove the existing OCR model UI yet.
-assert 'tr("OCR Model")' in ui
+assert 'tr("Legacy OCR Model (Compatibility)")' in ui
 
 print("OCR MODEL UI RETAINED      PASS")
 
