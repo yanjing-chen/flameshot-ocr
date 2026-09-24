@@ -40,11 +40,11 @@ OcrConf::OcrConf(QWidget* parent)
     auto* layout = new QVBoxLayout(content);
     layout->setAlignment(Qt::AlignTop);
 
-    auto* serviceBox = new QGroupBox(tr("PaddleOCR-VL Service"), content);
+    auto* serviceBox = new QGroupBox(tr("Local AI Runtime"), content);
     auto* serviceForm = new QFormLayout(serviceBox);
 
     m_serverUrl = new QLineEdit(serviceBox);
-    serviceForm->addRow(tr("Server URL:"), m_serverUrl);
+    serviceForm->addRow(tr("API endpoint:"), m_serverUrl);
 
     auto* serverPathRow = new QWidget(serviceBox);
     auto* serverPathLayout = new QHBoxLayout(serverPathRow);
@@ -53,40 +53,50 @@ OcrConf::OcrConf(QWidget* parent)
     auto* browseServer = new QPushButton(tr("Browse..."), serverPathRow);
     serverPathLayout->addWidget(m_serverPath);
     serverPathLayout->addWidget(browseServer);
-    serviceForm->addRow(tr("llama-server:"), serverPathRow);
+    serviceForm->addRow(tr("Legacy llama-server:"), serverPathRow);
 
     m_deviceCombo = new QComboBox(serviceBox);
-    serviceForm->addRow(tr("Inference device:"), m_deviceCombo);
+    serviceForm->addRow(tr("Legacy fallback device:"), m_deviceCombo);
 
     m_autoStart = new QCheckBox(
-      tr("Automatically start the local OCR service when OCR is used"),
+      tr("Automatically start the legacy Flameshot OCR service if the "
+         "shared runtime is unavailable"),
       serviceBox);
     serviceForm->addRow(QString(), m_autoStart);
 
     m_runtimeStatus = new QLabel(serviceBox);
     m_runtimeStatus->setWordWrap(true);
-    serviceForm->addRow(tr("Service status:"), m_runtimeStatus);
+    serviceForm->addRow(tr("Runtime status:"), m_runtimeStatus);
 
     m_deviceStatus = new QLabel(serviceBox);
     m_deviceStatus->setWordWrap(true);
-    serviceForm->addRow(tr("Acceleration:"), m_deviceStatus);
+    serviceForm->addRow(tr("Legacy fallback acceleration:"), m_deviceStatus);
 
     auto* serviceButtons = new QWidget(serviceBox);
     auto* serviceButtonsLayout = new QHBoxLayout(serviceButtons);
     serviceButtonsLayout->setContentsMargins(0, 0, 0, 0);
-    m_startButton = new QPushButton(tr("Start"), serviceButtons);
-    m_stopButton = new QPushButton(tr("Stop"), serviceButtons);
-    m_testButton = new QPushButton(tr("Test connection"), serviceButtons);
+    m_startButton = new QPushButton(tr("Start legacy fallback"), serviceButtons);
+    m_stopButton = new QPushButton(tr("Stop legacy fallback"), serviceButtons);
+    m_testButton = new QPushButton(tr("Test AI endpoint"), serviceButtons);
     serviceButtonsLayout->addWidget(m_startButton);
     serviceButtonsLayout->addWidget(m_stopButton);
     serviceButtonsLayout->addWidget(m_testButton);
     serviceButtonsLayout->addStretch();
     serviceForm->addRow(QString(), serviceButtons);
 
+    auto* serviceNote = new QLabel(
+      tr("Flameshot v2.5 prefers the shared OpenAI-compatible Local AI "
+         "Runtime at the API endpoint above. If it is unavailable and "
+         "automatic fallback is enabled, Flameshot can temporarily use "
+         "the legacy v2.4 managed llama-server."),
+      serviceBox);
+    serviceNote->setWordWrap(true);
+    serviceForm->addRow(QString(), serviceNote);
+
     layout->addWidget(serviceBox);
 
     auto* cudaBox =
-      new QGroupBox(tr("NVIDIA CUDA Acceleration"), content);
+      new QGroupBox(tr("Legacy NVIDIA CUDA Runtime (Compatibility)"), content);
     auto* cudaForm = new QFormLayout(cudaBox);
 
     m_cudaRuntimeStatus = new QLabel(cudaBox);
@@ -128,8 +138,10 @@ OcrConf::OcrConf(QWidget* parent)
     cudaForm->addRow(m_cudaDownloadLabel, m_cudaDownloadProgress);
 
     auto* cudaNote = new QLabel(
-      tr("CUDA support is downloaded separately and is not bundled in the "
-         "AppImage. The NVIDIA driver remains managed by the operating system."),
+      tr("This CUDA Runtime Manager belongs to the v2.4 compatibility "
+         "fallback. The shared Local AI Runtime will manage acceleration "
+         "independently after migration. The NVIDIA driver remains managed "
+         "by the operating system."),
       cudaBox);
     cudaNote->setWordWrap(true);
     cudaForm->addRow(QString(), cudaNote);
@@ -397,12 +409,12 @@ OcrConf::OcrConf(QWidget* parent)
             OcrManager::instance(),
             &OcrManager::stopServer);
     connect(m_testButton, &QPushButton::clicked, this, [this]() {
-        m_runtimeStatus->setText(tr("Testing..."));
+        m_runtimeStatus->setText(tr("Testing AI endpoint..."));
         OcrManager::instance()->testConnection(
           this,
           [this](bool ok, const QString& error) {
               m_runtimeStatus->setText(
-                ok ? tr("Connected — OCR service is healthy")
+                ok ? tr("Connected — AI endpoint is healthy")
                    : tr("Not connected — %1").arg(error));
           });
     });
@@ -663,7 +675,9 @@ void OcrConf::refreshCudaRuntimeStatus()
 
 void OcrConf::refreshRuntimeStatus()
 {
-    const QString executable = OcrManager::instance()->serverExecutable();
+    auto* manager = OcrManager::instance();
+
+    const QString executable = manager->serverExecutable();
     const QString preference = ConfigHandler().ocrDeviceId().trimmed();
     const bool automatic =
       preference.isEmpty() ||
@@ -671,24 +685,58 @@ void OcrConf::refreshRuntimeStatus()
 
     m_deviceStatus->setText(
       executable.isEmpty()
-        ? tr("llama-server not found")
+        ? tr("Legacy llama-server not found")
         : automatic
-            ? tr("%1 (auto-selected)")
-                .arg(OcrManager::instance()->detectedDevice())
-            : tr("%1 (manually selected)")
-                .arg(OcrManager::instance()->detectedDevice()));
+            ? tr("%1 (legacy fallback, auto-selected)")
+                .arg(manager->detectedDevice())
+            : tr("%1 (legacy fallback, manually selected)")
+                .arg(manager->detectedDevice()));
 
-    if (OcrManager::instance()->managedServerRunning()) {
-        m_runtimeStatus->setText(tr("Managed llama-server process is running"));
-    } else {
-        m_runtimeStatus->setText(
-          tr("No managed process (an external server may still be running)"));
-    }
+    const bool managed = manager->managedServerRunning();
 
-    const bool managed = OcrManager::instance()->managedServerRunning();
-    m_startButton->setEnabled(!managed);
+    // Disable Start while probing. This prevents the user from launching
+    // a second llama-server onto a port already owned by Local AI Runtime.
+    m_startButton->setEnabled(false);
     m_stopButton->setEnabled(managed);
     m_deviceCombo->setEnabled(!managed);
+
+    m_runtimeStatus->setText(tr("Checking AI endpoint..."));
+
+    manager->testConnection(
+      this,
+      [this](bool ok, const QString& error) {
+          auto* currentManager = OcrManager::instance();
+          const bool currentlyManaged =
+            currentManager->managedServerRunning();
+
+          if (ok) {
+              if (currentlyManaged) {
+                  m_runtimeStatus->setText(
+                    tr("Connected — legacy Flameshot-managed OCR fallback "
+                       "is running."));
+              } else {
+                  m_runtimeStatus->setText(
+                    tr("Connected — shared/local AI runtime is available at %1")
+                      .arg(ConfigHandler().ocrServerUrl()));
+              }
+          } else if (currentlyManaged) {
+              m_runtimeStatus->setText(
+                tr("Legacy fallback process exists, but the AI endpoint is "
+                   "not healthy — %1")
+                  .arg(error));
+          } else {
+              m_runtimeStatus->setText(
+                tr("Shared Local AI Runtime is not connected. "
+                   "The legacy fallback can be started if needed. — %1")
+                  .arg(error));
+          }
+
+          // Only allow legacy startup when no healthy service currently owns
+          // the configured endpoint.
+          m_startButton->setEnabled(!ok && !currentlyManaged);
+          m_stopButton->setEnabled(currentlyManaged);
+          m_deviceCombo->setEnabled(!currentlyManaged);
+      });
 
     refreshCudaRuntimeStatus();
 }
