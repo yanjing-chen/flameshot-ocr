@@ -824,6 +824,7 @@ bool OcrManager::startServer(QString* error)
     QStringList args;
     args << QStringLiteral("-m") << modelPath(model)
          << QStringLiteral("--mmproj") << mmprojPath(model)
+         << QStringLiteral("--alias") << model.id
          << QStringLiteral("--host") << QStringLiteral("127.0.0.1")
          << QStringLiteral("--port")
          << QString::number(base.port(8111))
@@ -945,8 +946,10 @@ void OcrManager::waitUntilHealthy(
               return;
           }
           if (attemptsLeft <= 0) {
-              callback(false,
-                       tr("llama-server did not become ready: %1").arg(error));
+              callback(
+                 false,
+                 tr("The local AI/OCR service did not become ready: %1")
+                   .arg(error));
               return;
           }
           QTimer::singleShot(
@@ -965,6 +968,15 @@ void OcrManager::ensureReady(
   QObject* context,
   std::function<void(bool, const QString&)> callback)
 {
+        // v2.5 shared-runtime migration bridge:
+    //
+    // Always probe the configured OpenAI-compatible endpoint first.
+    // With the default URL, a running Local AI Runtime on
+    // 127.0.0.1:8111 therefore satisfies the request without
+    // Flameshot starting or owning another llama-server process.
+    //
+    // If no compatible endpoint is available, the existing v2.4
+    // managed llama-server path below remains as a fallback.
     testConnection(
       context,
       [this, context, callback](bool ok, const QString& error) {
