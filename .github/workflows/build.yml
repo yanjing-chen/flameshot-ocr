@@ -207,8 +207,14 @@ jobs:
             "$APPROOT/usr/translations/qt_zh_CN.qm"
 
           VERSION_OUTPUT="$(
+            TEST_CONFIG_HOME="$VERIFY_DIR/config"
+            mkdir -p "$TEST_CONFIG_HOME/flameshot"
+            printf '[General]\\nuiLanguage=zh_CN\\n' \
+              > "$TEST_CONFIG_HOME/flameshot/flameshot.ini"
+
             LANG=zh_CN.UTF-8 \
             LANGUAGE=zh_CN \
+            XDG_CONFIG_HOME="$TEST_CONFIG_HOME" \
             QT_QPA_PLATFORM=offscreen \
               "$OUTPUT" --appimage-extract-and-run --version 2>&1
           )"

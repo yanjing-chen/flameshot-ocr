@@ -158,17 +158,52 @@ void configureTranslation(QTranslator& translator, QTranslator& qtTranslator)
         }
     }
 
-    if (ConfigHandler().uiLanguage() == QStringLiteral("auto")) {
-        foundTranslation =
-          qtTranslator.load(QLocale::system(),
-                            "qt",
-                            "_",
-                            QLibraryInfo::path(QLibraryInfo::TranslationsPath));
-    } else {
-        foundTranslation = qtTranslator.load(
-          QStringLiteral("qt_") + ConfigHandler().uiLanguage(),
+    // QLibraryInfo does not resolve to the same translations directory on
+    // every AppImage/Qt combination. Search Qt's reported location first,
+    // then the relocatable AppImage locations and finally the normal system
+    // locations. qt_*.qm is the preferred aggregate catalog; qtbase_*.qm is
+    // a functional fallback for Qt's standard widgets and dialogs.
+    const QString binaryPath = qApp->applicationDirPath();
+    QStringList qtTranslationPaths = {
+        QLibraryInfo::path(QLibraryInfo::TranslationsPath),
+        QDir::cleanPath(
+          QDir(binaryPath).filePath(QStringLiteral("../translations"))),
+        QDir::cleanPath(QDir(binaryPath).filePath(
+          QStringLiteral("../share/qt6/translations"))),
+        QStringLiteral("/usr/share/qt6/translations"),
+        QStringLiteral("/usr/local/share/qt6/translations"),
+    };
+    qtTranslationPaths.removeDuplicates();
 
-          QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+    foundTranslation = false;
+    if (ConfigHandler().uiLanguage() == QStringLiteral("auto")) {
+        const QLocale locale = QLocale::system();
+
+        for (const QString& path : qtTranslationPaths) {
+            foundTranslation =
+              qtTranslator.load(locale, "qt", "_", path) ||
+              qtTranslator.load(locale, "qtbase", "_", path);
+
+            if (foundTranslation) {
+                break;
+            }
+        }
+    } else {
+        const QString language = ConfigHandler().uiLanguage();
+
+        for (const QString& path : qtTranslationPaths) {
+            foundTranslation =
+              qtTranslator.load(
+                QStringLiteral("qt_") + language,
+                path) ||
+              qtTranslator.load(
+                QStringLiteral("qtbase_") + language,
+                path);
+
+            if (foundTranslation) {
+                break;
+            }
+        }
     }
     if (!foundTranslation) {
         if (ConfigHandler().uiLanguage() == QStringLiteral("auto")) {
