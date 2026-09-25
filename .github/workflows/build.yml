@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 env:
-  OCR_VERSION: "2.4"
+  OCR_VERSION: "2.5"
   LLAMA_CPP_REF: "72797e891"
 
 jobs:
@@ -100,6 +100,12 @@ jobs:
           echo "AppImage translation payload:"
           ls -lh "$APPDIR/usr/share/flameshot/translations/Internationalization_zh_CN.qm"
 
+          # QTranslator loads qt_zh_CN.qm by name. linuxdeploy-plugin-qt
+          # may deploy qtbase_zh_CN.qm without the top-level Qt catalog.
+          test -s /usr/share/qt6/translations/qt_zh_CN.qm
+          install -Dm0644 /usr/share/qt6/translations/qt_zh_CN.qm \
+            "$APPDIR/usr/translations/qt_zh_CN.qm"
+
           rm -rf "$APPDIR/usr/include"
           rm -rf "$APPDIR/usr/lib"
 
@@ -181,6 +187,42 @@ jobs:
             --output appimage
 
           test -s "$OUTPUT"
+
+          # Treat translations and product identity as release gates.
+          VERIFY_DIR="$GITHUB_WORKSPACE/appimage-verify"
+          rm -rf "$VERIFY_DIR"
+          mkdir -p "$VERIFY_DIR"
+
+          (
+            cd "$VERIFY_DIR"
+            "$OUTPUT" --appimage-extract >/dev/null
+          )
+
+          APPROOT="$VERIFY_DIR/squashfs-root"
+
+          test -s \
+            "$APPROOT/usr/share/flameshot/translations/Internationalization_zh_CN.qm"
+
+          test -s \
+            "$APPROOT/usr/translations/qt_zh_CN.qm"
+
+          VERSION_OUTPUT="$(
+            LANG=zh_CN.UTF-8 \
+            LANGUAGE=zh_CN \
+            QT_QPA_PLATFORM=offscreen \
+              "$OUTPUT" --appimage-extract-and-run --version 2>&1
+          )"
+
+          printf '%s\n' "$VERSION_OUTPUT"
+
+          ! grep -Fq \
+            "No Qt translation found" \
+            <<<"$VERSION_OUTPUT"
+
+          grep -Fq \
+            "Flameshot OCR v2.5 (based on Flameshot v14.0.0, ${GITHUB_SHA::8})" \
+            <<<"$VERSION_OUTPUT"
+
           (
             cd "$(dirname "$OUTPUT")"
             sha256sum "$(basename "$OUTPUT")"
