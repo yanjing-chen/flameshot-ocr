@@ -2827,6 +2827,333 @@ Installed size: %2</source>
         <source>Install CUDA runtime (%1)</source>
         <translation>安装 CUDA 运行环境（%1）</translation>
     </message>
+    <message>
+        <source>Flameshot OCR is a client of the shared Local AI Runtime. It does not bundle llama.cpp or model files. Catalog downloads and acceleration are managed independently by the Runtime.</source>
+        <translation>Flameshot OCR 是共享 Local AI Runtime 的客户端，不内置 llama.cpp 或模型文件。目录模型下载与硬件加速由 Runtime 独立管理。</translation>
+    </message>
+    <message>
+        <source>Runtime model management</source>
+        <translation>Runtime 模型管理</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <source>Model ID</source>
+        <translation>模型 ID</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>类型</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>来源</translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation>状态</translation>
+    </message>
+    <message>
+        <source>Context</source>
+        <translation>上下文</translation>
+    </message>
+    <message>
+        <source>GPU layers</source>
+        <translation>GPU 层数</translation>
+    </message>
+    <message>
+        <source>Capabilities</source>
+        <translation>功能能力</translation>
+    </message>
+    <message>
+        <source>Refresh models</source>
+        <translation>刷新模型</translation>
+    </message>
+    <message>
+        <source>Add custom model</source>
+        <translation>添加自定义模型</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>编辑</translation>
+    </message>
+    <message>
+        <source>Remove entry</source>
+        <translation>删除条目</translation>
+    </message>
+    <message>
+        <source>Use for OCR</source>
+        <translation>用于 OCR</translation>
+    </message>
+    <message>
+        <source>Connect to Local AI Runtime 0.4.0 or later to manage models.</source>
+        <translation>连接 Local AI Runtime 0.4.0 或更高版本后即可管理模型。</translation>
+    </message>
+    <message>
+        <source>Catalog models are read-only. Custom entries may reference any local GGUF and optional MMProj file. Removing a custom entry never deletes either file.</source>
+        <translation>目录模型为只读。自定义条目可以引用任意本地 GGUF 及可选的 MMProj 文件；删除自定义条目不会删除这些文件。</translation>
+    </message>
+    <message>
+        <source>Model management is unavailable while the Runtime is disconnected.</source>
+        <translation>Runtime 未连接时无法管理模型。</translation>
+    </message>
+    <message>
+        <source>The Runtime returned invalid JSON.</source>
+        <translation>Runtime 返回了无效的 JSON。</translation>
+    </message>
+    <message>
+        <source>Loading Runtime models...</source>
+        <translation>正在加载 Runtime 模型……</translation>
+    </message>
+    <message>
+        <source>Could not load models. Local AI Runtime 0.4.0 or later is required. — %1</source>
+        <translation>无法加载模型。需要 Local AI Runtime 0.4.0 或更高版本。— %1</translation>
+    </message>
+    <message>
+        <source>chat</source>
+        <translation>聊天</translation>
+    </message>
+    <message>
+        <source>translation</source>
+        <translation>翻译</translation>
+    </message>
+    <message>
+        <source>vision</source>
+        <translation>视觉</translation>
+    </message>
+    <message>
+        <source>streaming</source>
+        <translation>流式输出</translation>
+    </message>
+    <message>
+        <source>thinking</source>
+        <translation>思考</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>自定义</translation>
+    </message>
+    <message>
+        <source>Catalog</source>
+        <translation>目录</translation>
+    </message>
+    <message>
+        <source>Ready</source>
+        <translation>就绪</translation>
+    </message>
+    <message>
+        <source>Missing files</source>
+        <translation>文件缺失</translation>
+    </message>
+    <message>
+        <source>Loaded %1 Runtime model(s). Custom entries are stored by Local AI Runtime.</source>
+        <translation>已加载 %1 个 Runtime 模型。自定义条目由 Local AI Runtime 保存。</translation>
+    </message>
+    <message>
+        <source>Adding custom model...</source>
+        <translation>正在添加自定义模型……</translation>
+    </message>
+    <message>
+        <source>Could not add custom model — %1</source>
+        <translation>无法添加自定义模型 — %1</translation>
+    </message>
+    <message>
+        <source>Custom model</source>
+        <translation>自定义模型</translation>
+    </message>
+    <message>
+        <source>Custom model added.</source>
+        <translation>自定义模型已添加。</translation>
+    </message>
+    <message>
+        <source>Saving custom model...</source>
+        <translation>正在保存自定义模型……</translation>
+    </message>
+    <message>
+        <source>Could not save custom model — %1</source>
+        <translation>无法保存自定义模型 — %1</translation>
+    </message>
+    <message>
+        <source>Custom model saved. An active model was safely unloaded if its settings changed.</source>
+        <translation>自定义模型已保存。若修改了正在使用的模型，其进程已安全卸载。</translation>
+    </message>
+    <message>
+        <source>Remove custom model entry</source>
+        <translation>删除自定义模型条目</translation>
+    </message>
+    <message>
+        <source>Remove the custom entry “%1”?
+
+The GGUF and MMProj files will remain on disk.</source>
+        <translation>是否删除自定义条目“%1”？
+
+GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
+    </message>
+    <message>
+        <source>Removing custom model entry...</source>
+        <translation>正在删除自定义模型条目……</translation>
+    </message>
+    <message>
+        <source>Could not remove custom entry — %1</source>
+        <translation>无法删除自定义条目 — %1</translation>
+    </message>
+    <message>
+        <source>Custom entry removed. External GGUF files were kept.</source>
+        <translation>自定义条目已删除，外部 GGUF 文件均已保留。</translation>
+    </message>
+    <message>
+        <source>%1 is now selected for Flameshot OCR.</source>
+        <translation>已将 %1 设为 Flameshot OCR 使用的模型。</translation>
+    </message>
+    <message>
+        <source>Chat</source>
+        <translation>聊天</translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation>翻译</translation>
+    </message>
+    <message>
+        <source>Vision</source>
+        <translation>视觉</translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>其他</translation>
+    </message>
+</context>
+<context>
+    <name>CustomModelDialog</name>
+    <message>
+        <source>Edit custom model</source>
+        <translation>编辑自定义模型</translation>
+    </message>
+    <message>
+        <source>Add custom model</source>
+        <translation>添加自定义模型</translation>
+    </message>
+    <message>
+        <source>Model ID:</source>
+        <translation>模型 ID：</translation>
+    </message>
+    <message>
+        <source>Display name:</source>
+        <translation>显示名称：</translation>
+    </message>
+    <message>
+        <source>Chat</source>
+        <translation>聊天</translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation>翻译</translation>
+    </message>
+    <message>
+        <source>OCR</source>
+        <translation>OCR</translation>
+    </message>
+    <message>
+        <source>Vision</source>
+        <translation>视觉</translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>其他</translation>
+    </message>
+    <message>
+        <source>Model type:</source>
+        <translation>模型类型：</translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>浏览……</translation>
+    </message>
+    <message>
+        <source>GGUF model:</source>
+        <translation>GGUF 模型：</translation>
+    </message>
+    <message>
+        <source>MMProj (optional):</source>
+        <translation>MMProj（可选）：</translation>
+    </message>
+    <message>
+        <source>Context size:</source>
+        <translation>上下文大小：</translation>
+    </message>
+    <message>
+        <source>GPU layers:</source>
+        <translation>GPU 层数：</translation>
+    </message>
+    <message>
+        <source>Default prompt:</source>
+        <translation>默认提示词：</translation>
+    </message>
+    <message>
+        <source>Capabilities</source>
+        <translation>功能能力</translation>
+    </message>
+    <message>
+        <source>Streaming</source>
+        <translation>流式输出</translation>
+    </message>
+    <message>
+        <source>Thinking</source>
+        <translation>思考</translation>
+    </message>
+    <message>
+        <source>Temperature</source>
+        <translation>温度</translation>
+    </message>
+    <message>
+        <source>Custom prompt</source>
+        <translation>自定义提示词</translation>
+    </message>
+    <message>
+        <source>Context size</source>
+        <translation>上下文大小</translation>
+    </message>
+    <message>
+        <source>The Runtime references these files in place. Adding or removing an entry never copies or deletes GGUF files.</source>
+        <translation>Runtime 直接引用这些文件。添加或删除条目绝不会复制或删除 GGUF 文件。</translation>
+    </message>
+    <message>
+        <source>Choose GGUF model</source>
+        <translation>选择 GGUF 模型</translation>
+    </message>
+    <message>
+        <source>GGUF models (*.gguf);;All files (*)</source>
+        <translation>GGUF 模型 (*.gguf);;所有文件 (*)</translation>
+    </message>
+    <message>
+        <source>Choose MMProj GGUF</source>
+        <translation>选择 MMProj GGUF</translation>
+    </message>
+    <message>
+        <source>Custom model</source>
+        <translation>自定义模型</translation>
+    </message>
+    <message>
+        <source>Model ID must use 1-64 lowercase letters, numbers, dots, underscores, or hyphens.</source>
+        <translation>模型 ID 必须由 1–64 个小写字母、数字、点、下划线或连字符组成。</translation>
+    </message>
+    <message>
+        <source>Display name is required.</source>
+        <translation>必须填写显示名称。</translation>
+    </message>
+    <message>
+        <source>Choose an existing GGUF model using an absolute path.</source>
+        <translation>请选择现有 GGUF 模型，并使用绝对路径。</translation>
+    </message>
+    <message>
+        <source>Choose an existing MMProj GGUF using an absolute path.</source>
+        <translation>请选择现有 MMProj GGUF，并使用绝对路径。</translation>
+    </message>
+    <message>
+        <source>Default prompt is too long.</source>
+        <translation>默认提示词过长。</translation>
+    </message>
 </context>
 <context>
     <name>OcrManager</name>

@@ -59,13 +59,14 @@ jobs:
             libqt6svg6-dev qt6-l10n-tools qt6-translations-l10n qt6-wayland libgl-dev \
             appstream hicolor-icon-theme openssl ca-certificates jq
 
-      - name: Verify Stage 6B client-only architecture
+      - name: Verify Stage 6B and 6C client architecture
         shell: bash
         run: |
           python3 tests/ocr_shared_runtime_contract.py
           python3 tests/ocr_shared_runtime_ui_contract.py
           python3 tests/local_ai_runtime_installer_contract.py
           python3 tests/stage6b_client_only_contract.py
+          python3 tests/stage6c_model_management_contract.py
 
       - name: Download linuxdeploy
         shell: bash
