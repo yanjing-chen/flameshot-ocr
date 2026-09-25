@@ -3,17 +3,10 @@
 
 #include "ocrconf.h"
 
-#include <QLocale>
-
 #include "ocr/localairuntimeinstaller.h"
 #include "ocr/ocrmanager.h"
 #include "utils/confighandler.h"
 
-#include <QCheckBox>
-#include <QComboBox>
-#include <QDir>
-#include <QFileDialog>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -38,11 +31,11 @@ OcrConf::OcrConf(QWidget* parent)
 
     auto* content = new QWidget(scroll);
     scroll->setWidget(content);
+
     auto* layout = new QVBoxLayout(content);
     layout->setAlignment(Qt::AlignTop);
 
-    auto* sharedBox =
-      new QGroupBox(tr("Local AI Runtime"), content);
+    auto* sharedBox = new QGroupBox(tr("Local AI Runtime"), content);
     auto* sharedForm = new QFormLayout(sharedBox);
 
     m_sharedAppStatus = new QLabel(tr("Checking..."), sharedBox);
@@ -72,11 +65,9 @@ OcrConf::OcrConf(QWidget* parent)
       new QPushButton(tr("Refresh status"), sharedButtons);
 
     m_installSharedRuntimeButton->setEnabled(false);
-
     sharedButtonsLayout->addWidget(m_installSharedRuntimeButton);
     sharedButtonsLayout->addWidget(m_refreshSharedRuntimeButton);
     sharedButtonsLayout->addStretch();
-
     sharedForm->addRow(QString(), sharedButtons);
 
     m_sharedInstallProgress = new QProgressBar(sharedBox);
@@ -84,198 +75,49 @@ OcrConf::OcrConf(QWidget* parent)
     m_sharedInstallProgress->setValue(0);
     m_sharedInstallProgress->setFormat(tr("Step %v of %m"));
     m_sharedInstallProgress->setVisible(false);
-
     sharedForm->addRow(tr("Installation:"), m_sharedInstallProgress);
 
     auto* sharedNote = new QLabel(
-      tr("The shared Local AI Runtime is installed only for the current "
-         "user and does not require sudo. Flameshot verifies the runtime "
-         "package with SHA256 before installation. The installer then "
-         "installs the shared llama.cpp runtime and PaddleOCR-VL 1.6."),
+      tr("The Local AI Runtime is installed independently for the current "
+         "user and is not removed when Flameshot OCR is uninstalled."),
       sharedBox);
     sharedNote->setWordWrap(true);
     sharedForm->addRow(QString(), sharedNote);
 
     layout->addWidget(sharedBox);
 
-    auto* serviceBox =
-      new QGroupBox(tr("OCR Backend (Advanced / Compatibility)"), content);
-    auto* serviceForm = new QFormLayout(serviceBox);
+    auto* connectionBox = new QGroupBox(tr("OCR connection"), content);
+    auto* connectionForm = new QFormLayout(connectionBox);
 
-    m_serverUrl = new QLineEdit(serviceBox);
-    serviceForm->addRow(tr("API endpoint:"), m_serverUrl);
+    m_serverUrl = new QLineEdit(connectionBox);
+    connectionForm->addRow(tr("API endpoint:"), m_serverUrl);
 
-    auto* serverPathRow = new QWidget(serviceBox);
-    auto* serverPathLayout = new QHBoxLayout(serverPathRow);
-    serverPathLayout->setContentsMargins(0, 0, 0, 0);
-    m_serverPath = new QLineEdit(serverPathRow);
-    auto* browseServer = new QPushButton(tr("Browse..."), serverPathRow);
-    serverPathLayout->addWidget(m_serverPath);
-    serverPathLayout->addWidget(browseServer);
-    serviceForm->addRow(tr("Legacy llama-server:"), serverPathRow);
+    m_modelId = new QLineEdit(connectionBox);
+    connectionForm->addRow(tr("Model ID:"), m_modelId);
 
-    m_deviceCombo = new QComboBox(serviceBox);
-    serviceForm->addRow(tr("Legacy fallback device:"), m_deviceCombo);
-
-    m_autoStart = new QCheckBox(
-      tr("Automatically start the legacy Flameshot OCR service if the "
-         "shared runtime is unavailable"),
-      serviceBox);
-    serviceForm->addRow(QString(), m_autoStart);
-
-    m_runtimeStatus = new QLabel(serviceBox);
+    m_runtimeStatus = new QLabel(connectionBox);
     m_runtimeStatus->setWordWrap(true);
-    serviceForm->addRow(tr("Runtime status:"), m_runtimeStatus);
+    connectionForm->addRow(tr("Runtime status:"), m_runtimeStatus);
 
-    m_deviceStatus = new QLabel(serviceBox);
-    m_deviceStatus->setWordWrap(true);
-    serviceForm->addRow(tr("Legacy fallback acceleration:"), m_deviceStatus);
+    auto* connectionButtons = new QWidget(connectionBox);
+    auto* connectionButtonsLayout = new QHBoxLayout(connectionButtons);
+    connectionButtonsLayout->setContentsMargins(0, 0, 0, 0);
 
-    auto* serviceButtons = new QWidget(serviceBox);
-    auto* serviceButtonsLayout = new QHBoxLayout(serviceButtons);
-    serviceButtonsLayout->setContentsMargins(0, 0, 0, 0);
-    m_startButton = new QPushButton(tr("Start legacy fallback"), serviceButtons);
-    m_stopButton = new QPushButton(tr("Stop legacy fallback"), serviceButtons);
-    m_testButton = new QPushButton(tr("Test AI endpoint"), serviceButtons);
-    serviceButtonsLayout->addWidget(m_startButton);
-    serviceButtonsLayout->addWidget(m_stopButton);
-    serviceButtonsLayout->addWidget(m_testButton);
-    serviceButtonsLayout->addStretch();
-    serviceForm->addRow(QString(), serviceButtons);
+    m_testButton =
+      new QPushButton(tr("Test AI endpoint"), connectionButtons);
+    connectionButtonsLayout->addWidget(m_testButton);
+    connectionButtonsLayout->addStretch();
+    connectionForm->addRow(QString(), connectionButtons);
 
-    auto* serviceNote = new QLabel(
-      tr("Flameshot v2.5 prefers the shared OpenAI-compatible Local AI "
-         "Runtime at the API endpoint above. If it is unavailable and "
-         "automatic fallback is enabled, Flameshot can temporarily use "
-         "the legacy v2.4 managed llama-server."),
-      serviceBox);
-    serviceNote->setWordWrap(true);
-    serviceForm->addRow(QString(), serviceNote);
+    auto* connectionNote = new QLabel(
+      tr("Flameshot OCR is a client of the shared Local AI Runtime. It does "
+         "not start, stop, download, update, or remove llama.cpp runtimes "
+         "and models."),
+      connectionBox);
+    connectionNote->setWordWrap(true);
+    connectionForm->addRow(QString(), connectionNote);
 
-    layout->addWidget(serviceBox);
-
-    auto* cudaBox =
-      new QGroupBox(tr("Legacy NVIDIA CUDA Runtime (Compatibility)"), content);
-    auto* cudaForm = new QFormLayout(cudaBox);
-
-    m_cudaRuntimeStatus = new QLabel(cudaBox);
-    m_cudaRuntimeStatus->setWordWrap(true);
-    cudaForm->addRow(tr("CUDA runtime:"), m_cudaRuntimeStatus);
-
-    m_cudaUpdateStatus = new QLabel(tr("Not checked"), cudaBox);
-    m_cudaUpdateStatus->setWordWrap(true);
-    cudaForm->addRow(tr("Updates:"), m_cudaUpdateStatus);
-
-    auto* cudaButtons = new QWidget(cudaBox);
-    auto* cudaButtonsLayout = new QHBoxLayout(cudaButtons);
-    cudaButtonsLayout->setContentsMargins(0, 0, 0, 0);
-
-    m_installCudaButton =
-      new QPushButton(tr("Install CUDA runtime (%1)")
-        .arg(QLocale().formattedDataSize(
-          OcrManager::instance()->cudaRuntimeDownloadSize(),
-          1,
-          QLocale::DataSizeTraditionalFormat)), cudaButtons);
-    m_checkCudaUpdatesButton =
-      new QPushButton(tr("Check CUDA updates"), cudaButtons);
-    m_cancelCudaButton =
-      new QPushButton(tr("Cancel"), cudaButtons);
-
-    cudaButtonsLayout->addWidget(m_installCudaButton);
-    cudaButtonsLayout->addWidget(m_checkCudaUpdatesButton);
-    cudaButtonsLayout->addWidget(m_cancelCudaButton);
-    cudaButtonsLayout->addStretch();
-    cudaForm->addRow(QString(), cudaButtons);
-
-    m_cudaDownloadLabel = new QLabel(tr("Download:"), cudaBox);
-    m_cudaDownloadProgress = new QProgressBar(cudaBox);
-    m_cudaDownloadProgress->setRange(0, 1000);
-
-    m_cudaDownloadLabel->setVisible(false);
-    m_cudaDownloadProgress->setVisible(false);
-
-    cudaForm->addRow(m_cudaDownloadLabel, m_cudaDownloadProgress);
-
-    auto* cudaNote = new QLabel(
-      tr("This CUDA Runtime Manager belongs to the v2.4 compatibility "
-         "fallback. The shared Local AI Runtime will manage acceleration "
-         "independently after migration. The NVIDIA driver remains managed "
-         "by the operating system."),
-      cudaBox);
-    cudaNote->setWordWrap(true);
-    cudaForm->addRow(QString(), cudaNote);
-
-    layout->addWidget(cudaBox);
-
-    auto* modelBox = new QGroupBox(tr("Legacy OCR Model (Compatibility)"), content);
-    auto* modelForm = new QFormLayout(modelBox);
-
-    m_modelCombo = new QComboBox(modelBox);
-    modelForm->addRow(tr("Model:"), m_modelCombo);
-
-    auto* modelRootRow = new QWidget(modelBox);
-    auto* modelRootLayout = new QHBoxLayout(modelRootRow);
-    modelRootLayout->setContentsMargins(0, 0, 0, 0);
-    m_modelRoot = new QLineEdit(modelRootRow);
-    auto* browseModelRoot = new QPushButton(tr("Browse..."), modelRootRow);
-    modelRootLayout->addWidget(m_modelRoot);
-    modelRootLayout->addWidget(browseModelRoot);
-    modelForm->addRow(tr("Model storage:"), modelRootRow);
-
-    m_modelStatus = new QLabel(modelBox);
-    m_modelStatus->setWordWrap(true);
-    modelForm->addRow(tr("Status:"), m_modelStatus);
-
-    auto* modelButtons = new QWidget(modelBox);
-    auto* modelButtonsLayout = new QHBoxLayout(modelButtons);
-    modelButtonsLayout->setContentsMargins(0, 0, 0, 0);
-    m_downloadButton = new QPushButton(tr("Download model"), modelButtons);
-    m_cancelDownloadButton =
-      new QPushButton(tr("Cancel download"), modelButtons);
-    m_deleteButton = new QPushButton(tr("Delete model"), modelButtons);
-    modelButtonsLayout->addWidget(m_downloadButton);
-    modelButtonsLayout->addWidget(m_cancelDownloadButton);
-    modelButtonsLayout->addWidget(m_deleteButton);
-    modelButtonsLayout->addStretch();
-    modelForm->addRow(QString(), modelButtons);
-
-    m_downloadProgress = new QProgressBar(modelBox);
-    m_downloadProgress->setRange(0, 1000);
-    m_downloadProgress->setVisible(false);
-    modelForm->addRow(tr("Download:"), m_downloadProgress);
-
-    layout->addWidget(modelBox);
-
-    auto* updateBox = new QGroupBox(tr("Legacy Model Updates (Compatibility)"), content);
-    auto* updateForm = new QFormLayout(updateBox);
-
-    m_manifestUrl = new QLineEdit(updateBox);
-    m_manifestUrl->setPlaceholderText(
-      tr("Optional HTTPS URL to a verified models.json manifest"));
-    updateForm->addRow(tr("Remote manifest:"), m_manifestUrl);
-
-    m_autoCheckUpdates =
-      new QCheckBox(tr("Automatically check the configured manifest"),
-                    updateBox);
-    updateForm->addRow(QString(), m_autoCheckUpdates);
-
-    m_latestStatus = new QLabel(updateBox);
-    m_latestStatus->setWordWrap(true);
-    updateForm->addRow(tr("Latest supported:"), m_latestStatus);
-
-    m_checkUpdatesButton =
-      new QPushButton(tr("Check model updates"), updateBox);
-    updateForm->addRow(QString(), m_checkUpdatesButton);
-
-    auto* note = new QLabel(
-      tr("These model controls belong to the legacy v2.4 fallback. "
-         "The shared Local AI Runtime manages its own verified models "
-         "independently. Models are never bundled inside the AppImage."),
-      updateBox);
-    note->setWordWrap(true);
-    updateForm->addRow(QString(), note);
-
-    layout->addWidget(updateBox);
+    layout->addWidget(connectionBox);
     layout->addStretch();
 
     auto* sharedInstaller = LocalAiRuntimeInstaller::instance();
@@ -284,17 +126,10 @@ OcrConf::OcrConf(QWidget* parent)
             &QPushButton::clicked,
             this,
             [this, sharedInstaller]() {
-                // A Flameshot-managed v2.4 fallback cannot coexist on
-                // localhost:8111 with the shared Local AI Runtime.
-                if (OcrManager::instance()->managedServerRunning()) {
-                    OcrManager::instance()->stopServer();
-                }
-
                 m_sharedInstallProgress->setVisible(true);
                 m_sharedInstallProgress->setValue(0);
                 m_installSharedRuntimeButton->setEnabled(false);
                 m_refreshSharedRuntimeButton->setEnabled(false);
-
                 sharedInstaller->installOrRepair();
             });
 
@@ -316,9 +151,7 @@ OcrConf::OcrConf(QWidget* parent)
                                     const QString& paddleVersion,
                                     const QString& message) {
                 const QString version =
-                  appVersion.isEmpty()
-                    ? tr("unknown version")
-                    : appVersion;
+                  appVersion.isEmpty() ? tr("unknown version") : appVersion;
 
                 if (serviceRunning) {
                     m_sharedAppStatus->setText(
@@ -353,7 +186,6 @@ OcrConf::OcrConf(QWidget* parent)
                 m_sharedInstallStatus->setText(message);
 
                 const bool installerBusy = sharedInstaller->busy();
-
                 m_refreshSharedRuntimeButton->setEnabled(!installerBusy);
                 m_installSharedRuntimeButton->setEnabled(
                   !installerBusy && !endpointConflict);
@@ -361,8 +193,7 @@ OcrConf::OcrConf(QWidget* parent)
                 if (endpointConflict) {
                     m_installSharedRuntimeButton->setText(
                       tr("Port 8111 is in use"));
-                } else if (serviceRunning &&
-                           llamaInstalled &&
+                } else if (serviceRunning && llamaInstalled &&
                            paddleInstalled) {
                     m_installSharedRuntimeButton->setText(
                       tr("Repair / check for updates"));
@@ -378,9 +209,7 @@ OcrConf::OcrConf(QWidget* parent)
     connect(sharedInstaller,
             &LocalAiRuntimeInstaller::installProgress,
             this,
-            [this](int step,
-                   int total,
-                   const QString& message) {
+            [this](int step, int total, const QString& message) {
                 m_sharedInstallProgress->setVisible(true);
                 m_sharedInstallProgress->setRange(0, total);
                 m_sharedInstallProgress->setValue(step);
@@ -395,15 +224,11 @@ OcrConf::OcrConf(QWidget* parent)
 
                 if (!ok) {
                     m_sharedInstallProgress->setVisible(false);
-
                     QMessageBox::warning(
-                      this,
-                      tr("Local AI Runtime"),
-                      message);
+                      this, tr("Local AI Runtime"), message);
                 } else {
                     m_sharedInstallProgress->setRange(0, 3);
                     m_sharedInstallProgress->setValue(3);
-
                     QTimer::singleShot(
                       1500,
                       this,
@@ -420,454 +245,21 @@ OcrConf::OcrConf(QWidget* parent)
         ConfigHandler().setOcrServerUrl(m_serverUrl->text().trimmed());
         refreshRuntimeStatus();
     });
-    connect(m_serverPath, &QLineEdit::editingFinished, this, [this]() {
-        ConfigHandler().setOcrServerPath(m_serverPath->text().trimmed());
-        rebuildDeviceList();
+
+    connect(m_modelId, &QLineEdit::editingFinished, this, [this]() {
+        QString modelId = m_modelId->text().trimmed();
+        if (modelId.isEmpty()) {
+            modelId = QStringLiteral("paddleocr-vl-1.6");
+            m_modelId->setText(modelId);
+        }
+        ConfigHandler().setOcrModelId(modelId);
+    });
+
+    connect(m_testButton, &QPushButton::clicked, this, [this]() {
         refreshRuntimeStatus();
     });
-    connect(browseServer, &QPushButton::clicked, this, [this]() {
-        const QString path = QFileDialog::getOpenFileName(
-          this, tr("Choose llama-server executable"), m_serverPath->text());
-        if (!path.isEmpty()) {
-            m_serverPath->setText(path);
-            ConfigHandler().setOcrServerPath(path);
-            rebuildDeviceList();
-            refreshRuntimeStatus();
-        }
-    });
-
-    connect(m_modelRoot, &QLineEdit::editingFinished, this, [this]() {
-        ConfigHandler().setOcrModelRoot(m_modelRoot->text().trimmed());
-        refreshModelStatus();
-    });
-    connect(browseModelRoot, &QPushButton::clicked, this, [this]() {
-        const QString path =
-          QFileDialog::getExistingDirectory(
-            this,
-            tr("Choose OCR model storage"),
-            OcrManager::instance()->modelRoot());
-        if (!path.isEmpty()) {
-            m_modelRoot->setText(path);
-            ConfigHandler().setOcrModelRoot(path);
-            refreshModelStatus();
-        }
-    });
-
-    connect(m_deviceCombo,
-            &QComboBox::currentIndexChanged,
-            this,
-            [this](int index) {
-                if (index < 0) {
-                    return;
-                }
-
-                ConfigHandler().setOcrDeviceId(
-                  m_deviceCombo->itemData(index).toString());
-                refreshRuntimeStatus();
-            });
-
-    connect(m_modelCombo,
-            &QComboBox::currentIndexChanged,
-            this,
-            [this](int index) {
-                if (index < 0) {
-                    return;
-                }
-                ConfigHandler().setOcrModelId(
-                  m_modelCombo->itemData(index).toString());
-                refreshModelStatus();
-                refreshRuntimeStatus();
-            });
-
-    connect(m_autoStart, &QCheckBox::toggled, this, [](bool checked) {
-        ConfigHandler().setOcrAutoStartServer(checked);
-    });
-    connect(m_autoCheckUpdates, &QCheckBox::toggled, this, [](bool checked) {
-        ConfigHandler().setOcrAutoCheckModelUpdates(checked);
-    });
-    connect(m_manifestUrl, &QLineEdit::editingFinished, this, [this]() {
-        ConfigHandler().setOcrManifestUrl(m_manifestUrl->text().trimmed());
-    });
-
-    connect(m_checkCudaUpdatesButton,
-            &QPushButton::clicked,
-            this,
-            [this]() {
-                m_checkCudaUpdatesButton->setEnabled(false);
-                m_cudaUpdateStatus->setText(tr("Checking..."));
-
-                OcrManager::instance()->checkCudaRuntimeUpdates(
-                  this,
-                  [this](bool ok, const QString& message) {
-                      m_cudaUpdateStatus->setText(message);
-
-                      if (ok) {
-                          refreshCudaRuntimeStatus();
-                      } else {
-                          m_checkCudaUpdatesButton->setEnabled(
-                            !OcrManager::instance()->cudaRuntimeBusy());
-                      }
-
-                      if (!ok) {
-                          QMessageBox::warning(
-                            this, tr("CUDA Runtime"), message);
-                      }
-                  });
-            });
-
-    connect(m_installCudaButton, &QPushButton::clicked, this, [this]() {
-        auto* manager = OcrManager::instance();
-
-        const QString downloadSize =
-          QLocale().formattedDataSize(
-            manager->cudaRuntimeDownloadSize(),
-            1,
-            QLocale::DataSizeTraditionalFormat);
-
-        const QString installedSize =
-          QLocale().formattedDataSize(
-            manager->cudaRuntimeInstalledSize(),
-            1,
-            QLocale::DataSizeTraditionalFormat);
-
-        const QString title =
-          manager->cudaRuntimeUpdateAvailable()
-            ? tr("Update CUDA runtime")
-            : tr("Install CUDA runtime");
-
-        if (QMessageBox::question(
-              this,
-              title,
-              tr("Download and install the verified CUDA runtime?\n\n"
-                 "Download size: %1\n"
-                 "Installed size: %2")
-                .arg(downloadSize, installedSize),
-              QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
-            return;
-        }
-
-        m_cudaDownloadProgress->setValue(0);
-        m_cudaDownloadLabel->setVisible(true);
-        m_cudaDownloadProgress->setVisible(true);
-        m_installCudaButton->setEnabled(false);
-        m_cancelCudaButton->setEnabled(true);
-
-        OcrManager::instance()->installCudaRuntime();
-    });
-
-    connect(m_cancelCudaButton,
-            &QPushButton::clicked,
-            OcrManager::instance(),
-            &OcrManager::cancelCudaRuntimeInstall);
-
-    connect(m_downloadButton, &QPushButton::clicked, this, [this]() {
-        const QString id = m_modelCombo->currentData().toString();
-        if (!id.isEmpty()) {
-            m_downloadProgress->setValue(0);
-            m_downloadProgress->setVisible(true);
-            m_downloadButton->setEnabled(false);
-            m_cancelDownloadButton->setEnabled(true);
-            OcrManager::instance()->downloadModel(id);
-        }
-    });
-    connect(m_cancelDownloadButton,
-            &QPushButton::clicked,
-            OcrManager::instance(),
-            &OcrManager::cancelDownload);
-
-    connect(m_deleteButton, &QPushButton::clicked, this, [this]() {
-        const QString id = m_modelCombo->currentData().toString();
-        if (id.isEmpty()) {
-            return;
-        }
-        if (QMessageBox::question(
-              this,
-              tr("Delete OCR model"),
-              tr("Delete the selected OCR model from disk?"),
-              QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
-            return;
-        }
-        QString error;
-        if (!OcrManager::instance()->removeModel(id, &error)) {
-            QMessageBox::warning(this, tr("OCR"), error);
-        }
-        refreshModelStatus();
-    });
-
-    connect(m_startButton, &QPushButton::clicked, this, [this]() {
-        QString error;
-        if (!OcrManager::instance()->startServer(&error)) {
-            QMessageBox::warning(this, tr("OCR"), error);
-        }
-        QTimer::singleShot(300, this, &OcrConf::refreshRuntimeStatus);
-    });
-    connect(m_stopButton,
-            &QPushButton::clicked,
-            OcrManager::instance(),
-            &OcrManager::stopServer);
-    connect(m_testButton, &QPushButton::clicked, this, [this]() {
-        m_runtimeStatus->setText(tr("Testing AI endpoint..."));
-        OcrManager::instance()->testConnection(
-          this,
-          [this](bool ok, const QString& error) {
-              m_runtimeStatus->setText(
-                ok ? tr("Connected — AI endpoint is healthy")
-                   : tr("Not connected — %1").arg(error));
-          });
-    });
-
-    connect(m_checkUpdatesButton, &QPushButton::clicked, this, [this]() {
-        ConfigHandler().setOcrManifestUrl(m_manifestUrl->text().trimmed());
-        m_latestStatus->setText(tr("Checking..."));
-        OcrManager::instance()->checkRemoteManifest(
-          this,
-          [this](bool ok, const QString& message) {
-              m_latestStatus->setText(message);
-              if (ok) {
-                  rebuildModelList();
-                  refreshModelStatus();
-              }
-          });
-    });
-
-    connect(OcrManager::instance(),
-            &OcrManager::downloadProgress,
-            this,
-            [this](qint64 done, qint64 total, const QString&) {
-                if (total <= 0) {
-                    return;
-                }
-                const int value =
-                  static_cast<int>((done * 1000) / total);
-                m_downloadProgress->setValue(qBound(0, value, 1000));
-            });
-
-    connect(OcrManager::instance(),
-            &OcrManager::downloadFinished,
-            this,
-            [this](bool, const QString& message) {
-                m_downloadButton->setEnabled(true);
-                m_cancelDownloadButton->setEnabled(false);
-                QMessageBox::information(this, tr("OCR"), message);
-                refreshModelStatus();
-                refreshRuntimeStatus();
-            });
-
-    connect(OcrManager::instance(),
-            &OcrManager::cudaRuntimeProgress,
-            this,
-            [this](qint64 done, qint64 total) {
-                if (total <= 0) {
-                    return;
-                }
-
-                const int value =
-                  static_cast<int>((done * 1000) / total);
-                m_cudaDownloadProgress->setValue(
-                  qBound(0, value, 1000));
-            });
-
-    connect(OcrManager::instance(),
-            &OcrManager::cudaRuntimeFinished,
-            this,
-            [this](bool ok, const QString& message) {
-                m_cudaDownloadLabel->setVisible(false);
-                m_cudaDownloadProgress->setVisible(false);
-                m_cancelCudaButton->setEnabled(false);
-
-                if (ok) {
-                    QMessageBox::information(
-                      this, tr("CUDA Runtime"), message);
-                } else {
-                    QMessageBox::warning(
-                      this, tr("CUDA Runtime"), message);
-                }
-
-                rebuildDeviceList();
-                refreshCudaRuntimeStatus();
-                refreshRuntimeStatus();
-
-                const QString configured =
-                  ConfigHandler().ocrServerPath().trimmed();
-                const bool configuredUsable =
-                  !configured.isEmpty() &&
-                  QFileInfo(configured).isExecutable();
-
-                if (!configuredUsable) {
-                    m_serverPath->setText(
-                      OcrManager::instance()->serverExecutable());
-                }
-            });
-
-    connect(OcrManager::instance(),
-            &OcrManager::cudaRuntimeChanged,
-            this,
-            [this]() {
-                rebuildDeviceList();
-                refreshCudaRuntimeStatus();
-                refreshRuntimeStatus();
-
-                const QString configured =
-                  ConfigHandler().ocrServerPath().trimmed();
-                const bool configuredUsable =
-                  !configured.isEmpty() &&
-                  QFileInfo(configured).isExecutable();
-
-                if (!configuredUsable) {
-                    m_serverPath->setText(
-                      OcrManager::instance()->serverExecutable());
-                }
-            });
-
-    connect(OcrManager::instance(),
-            &OcrManager::serverStateChanged,
-            this,
-            &OcrConf::refreshRuntimeStatus);
-    connect(OcrManager::instance(),
-            &OcrManager::manifestChanged,
-            this,
-            [this]() {
-                rebuildModelList();
-                refreshModelStatus();
-            });
 
     updateComponents();
-
-    if (ConfigHandler().ocrAutoCheckModelUpdates() &&
-        !ConfigHandler().ocrManifestUrl().trimmed().isEmpty()) {
-        QTimer::singleShot(1000, this, [this]() {
-            OcrManager::instance()->checkRemoteManifest(
-              this,
-              [this](bool, const QString& message) {
-                  m_latestStatus->setText(message);
-                  rebuildModelList();
-                  refreshModelStatus();
-              });
-        });
-    }
-}
-
-void OcrConf::rebuildModelList()
-{
-    const QString selected = ConfigHandler().ocrModelId();
-    const QSignalBlocker blocker(m_modelCombo);
-    m_modelCombo->clear();
-
-    const auto models = OcrManager::instance()->availableModels();
-    for (const auto& model : models) {
-        m_modelCombo->addItem(model.name, model.id);
-    }
-
-    int index = m_modelCombo->findData(selected);
-    if (index < 0 && m_modelCombo->count() > 0) {
-        index = 0;
-    }
-    if (index >= 0) {
-        m_modelCombo->setCurrentIndex(index);
-        ConfigHandler().setOcrModelId(m_modelCombo->itemData(index).toString());
-    }
-}
-
-void OcrConf::rebuildDeviceList()
-{
-    QString selected = ConfigHandler().ocrDeviceId().trimmed();
-    if (selected.isEmpty()) {
-        selected = QStringLiteral("auto");
-    }
-
-    const QSignalBlocker blocker(m_deviceCombo);
-    m_deviceCombo->clear();
-
-    m_deviceCombo->addItem(tr("Automatic (recommended)"),
-                           QStringLiteral("auto"));
-
-    const auto devices = OcrManager::instance()->availableDevices();
-    for (const auto& device : devices) {
-        const QString label =
-          tr("%1 — %2 [%3]").arg(device.name, device.backend, device.id);
-        m_deviceCombo->addItem(label, device.id);
-    }
-
-    m_deviceCombo->addItem(tr("CPU"), QStringLiteral("cpu"));
-
-    int index = m_deviceCombo->findData(selected);
-    if (index < 0) {
-        m_deviceCombo->addItem(
-          tr("%1 (currently unavailable)").arg(selected), selected);
-        index = m_deviceCombo->count() - 1;
-    }
-
-    m_deviceCombo->setCurrentIndex(index);
-}
-
-void OcrConf::refreshModelStatus()
-{
-    const OcrModelInfo model = OcrManager::instance()->activeModel();
-    const QString directory = OcrManager::instance()->modelDirectory(model);
-    m_modelStatus->setText(
-      tr("%1\n%2").arg(OcrManager::instance()->modelStatusText(model),
-                       directory));
-
-    const bool installed = OcrManager::instance()->modelInstalled(model);
-    m_downloadButton->setEnabled(!installed);
-    m_deleteButton->setEnabled(
-      QDir(OcrManager::instance()->modelDirectory(model)).exists());
-}
-
-void OcrConf::refreshCudaRuntimeStatus()
-{
-    auto* manager = OcrManager::instance();
-
-    const bool nvidia = manager->nvidiaDriverAvailable();
-    const bool installed = manager->cudaRuntimeInstalled();
-    const bool updateAvailable =
-      manager->cudaRuntimeUpdateAvailable();
-    const bool busy = manager->cudaRuntimeBusy();
-    const bool managed = manager->managedServerRunning();
-
-    if (!nvidia) {
-        if (installed) {
-            m_cudaRuntimeStatus->setText(
-              tr("Installed, but no active NVIDIA driver was detected."));
-        } else {
-            m_cudaRuntimeStatus->setText(
-              tr("No active NVIDIA driver detected. Vulkan or CPU will be used."));
-        }
-    } else if (installed) {
-        const QString version = manager->cudaRuntimeVersion();
-        m_cudaRuntimeStatus->setText(
-          tr("Installed and verified — %1")
-            .arg(version.isEmpty() ? tr("unknown version") : version));
-    } else if (busy) {
-        m_cudaRuntimeStatus->setText(
-          tr("Downloading or installing the CUDA runtime..."));
-    } else {
-        m_cudaRuntimeStatus->setText(
-          tr("Not installed. NVIDIA Vulkan remains available as fallback."));
-    }
-
-    if (installed && updateAvailable) {
-        m_installCudaButton->setText(tr("Update CUDA runtime"));
-    } else {
-        m_installCudaButton->setText(
-          tr("Install CUDA runtime (%1)")
-        .arg(QLocale().formattedDataSize(
-          OcrManager::instance()->cudaRuntimeDownloadSize(),
-          1,
-          QLocale::DataSizeTraditionalFormat)));
-    }
-
-    m_installCudaButton->setEnabled(
-      nvidia &&
-      (!installed || updateAvailable) &&
-      !busy &&
-      !managed);
-
-    m_checkCudaUpdatesButton->setEnabled(!busy);
-    m_cancelCudaButton->setEnabled(busy);
-
-    m_cudaDownloadLabel->setVisible(busy);
-    m_cudaDownloadProgress->setVisible(busy);
 }
 
 void OcrConf::refreshSharedRuntimeStatus()
@@ -880,7 +272,6 @@ void OcrConf::refreshSharedRuntimeStatus()
         m_sharedPaddleStatus->setText(tr("Checking..."));
         m_sharedInstallStatus->setText(
           tr("Checking Local AI Runtime..."));
-
         m_installSharedRuntimeButton->setEnabled(false);
         m_refreshSharedRuntimeButton->setEnabled(false);
     }
@@ -890,70 +281,17 @@ void OcrConf::refreshSharedRuntimeStatus()
 
 void OcrConf::refreshRuntimeStatus()
 {
-    auto* manager = OcrManager::instance();
+    m_runtimeStatus->setText(tr("Testing AI endpoint..."));
+    m_testButton->setEnabled(false);
 
-    const QString executable = manager->serverExecutable();
-    const QString preference = ConfigHandler().ocrDeviceId().trimmed();
-    const bool automatic =
-      preference.isEmpty() ||
-      preference.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0;
-
-    m_deviceStatus->setText(
-      executable.isEmpty()
-        ? tr("Legacy llama-server not found")
-        : automatic
-            ? tr("%1 (legacy fallback, auto-selected)")
-                .arg(manager->detectedDevice())
-            : tr("%1 (legacy fallback, manually selected)")
-                .arg(manager->detectedDevice()));
-
-    const bool managed = manager->managedServerRunning();
-
-    // Disable Start while probing. This prevents the user from launching
-    // a second llama-server onto a port already owned by Local AI Runtime.
-    m_startButton->setEnabled(false);
-    m_stopButton->setEnabled(managed);
-    m_deviceCombo->setEnabled(!managed);
-
-    m_runtimeStatus->setText(tr("Checking AI endpoint..."));
-
-    manager->testConnection(
+    OcrManager::instance()->testConnection(
       this,
       [this](bool ok, const QString& error) {
-          auto* currentManager = OcrManager::instance();
-          const bool currentlyManaged =
-            currentManager->managedServerRunning();
-
-          if (ok) {
-              if (currentlyManaged) {
-                  m_runtimeStatus->setText(
-                    tr("Connected — legacy Flameshot-managed OCR fallback "
-                       "is running."));
-              } else {
-                  m_runtimeStatus->setText(
-                    tr("Connected — shared/local AI runtime is available at %1")
-                      .arg(ConfigHandler().ocrServerUrl()));
-              }
-          } else if (currentlyManaged) {
-              m_runtimeStatus->setText(
-                tr("Legacy fallback process exists, but the AI endpoint is "
-                   "not healthy — %1")
-                  .arg(error));
-          } else {
-              m_runtimeStatus->setText(
-                tr("Shared Local AI Runtime is not connected. "
-                   "The legacy fallback can be started if needed. — %1")
-                  .arg(error));
-          }
-
-          // Only allow legacy startup when no healthy service currently owns
-          // the configured endpoint.
-          m_startButton->setEnabled(!ok && !currentlyManaged);
-          m_stopButton->setEnabled(currentlyManaged);
-          m_deviceCombo->setEnabled(!currentlyManaged);
+          m_runtimeStatus->setText(
+            ok ? tr("Connected — AI endpoint is healthy")
+               : tr("Not connected — %1").arg(error));
+          m_testButton->setEnabled(true);
       });
-
-    refreshCudaRuntimeStatus();
 }
 
 void OcrConf::updateComponents()
@@ -964,50 +302,16 @@ void OcrConf::updateComponents()
         const QSignalBlocker blocker(m_serverUrl);
         m_serverUrl->setText(config.ocrServerUrl());
     }
-    {
-        const QSignalBlocker blocker(m_serverPath);
-        const QString configured = config.ocrServerPath().trimmed();
-        const bool configuredUsable =
-          !configured.isEmpty() && QFileInfo(configured).isExecutable();
-        const QString resolved = OcrManager::instance()->serverExecutable();
 
-        // Do not display a stale remembered path (for example /usr/lib from a
-        // previously installed .deb) when the AppImage is actually using its
-        // own bundled runtime.
-        m_serverPath->setText(configuredUsable ? configured : resolved);
-    }
     {
-        const QSignalBlocker blocker(m_modelRoot);
-        m_modelRoot->setText(OcrManager::instance()->modelRoot());
-    }
-    {
-        const QSignalBlocker blocker(m_manifestUrl);
-        m_manifestUrl->setText(config.ocrManifestUrl());
-    }
-    {
-        const QSignalBlocker blocker(m_autoStart);
-        m_autoStart->setChecked(config.ocrAutoStartServer());
-    }
-    {
-        const QSignalBlocker blocker(m_autoCheckUpdates);
-        m_autoCheckUpdates->setChecked(config.ocrAutoCheckModelUpdates());
+        const QSignalBlocker blocker(m_modelId);
+        QString modelId = config.ocrModelId().trimmed();
+        if (modelId.isEmpty()) {
+            modelId = QStringLiteral("paddleocr-vl-1.6");
+        }
+        m_modelId->setText(modelId);
     }
 
-    rebuildModelList();
-    rebuildDeviceList();
-    refreshModelStatus();
     refreshRuntimeStatus();
     refreshSharedRuntimeStatus();
-
-    const QString latest = OcrManager::instance()->latestModelId();
-    const QString active = OcrManager::instance()->activeModel().id;
-    if (latest == active) {
-        m_latestStatus->setText(tr("%1 — current").arg(latest));
-    } else {
-        m_latestStatus->setText(tr("%1 — update available").arg(latest));
-    }
-
-    m_cancelDownloadButton->setEnabled(false);
-    m_cancelCudaButton->setEnabled(
-      OcrManager::instance()->cudaRuntimeBusy());
 }

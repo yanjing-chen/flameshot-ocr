@@ -140,13 +140,7 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("insecurePixelate"            ,Bool               ( false         )),
     // OCR
     OPTION("ocrServerUrl"               ,String             ( "http://127.0.0.1:8111" )),
-    OPTION("ocrServerPath"              ,String             ( ""            )),
-    OPTION("ocrModelRoot"               ,String             ( ""            )),
     OPTION("ocrModelId"                 ,String             ( "paddleocr-vl-1.6" )),
-    OPTION("ocrManifestUrl"             ,String             ( ""            )),
-    OPTION("ocrDeviceId"                ,String             ( "auto"        )),
-    OPTION("ocrAutoStartServer"         ,Bool               ( true          )),
-    OPTION("ocrAutoCheckModelUpdates"   ,Bool               ( true          )),
 #if defined(Q_OS_WIN)
     // Not visible on settings dialog
     OPTION("ignorePrntScrForcesSnipping" ,Bool               ( false         )),

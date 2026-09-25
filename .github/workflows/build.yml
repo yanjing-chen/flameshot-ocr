@@ -17,7 +17,6 @@ permissions:
 
 env:
   OCR_VERSION: "2.5"
-  LLAMA_CPP_REF: "72797e891"
 
 jobs:
   appimage:
@@ -58,12 +57,15 @@ jobs:
             fuse cmake extra-cmake-modules build-essential git wget \
             qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
             libqt6svg6-dev qt6-l10n-tools qt6-translations-l10n qt6-wayland libgl-dev \
-            appstream hicolor-icon-theme openssl ca-certificates jq zstd \
-            libvulkan-dev glslc spirv-headers
+            appstream hicolor-icon-theme openssl ca-certificates jq
 
-      - name: Build OCR runtimes
+      - name: Verify Stage 6B client-only architecture
         shell: bash
-        run: bash scripts/build-ocr-runtimes.sh "$GITHUB_WORKSPACE/runtime-build"
+        run: |
+          python3 tests/ocr_shared_runtime_contract.py
+          python3 tests/ocr_shared_runtime_ui_contract.py
+          python3 tests/local_ai_runtime_installer_contract.py
+          python3 tests/stage6b_client_only_contract.py
 
       - name: Download linuxdeploy
         shell: bash
@@ -109,8 +111,6 @@ jobs:
           rm -rf "$APPDIR/usr/include"
           rm -rf "$APPDIR/usr/lib"
 
-          mkdir -p "$APPDIR/usr/lib/flameshot-ocr/runtime"
-
           # Qt's OpenSSL TLS backend loads libssl dynamically. linuxdeploy can
           # include libcrypto without libssl, causing a host/AppImage OpenSSL
           # version mismatch on newer Ubuntu releases. Bundle libssl.so.3 and
@@ -128,46 +128,6 @@ jobs:
 
           echo "Bundled OpenSSL libraries:"
           ls -lh "$APPDIR/usr/lib/libssl.so.3" "$APPDIR/usr/lib/libcrypto.so.3"
-          cp runtime-build/llama-server-vulkan \
-             "$APPDIR/usr/lib/flameshot-ocr/runtime/llama-server-vulkan"
-          cp runtime-build/llama-server-cpu \
-             "$APPDIR/usr/lib/flameshot-ocr/runtime/llama-server-cpu"
-
-          # CUDA Runtime Manager downloads a .tar.zst archive. Bundle zstd so
-          # the AppImage does not depend on the host having zstd installed.
-          # Keep this tool separate from the llama runtimes because it is only
-          # used for installing/updating optional CUDA support.
-          ZSTD_BIN="$(command -v zstd)"
-          test -x "$ZSTD_BIN"
-
-          mkdir -p "$APPDIR/usr/lib/flameshot-ocr/tools"
-          cp -L "$ZSTD_BIN" \
-             "$APPDIR/usr/lib/flameshot-ocr/tools/zstd"
-          chmod 0755 "$APPDIR/usr/lib/flameshot-ocr/tools/zstd"
-
-          # zstd on Ubuntu Noble uses these small non-system libraries.
-          # Do not bundle glibc or the dynamic loader.
-          for ZSTD_LIB in libz.so.1 liblzma.so.5 liblz4.so.1 libxxhash.so.0; do
-            ZSTD_LIB_PATH="$(ldconfig -p | awk -v lib="$ZSTD_LIB" \
-              '$1 == lib && $4 ~ /^\/.*x86_64-linux-gnu/ { print $4; exit }')"
-            test -n "$ZSTD_LIB_PATH"
-            test -s "$ZSTD_LIB_PATH"
-            cp -L "$ZSTD_LIB_PATH" "$APPDIR/usr/lib/$ZSTD_LIB"
-          done
-
-          echo "Bundled CUDA extraction tool:"
-          ls -lh "$APPDIR/usr/lib/flameshot-ocr/tools/zstd"
-          echo "Bundled zstd libraries:"
-          ls -lh \
-            "$APPDIR/usr/lib/libz.so.1" \
-            "$APPDIR/usr/lib/liblzma.so.5" \
-            "$APPDIR/usr/lib/liblz4.so.1" \
-            "$APPDIR/usr/lib/libxxhash.so.0"
-
-          # Build-time sanity check: the packaged zstd must actually execute
-          # using the AppDir libraries.
-          LD_LIBRARY_PATH="$APPDIR/usr/lib" \
-            "$APPDIR/usr/lib/flameshot-ocr/tools/zstd" --version
 
           mkdir -p "$APPDIR/usr/share/doc/flameshot-ocr"
           cp THIRD_PARTY_NOTICES.md \
@@ -205,6 +165,15 @@ jobs:
 
           test -s \
             "$APPROOT/usr/translations/qt_zh_CN.qm"
+
+          if find "$APPROOT" -type f \
+              \( -name 'llama-server' -o -name 'llama-server-*' \) \
+              -print -quit | grep -q .; then
+            echo "Embedded llama-server found in client-only AppImage"
+            exit 1
+          fi
+
+          test ! -d "$APPROOT/usr/lib/flameshot-ocr/runtime"
 
           VERSION_OUTPUT="$(
             TEST_CONFIG_HOME="$VERIFY_DIR/config"
@@ -266,17 +235,6 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "Package version: $VERSION"
 
-      - name: Install runtime-build dependencies
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            cmake build-essential git libvulkan-dev glslc spirv-headers
-
-      - name: Build OCR runtimes
-        shell: bash
-        run: bash scripts/build-ocr-runtimes.sh "$GITHUB_WORKSPACE/runtime-build"
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -305,7 +263,7 @@ jobs:
           echo "Produced packages:"
           find build -maxdepth 1 -type f -name '*.deb' -print
 
-      - name: Inject OCR runtimes and rename package
+      - name: Rename package and add notices
         shell: bash
         run: |
           SRC_DEB="$(find build -maxdepth 1 -type f \
@@ -324,12 +282,6 @@ jobs:
           mkdir -p "$ROOT"
 
           dpkg-deb -R "$SRC_DEB" "$ROOT"
-
-          mkdir -p "$ROOT/usr/lib/flameshot-ocr/runtime"
-          cp runtime-build/llama-server-vulkan \
-             "$ROOT/usr/lib/flameshot-ocr/runtime/llama-server-vulkan"
-          cp runtime-build/llama-server-cpu \
-             "$ROOT/usr/lib/flameshot-ocr/runtime/llama-server-cpu"
 
           mkdir -p "$ROOT/usr/share/doc/flameshot-ocr"
           cp THIRD_PARTY_NOTICES.md \
@@ -357,7 +309,7 @@ jobs:
                   seen.add("Version")
               elif line.startswith("Depends:"):
                   deps = line[len("Depends:"):].strip()
-                  extras = ["libvulkan1", "qt6-wayland", "ca-certificates", "zstd"]
+                  extras = ["qt6-wayland", "ca-certificates"]
                   for dep in extras:
                       if dep not in deps:
                           deps = f"{deps}, {dep}" if deps else dep
@@ -381,6 +333,13 @@ jobs:
           dpkg-deb --build --root-owner-group "$ROOT" "$OUT_DEB"
 
           dpkg-deb -I "$OUT_DEB"
+
+          if dpkg-deb -c "$OUT_DEB" \
+              | grep -E '/llama-server(-[^/]*)?$'; then
+            echo "Embedded llama-server found in client-only deb"
+            exit 1
+          fi
+
           (
             cd "$(dirname "$OUT_DEB")"
             sha256sum "$(basename "$OUT_DEB")"

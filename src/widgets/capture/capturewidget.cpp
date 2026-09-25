@@ -2176,12 +2176,8 @@ void CaptureWidget::runOcr()
 
           // Local AI Runtime routes requests through the
           // OpenAI-compatible model field.
-          //
-          // The legacy Flameshot-managed llama-server is started
-          // with the same model id as an API alias, so this remains
-          // compatible with the v2.4 fallback path.
           payload.insert(QStringLiteral("model"),
-                         OcrManager::instance()->activeModel().id);
+                         OcrManager::instance()->activeModelId());
           payload.insert(QStringLiteral("messages"), messages);
           payload.insert(QStringLiteral("temperature"), 0);
           payload.insert(QStringLiteral("stream"), false);

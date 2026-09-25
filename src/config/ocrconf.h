@@ -5,8 +5,6 @@
 
 #include <QWidget>
 
-class QCheckBox;
-class QComboBox;
 class QLabel;
 class QLineEdit;
 class QProgressBar;
@@ -23,52 +21,21 @@ public slots:
     void updateComponents();
 
 private:
-    void rebuildModelList();
-    void rebuildDeviceList();
-    void refreshModelStatus();
-    void refreshCudaRuntimeStatus();
     void refreshRuntimeStatus();
     void refreshSharedRuntimeStatus();
 
     QLineEdit* m_serverUrl;
-    QLineEdit* m_serverPath;
-    QLineEdit* m_modelRoot;
-    QLineEdit* m_manifestUrl;
-
-    QComboBox* m_modelCombo;
-    QComboBox* m_deviceCombo;
-    QLabel* m_modelStatus;
+    QLineEdit* m_modelId;
     QLabel* m_runtimeStatus;
-    QLabel* m_deviceStatus;
 
     QLabel* m_sharedAppStatus;
     QLabel* m_sharedLlamaStatus;
     QLabel* m_sharedPaddleStatus;
     QLabel* m_sharedInstallStatus;
-    QLabel* m_latestStatus;
-    QLabel* m_cudaRuntimeStatus;
-    QLabel* m_cudaUpdateStatus;
-    QLabel* m_cudaDownloadLabel;
 
-    QCheckBox* m_autoStart;
-    QCheckBox* m_autoCheckUpdates;
-
-    QPushButton* m_downloadButton;
-    QPushButton* m_cancelDownloadButton;
-    QPushButton* m_deleteButton;
-    QPushButton* m_startButton;
-    QPushButton* m_stopButton;
     QPushButton* m_testButton;
-    QPushButton* m_checkUpdatesButton;
-
     QPushButton* m_installSharedRuntimeButton;
     QPushButton* m_refreshSharedRuntimeButton;
 
-    QPushButton* m_installCudaButton;
-    QPushButton* m_checkCudaUpdatesButton;
-    QPushButton* m_cancelCudaButton;
-
-    QProgressBar* m_downloadProgress;
-    QProgressBar* m_cudaDownloadProgress;
     QProgressBar* m_sharedInstallProgress;
 };

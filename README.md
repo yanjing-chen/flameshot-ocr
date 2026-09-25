@@ -3,348 +3,132 @@
 ![Linux](https://img.shields.io/badge/Linux-x86__64-blue)
 ![Wayland](https://img.shields.io/badge/Wayland-tested-success)
 ![OCR](https://img.shields.io/badge/OCR-PaddleOCR--VL--1.6-orange)
-![Release](https://img.shields.io/github/v/release/yanjing-chen/flameshot-ocr)
 ![Build](https://github.com/yanjing-chen/flameshot-ocr/actions/workflows/build.yml/badge.svg)
 
-**Flameshot OCR** is an experimental Linux fork of [Flameshot](https://github.com/flameshot-org/flameshot) that adds fully local OCR powered by **PaddleOCR-VL-1.6** through **llama.cpp**.
+**Flameshot OCR** is an independent Linux fork of
+[Flameshot](https://github.com/flameshot-org/flameshot). It adds a screenshot
+OCR interface backed by the separately installed
+[Local AI Runtime](https://github.com/yanjing-chen/local-ai-runtime).
 
-By default, screenshots are sent only to a local `llama-server` endpoint on `127.0.0.1` unless the user explicitly changes the server URL.
+The v2.5 application is based on Flameshot v14.0.0.
 
-> This repository is an independent fork and is not an official Flameshot release.
+> This repository is not an official Flameshot release.
 
-## Download
+## v2.5 architecture
 
-Latest stable release:
+Flameshot OCR v2.5 has three responsibilities:
 
-**[Flameshot OCR v2.4](https://github.com/yanjing-chen/flameshot-ocr/releases/tag/v2.4)**
+- capture screenshots,
+- provide the OCR interface and result window,
+- connect to or install Local AI Runtime.
 
-Available packages:
+The AppImage and deb package do **not** contain `llama-server`, model files, a
+CUDA runtime manager, or a model downloader. Local AI Runtime owns those
+components and exposes an OpenAI-compatible API on `127.0.0.1:8111`.
 
-- `Flameshot-OCR-2.4-x86_64.AppImage`
-- `flameshot-ocr_2.4_amd64.deb`
-- SHA-256 checksum files for both packages
-
-### AppImage
-
-```bash
-chmod +x Flameshot-OCR-2.4-x86_64.AppImage
-./Flameshot-OCR-2.4-x86_64.AppImage
-```
-
-### Debian / Ubuntu
-
-```bash
-sudo apt install ./flameshot-ocr_2.4_amd64.deb
-```
-
-The `.deb` package conflicts with/replaces the official `flameshot` package because both install the same executable and desktop integration.
-
-## What v2.4 adds
-
-### OCR
-
-- OCR button directly inside the Flameshot capture toolbar.
-- PaddleOCR-VL-1.6 GGUF support.
-- One-click model download with progress reporting.
-- Download cancel/resume using `.part` files and HTTP Range requests.
-- Model integrity checks.
-- Model deletion and model-path management.
-- Persistent local `llama-server` lifecycle.
-- Automatic server startup and reuse between captures.
-- Manual start/stop controls.
-- PID ownership protection.
-- Local connection testing.
-- Verified remote `models.json` support with local caching.
-- Simplified Chinese OCR settings.
-- Wayland-compatible capture workflow.
-
-### Hardware acceleration
-
-- CPU inference.
-- Vulkan inference.
-- Dedicated NVIDIA CUDA inference.
-- Automatic and manual device selection.
-- NVIDIA CUDA preferred over NVIDIA Vulkan when the managed CUDA runtime is installed.
-- AMD and Intel GPUs supported through Vulkan where compatible.
-
-### CUDA Runtime Manager
-
-v2.4 introduces a dedicated NVIDIA CUDA runtime manager.
-
-Features include:
-
-- CUDA runtime installation directly from the OCR settings.
-- Resume support for interrupted downloads.
-- SHA-256 verification.
-- Archive-size verification.
-- Required-file verification.
-- Versioned runtime installation.
-- Atomic `current` runtime switching.
-- Previous-runtime tracking.
-- CUDA device probing before activation.
-- Real model self-test after installation.
-- Automatic rollback when an upgrade fails.
-- Remote runtime update checks.
-- Dynamic download and installed-size display.
-
-Current CUDA runtime:
+Local AI Runtime is installed independently under the current user's home
+directory. Removing or replacing Flameshot OCR does not remove the runtime,
+its models, or its systemd user service.
 
 ```text
-CUDA runtime: 12.8-r2
-CUDA Toolkit: 12.8.1
+Flameshot OCR
+    └── HTTP client: http://127.0.0.1:8111
+          └── Local AI Runtime
+                ├── one active model at a time
+                ├── llama.cpp runtime
+                └── CPU / Vulkan / CUDA backends
 ```
 
-Compiled GPU targets:
+## Current development status
 
-```text
-sm75    RTX 20 series
-sm86    RTX 30 series
-sm89    RTX 40 series
-sm120a  RTX 50 series
-```
+- Flameshot OCR version: **v2.5 development branch**
+- Upstream base: **Flameshot v14.0.0**
+- Local AI Runtime stable version: **0.3.2**
+- Default OCR model: **PaddleOCR-VL-1.6**
+- Default model ID: `paddleocr-vl-1.6`
+- Default API endpoint: `http://127.0.0.1:8111`
 
-An `sm120a` PTX fallback is also included.
-
-The CUDA runtime is distributed separately from the AppImage/deb package, so AMD, Intel and CPU-only users do not need to download the NVIDIA runtime.
-
-## Tested configurations
-
-### AMD / Vulkan
-
-Successfully tested with:
-
-- Ubuntu Linux
-- GNOME 50
-- Wayland
-- AMD Ryzen 7 8845HS
-- Radeon 780M
-- Mesa RADV Vulkan
-- 32 GB RAM
-- PaddleOCR-VL-1.6 GGUF
-- llama.cpp Vulkan runtime
-
-### NVIDIA / CUDA
-
-Real OCR inference has been tested with:
-
-- NVIDIA GeForce RTX 3050 Laptop GPU
-- CUDA architecture `sm86`
-- NVIDIA driver with CUDA driver support
-- CUDA 12.8-r2 multi-architecture runtime
-- PaddleOCR-VL-1.6 GGUF
-
-The `sm75`, `sm89` and `sm120a` targets are included in the CUDA build, but have not yet all been validated on physical RTX 20/40/50 hardware.
-
-## Screenshot
-
-![OCR settings](docs/images/ocr-settings.png)
-
-## OCR model
-
-The current built-in verified model is PaddleOCR-VL-1.6:
-
-- `PaddleOCR-VL-1.6-GGUF.gguf`
-- `PaddleOCR-VL-1.6-GGUF-mmproj.gguf`
-
-The OCR model itself is **not bundled** into the AppImage or `.deb`.
-
-Default model storage:
-
-```text
-~/.local/share/flameshot-ocr/models/
-```
-
-A previous development installation under:
-
-```text
-~/Models/PaddleOCR-VL-1.6/
-```
-
-is also detected.
+Validated on Ubuntu, GNOME/Wayland and Ryzen 7 6800H with Vulkan. Shared
+runtime switching between PaddleOCR-VL-1.6 and HY-MT2-7B has also been tested.
 
 ## Using OCR
 
-1. Start Flameshot.
+1. Start Flameshot OCR.
 2. Open **Configuration → OCR**.
-3. Confirm that the OCR model is installed. If not, download it from the OCR settings.
-4. Leave automatic local OCR service startup enabled if desired.
-5. Start a Flameshot GUI capture.
-6. Select an area containing text.
-7. Click the OCR toolbar button or use your configured OCR shortcut.
-8. Copy or edit the recognized text from the OCR result interface.
+3. If Local AI Runtime is absent, select **Download and install**.
+4. Confirm that the runtime, llama.cpp and PaddleOCR-VL entries are installed.
+5. Start a normal Flameshot capture.
+6. Select an area containing text and choose the OCR tool.
+7. Copy or edit the recognized text in the result window.
 
-Flameshot OCR does not require a fixed OCR shortcut. Existing user shortcut configuration is preserved.
+Existing Flameshot shortcuts are preserved. Flameshot OCR does not require or
+install a fixed OCR shortcut.
 
-## Runtime selection
+## OCR settings
 
-The application, OCR model and inference runtime are managed separately.
+The OCR settings page provides:
 
-Typical automatic priority:
+- Local AI Runtime installation, repair and status refresh,
+- runtime application, llama.cpp and PaddleOCR-VL status,
+- API endpoint,
+- OpenAI-compatible model ID,
+- endpoint connection test.
 
-```text
-explicit user-configured llama-server
-        ↓
-NVIDIA CUDA
-        ↓
-NVIDIA Vulkan
-        ↓
-AMD / Intel Vulkan
-        ↓
-CPU
-```
+Runtime/model/backend management belongs to Local AI Runtime. General custom
+GGUF, mmproj, context, GPU-layer and capability controls are planned for a
+later Local AI Runtime integration stage.
 
-### NVIDIA CUDA
+## Packages
 
-NVIDIA users can install the managed CUDA runtime directly from the OCR settings.
-
-Runtime files are stored under:
-
-```text
-~/.local/share/flameshot-ocr/runtime/cuda/
-```
-
-The versioned layout uses links such as:
-
-```text
-current  -> active runtime
-previous -> previous known-good runtime
-```
-
-A working NVIDIA driver is required. A system-wide CUDA toolkit is not required when using the managed runtime.
-
-### Vulkan
-
-The standard Linux package includes a llama.cpp Vulkan runtime.
-
-Modern AMD GPUs using Mesa/RADV should normally be detected automatically.
-
-NVIDIA Vulkan can also be used with a compatible NVIDIA driver.
-
-### CPU
-
-A CPU runtime is included as the final fallback.
-
-## CUDA runtime updates
-
-CUDA runtime metadata is distributed through a dedicated runtime manifest.
-
-The application can:
-
-- check the latest supported runtime,
-- compare it with the installed version,
-- download and verify it,
-- validate required files,
-- probe CUDA devices,
-- run a real OCR-model self-test,
-- activate the new runtime only after validation,
-- automatically return to the previous working runtime when validation fails.
-
-Current public runtime:
-
-```text
-12.8-r2 (RTX 20/30/40/50)
-```
-
-The previous `12.8-r1` runtime remains available for compatibility and fallback purposes.
-
-## Remote model manifest
-
-Flameshot OCR supports a verified remote `models.json` manifest for model metadata and updates.
-
-The application can cache a valid manifest locally. If the remote endpoint is temporarily unavailable or invalid, the last valid cache can remain available.
-
-An advanced user may configure a custom manifest URL in the OCR settings.
-
-## GitHub Actions
-
-`.github/workflows/build.yml` builds Linux packages on supported pushes, tags and manual workflow runs.
-
-Application artifacts:
+GitHub Actions builds:
 
 - `Flameshot-OCR-<version>-x86_64.AppImage`
 - `flameshot-ocr_<version>_amd64.deb`
 - SHA-256 checksum files
 
-A separate workflow builds the multi-architecture CUDA runtime.
-
-GitHub Actions artifacts are temporary build outputs. Published application packages and CUDA runtimes are distributed as GitHub Release assets.
+The workflow rejects an artifact if an embedded `llama-server` or the old
+`usr/lib/flameshot-ocr/runtime` directory is found.
 
 ## Development
 
-This fork is based on the Flameshot source tree and uses CMake / Qt 6.
-
-Typical local build:
+This fork uses CMake and Qt 6.
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j"$(nproc)"
-```
-
-Run:
-
-```bash
 ./build/src/flameshot gui
 ```
 
-## Project status
+Stage 6B architecture checks:
 
-Current stable release:
-
-```text
-Flameshot OCR v2.4
+```bash
+python3 tests/ocr_shared_runtime_contract.py
+python3 tests/ocr_shared_runtime_ui_contract.py
+python3 tests/local_ai_runtime_installer_contract.py
+python3 tests/stage6b_client_only_contract.py
 ```
-
-v2.4 has been manually tested for:
-
-- OCR on Wayland.
-- PaddleOCR-VL-1.6 inference.
-- Persistent OCR service and reuse.
-- Model download and interrupted-download resume.
-- Model deletion.
-- Remote model manifest handling.
-- Vulkan runtime selection.
-- CUDA runtime installation and update detection.
-- CUDA SHA-256 verification.
-- CUDA device probing.
-- CUDA OCR self-test.
-- Successful CUDA runtime upgrade.
-- Failed-upgrade rollback.
-- Real CUDA OCR inference on an RTX 3050 Laptop GPU.
 
 ## Credits and licenses
 
 - Flameshot: upstream project and original source base.
 - PaddleOCR-VL-1.6 GGUF: PaddlePaddle.
-- llama.cpp: local GGUF inference runtime.
+- Local AI Runtime / llama.cpp: separately installed local inference service.
 - OCR icon: Material Design Icons / Pictogrammers Team, Apache 2.0.
 
-See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and the existing project `LICENSE`.
+See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and `LICENSE`.
 
 ---
 
 ## 中文说明
 
-Flameshot OCR 是一个基于 Flameshot 的非官方 Linux 分支，在截图工具中集成本地 OCR。
+Flameshot OCR v2.5 是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
+截图、OCR 界面和识别结果展示，并作为独立 Local AI Runtime 的客户端和
+一键安装器。
 
-当前正式版本为 **v2.4**。
+AppImage 和 deb 不再内置 `llama-server`，也不再包含旧模型下载器、旧
+Runtime Manager 或 CUDA Runtime Manager。推理运行环境、模型与硬件后端
+统一由 Local AI Runtime 管理。
 
-主要功能：
-
-- PaddleOCR-VL-1.6 本地 OCR
-- Wayland 截图 OCR
-- CPU / Vulkan / NVIDIA CUDA 推理
-- 模型下载与管理
-- 本地 llama.cpp OCR 服务
-- CUDA Runtime Manager
-- CUDA 运行环境下载、SHA-256 校验和真实模型自检
-- CUDA 运行环境在线更新
-- 更新失败自动回退
-- RTX 20 / 30 / 40 / 50 多架构 CUDA runtime
-
-OCR 模型不打包进 AppImage 或 deb，用户可以在 OCR 设置页单独下载。
-
-NVIDIA CUDA runtime 同样与主程序分开发行，NVIDIA 用户可以从 OCR 设置页直接安装。
-
-v2.4 已在 AMD Radeon 780M Vulkan 环境以及 NVIDIA GeForce RTX 3050 Laptop CUDA 环境完成实际 OCR 测试。
-
-GitHub Actions 自动生成 AppImage、Ubuntu/Debian 安装包以及 CUDA runtime 构建产物。
+Local AI Runtime 安装在当前用户目录并通过 `systemd --user` 运行。卸载
+Flameshot OCR 不会删除共享 Runtime、模型或服务。原有 Flameshot 快捷键
+保持不变。

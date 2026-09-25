@@ -1,5 +1,28 @@
 # Flameshot OCR changelog
 
+## v2.5 (development)
+
+### Changed
+
+- Migrated OCR inference to the independent Local AI Runtime service.
+- Added one-click per-user Local AI Runtime installation and repair.
+- Reduced Flameshot's OCR layer to screenshot UI, HTTP client and installer.
+- Removed the embedded Vulkan and CPU `llama-server` binaries.
+- Removed the Flameshot-managed server lifecycle and PID manager.
+- Removed the legacy Flameshot model downloader and remote model manifest.
+- Removed the Flameshot CUDA Runtime Manager and CUDA build workflow.
+- Kept Local AI Runtime, its service and its models independent from Flameshot
+  package installation and removal.
+- Preserved existing screenshot and OCR shortcut behavior.
+
+### Verified
+
+- Chinese application and Qt translations in AppImage.
+- Product version and upstream base version output.
+- PaddleOCR-VL-1.6 through Local AI Runtime 0.3.2.
+- Exactly one shared `llama-server` process during OCR.
+- Vulkan inference and zero swap usage on Ryzen 7 6800H.
+
 ## v2.3
 
 Verified checkpoint: `paddleocr-vl-v2.3`

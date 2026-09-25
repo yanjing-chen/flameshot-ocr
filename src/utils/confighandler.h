@@ -143,15 +143,7 @@ public:
     CONFIG_GETTER_SETTER(insecurePixelate, setInsecurePixelate, bool)
     // OCR
     CONFIG_GETTER_SETTER(ocrServerUrl, setOcrServerUrl, QString)
-    CONFIG_GETTER_SETTER(ocrServerPath, setOcrServerPath, QString)
-    CONFIG_GETTER_SETTER(ocrModelRoot, setOcrModelRoot, QString)
     CONFIG_GETTER_SETTER(ocrModelId, setOcrModelId, QString)
-    CONFIG_GETTER_SETTER(ocrManifestUrl, setOcrManifestUrl, QString)
-    CONFIG_GETTER_SETTER(ocrDeviceId, setOcrDeviceId, QString)
-    CONFIG_GETTER_SETTER(ocrAutoStartServer, setOcrAutoStartServer, bool)
-    CONFIG_GETTER_SETTER(ocrAutoCheckModelUpdates,
-                         setOcrAutoCheckModelUpdates,
-                         bool)
     CONFIG_GETTER_SETTER(showSelectionGeometryHideTime,
                          showSelectionGeometryHideTime,
                          int)

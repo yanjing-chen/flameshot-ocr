@@ -6,76 +6,49 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
-capture = (
-    ROOT / "src/widgets/capture/capturewidget.cpp"
-).read_text(encoding="utf-8")
-
-manager = (
-    ROOT / "src/ocr/ocrmanager.cpp"
-).read_text(encoding="utf-8")
-
-config = (
-    ROOT / "src/utils/confighandler.cpp"
-).read_text(encoding="utf-8")
+capture = (ROOT / "src/widgets/capture/capturewidget.cpp").read_text(
+    encoding="utf-8"
+)
+manager = (ROOT / "src/ocr/ocrmanager.cpp").read_text(encoding="utf-8")
+header = (ROOT / "src/ocr/ocrmanager.h").read_text(encoding="utf-8")
+config = (ROOT / "src/utils/confighandler.cpp").read_text(encoding="utf-8")
 
 
-# Shared public endpoint.
 assert '"http://127.0.0.1:8111"' in config
 print("DEFAULT 8111 ENDPOINT       PASS")
 
-
-# Explicit model routing.
 assert re.search(
     r'payload\.insert\(\s*'
     r'QStringLiteral\("model"\)\s*,\s*'
-    r'OcrManager::instance\(\)->activeModel\(\)\.id\s*\)',
+    r'OcrManager::instance\(\)->activeModelId\(\)\s*\)',
     capture,
     re.S,
 )
-
 print("EXPLICIT MODEL FIELD        PASS")
 
-
-# OpenAI-compatible endpoint.
+assert 'QStringLiteral("/health")' in manager
 assert 'QStringLiteral("/v1/chat/completions")' in manager
-print("OPENAI CHAT ENDPOINT        PASS")
+print("LOCAL AI API ENDPOINTS      PASS")
 
+assert "testConnection(" in manager
+assert "ensureReady(" in manager
+assert "startServer" not in manager
+assert "stopServer" not in manager
+assert "managedServerRunning" not in manager
+assert "FLAMESHOT_OCR_MANAGED" not in manager
+print("CLIENT-ONLY READINESS       PASS")
 
-# Shared endpoint health check occurs before fallback startup.
-start = manager.index(
-    "void OcrManager::ensureReady("
-)
+for removed in (
+    "downloadModel",
+    "removeModel",
+    "installCudaRuntime",
+    "checkCudaRuntimeUpdates",
+    "availableDevices",
+    "serverExecutable",
+):
+    assert removed not in header, removed
+print("LEGACY MANAGERS REMOVED     PASS")
 
-window = manager[start:start + 6000]
-
-health = window.find("testConnection(")
-fallback = window.find("startServer(&startError)")
-
-assert health >= 0
-assert fallback >= 0
-assert health < fallback
-
-print("SHARED-FIRST HEALTH CHECK   PASS")
-
-
-# Old v2.4 fallback retained.
-assert "FLAMESHOT_OCR_MANAGED" in manager
-assert "startServer(&startError)" in window
-
-print("V2.4 LEGACY FALLBACK        PASS")
-
-
-# Old server has API alias equal to requested model id.
-assert re.search(
-    r'QStringLiteral\("--alias"\)\s*'
-    r'<<\s*model\.id',
-    manager,
-)
-
-print("LEGACY MODEL ALIAS          PASS")
-
-
-# Existing OCR multimodal request retained.
 for needle in (
     'QStringLiteral("image_url")',
     'QStringLiteral("messages")',
@@ -83,18 +56,7 @@ for needle in (
     'QStringLiteral("stream")',
 ):
     assert needle in capture, needle
-
 print("OCR REQUEST COMPATIBILITY   PASS")
-
-
-# Backend-neutral health message.
-assert (
-    "The local AI/OCR service did not become ready"
-    in manager
-)
-
-print("BACKEND-NEUTRAL HEALTH      PASS")
-
 
 print()
 print("FLAMESHOT SHARED RUNTIME CONTRACT: PASS")

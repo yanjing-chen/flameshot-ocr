@@ -2250,6 +2250,26 @@ Click to select</source>
 <context>
     <name>OcrConf</name>
     <message>
+        <location filename="../../src/config/ocrconf.cpp" line="93"/>
+        <source>The Local AI Runtime is installed independently for the current user and is not removed when Flameshot OCR is uninstalled.</source>
+        <translation>Local AI Runtime 为当前用户独立安装，卸载 Flameshot OCR 时不会被删除。</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="101"/>
+        <source>OCR connection</source>
+        <translation>OCR 连接</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="108"/>
+        <source>Model ID:</source>
+        <translation>模型 ID：</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/ocrconf.cpp" line="127"/>
+        <source>Flameshot OCR is a client of the shared Local AI Runtime. It does not start, stop, download, update, or remove llama.cpp runtimes and models.</source>
+        <translation>Flameshot OCR 是共享 Local AI Runtime 的客户端，不负责启动、停止、下载、更新或删除 llama.cpp 运行环境与模型。</translation>
+    </message>
+    <message>
         <source>PaddleOCR-VL Service</source>
         <translation type="vanished">PaddleOCR-VL 服务</translation>
     </message>
@@ -2810,6 +2830,17 @@ Installed size: %2</source>
 </context>
 <context>
     <name>OcrManager</name>
+    <message>
+        <location filename="../../src/ocr/ocrmanager.cpp" line="102"/>
+        <source>Local AI Runtime is not available at %1.
+%2
+
+Install or start it from OCR settings.</source>
+        <translation>无法通过 %1 使用 Local AI Runtime。
+%2
+
+请在 OCR 设置中安装或启动该运行环境。</translation>
+    </message>
     <message>
         <location filename="../../src/ocr/ocrmanager.cpp" line="520"/>
         <source>Unknown model</source>
