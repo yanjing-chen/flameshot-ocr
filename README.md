@@ -43,7 +43,7 @@ Flameshot OCR
 
 - Flameshot OCR version: **v2.5 development branch**
 - Upstream base: **Flameshot v14.0.0**
-- Local AI Runtime stable version: **0.4.0**
+- Local AI Runtime stable version: **0.6.0**
 - Default OCR model: **PaddleOCR-VL-1.6**
 - Default model ID: `paddleocr-vl-1.6`
 - Default API endpoint: `http://127.0.0.1:8111`
@@ -74,11 +74,11 @@ The OCR settings page provides:
 - OpenAI-compatible model ID,
 - endpoint connection test,
 - combined catalog and custom-model list,
-- custom GGUF registration and editing,
+- guided custom GGUF inspection, registration and editing,
 - optional MMProj, context size and GPU-layer controls,
 - chat, translation, OCR, vision and inference capability declarations.
 
-Flameshot sends these model-management requests to Local AI Runtime 0.4.0 or
+Flameshot sends these model-management requests to Local AI Runtime 0.6.0 or
 later. It does not copy or delete external GGUF/MMProj files. Catalog models
 remain read-only, and removing a custom entry only removes its Runtime registry
 record.
@@ -104,7 +104,7 @@ cmake --build build -j"$(nproc)"
 ./build/src/flameshot gui
 ```
 
-Stage 6B architecture checks:
+Stage 6B–6E architecture checks:
 
 ```bash
 python3 tests/ocr_shared_runtime_contract.py
@@ -112,6 +112,7 @@ python3 tests/ocr_shared_runtime_ui_contract.py
 python3 tests/local_ai_runtime_installer_contract.py
 python3 tests/stage6b_client_only_contract.py
 python3 tests/stage6c_model_management_contract.py
+python3 tests/stage6e_guided_import_contract.py
 ```
 
 ## Credits and licenses
@@ -139,6 +140,8 @@ Local AI Runtime 安装在当前用户目录并通过 `systemd --user` 运行。
 Flameshot OCR 不会删除共享 Runtime、模型或服务。原有 Flameshot 快捷键
 保持不变。
 
-OCR 设置页可通过 Local AI Runtime 0.4.0 或更高版本查看目录模型，并添加、
-编辑或删除自定义 GGUF 条目；支持可选 MMProj、上下文大小、GPU 层数以及
-功能能力设置。删除条目不会删除磁盘上的 GGUF 或 MMProj 文件。
+OCR 设置页可通过 Local AI Runtime 0.6.0 或更高版本查看目录模型，并以引导
+方式导入自定义 GGUF：选择文件后自动读取元数据，建议模型 ID、名称、类型、
+上下文大小、功能能力，并在同目录中保守匹配可选 MMProj。所有建议值都可在
+保存前修改；自动分析不会加载模型。删除条目不会删除磁盘上的 GGUF 或
+MMProj 文件。

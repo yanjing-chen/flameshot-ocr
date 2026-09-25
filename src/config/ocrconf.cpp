@@ -30,6 +30,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPlainTextEdit>
+#include <QPointer>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -49,16 +50,68 @@ QString dialogTr(const char* source)
     return QCoreApplication::translate("CustomModelDialog", source);
 }
 
+using InspectResultCallback =
+  std::function<void(bool, const QJsonObject&, const QString&)>;
+using InspectFunction =
+  std::function<void(const QJsonObject&, InspectResultCallback)>;
+
+QString localizedInspectionWarning(const QString& warning)
+{
+    if (warning ==
+        QStringLiteral("The suggested context is capped at 4096 for a "
+                       "conservative memory default.")) {
+        return dialogTr(
+          "The suggested context is capped at 4096 for a conservative "
+          "memory default.");
+    }
+    if (warning ==
+        QStringLiteral("Several MMProj candidates are similarly likely; "
+                       "choose one manually.")) {
+        return dialogTr(
+          "Several MMProj candidates are similarly likely; choose one "
+          "manually.");
+    }
+    if (warning ==
+        QStringLiteral("A possible MMProj was found but was not selected "
+                       "automatically.")) {
+        return dialogTr(
+          "A possible MMProj was found but was not selected automatically.");
+    }
+    if (warning ==
+        QStringLiteral("GGUF has no general.architecture metadata; verify "
+                       "compatibility manually.")) {
+        return dialogTr(
+          "GGUF has no general.architecture metadata; verify compatibility "
+          "manually.");
+    }
+    if (warning ==
+        QStringLiteral("Only the first 64 same-directory GGUF files were "
+                       "checked.")) {
+        return dialogTr(
+          "Only the first 64 same-directory GGUF files were checked.");
+    }
+    if (warning ==
+        QStringLiteral("The selected MMProj has no recognized projector "
+                       "metadata; verify it manually.")) {
+        return dialogTr(
+          "The selected MMProj has no recognized projector metadata; verify "
+          "it manually.");
+    }
+    return warning;
+}
+
 class CustomModelDialog : public QDialog
 {
 public:
     explicit CustomModelDialog(const QJsonObject& model,
+                               InspectFunction inspector,
                                QWidget* parent = nullptr)
       : QDialog(parent)
       , m_editing(!model.isEmpty())
+      , m_inspector(inspector)
     {
         setWindowTitle(m_editing ? dialogTr("Edit custom model")
-                                 : dialogTr("Add custom model"));
+                                 : dialogTr("Import custom GGUF model"));
         setMinimumWidth(620);
 
         auto* layout = new QVBoxLayout(this);
@@ -88,9 +141,19 @@ public:
         m_modelPath = new QLineEdit(modelPathRow);
         auto* browseModel =
           new QPushButton(dialogTr("Browse..."), modelPathRow);
+        m_inspectButton =
+          new QPushButton(dialogTr("Analyze GGUF"), modelPathRow);
         modelPathLayout->addWidget(m_modelPath, 1);
         modelPathLayout->addWidget(browseModel);
+        modelPathLayout->addWidget(m_inspectButton);
         form->addRow(dialogTr("GGUF model:"), modelPathRow);
+
+        m_inspectionStatus = new QLabel(
+          dialogTr("Choose a GGUF model. Runtime 0.6.0 will read its metadata "
+                   "and suggest editable settings."),
+          this);
+        m_inspectionStatus->setWordWrap(true);
+        form->addRow(dialogTr("Automatic analysis:"), m_inspectionStatus);
 
         auto* mmprojPathRow = new QWidget(this);
         auto* mmprojPathLayout = new QHBoxLayout(mmprojPathRow);
@@ -156,6 +219,7 @@ public:
 
         auto* buttons = new QDialogButtonBox(
           QDialogButtonBox::Save | QDialogButtonBox::Cancel, this);
+        m_saveButton = buttons->button(QDialogButtonBox::Save);
         layout->addWidget(buttons);
 
         connect(browseModel, &QPushButton::clicked, this, [this]() {
@@ -166,8 +230,14 @@ public:
               dialogTr("GGUF models (*.gguf);;All files (*)"));
             if (!path.isEmpty()) {
                 m_modelPath->setText(path);
+                inspectModel();
             }
         });
+
+        connect(m_inspectButton,
+                &QPushButton::clicked,
+                this,
+                [this]() { inspectModel(); });
 
         connect(browseMmproj, &QPushButton::clicked, this, [this]() {
             const QString path = QFileDialog::getOpenFileName(
@@ -252,6 +322,139 @@ public:
     }
 
 private:
+    void inspectModel()
+    {
+        const QString path = m_modelPath->text().trimmed();
+        const QFileInfo modelFile(path);
+        if (!modelFile.isAbsolute() || !modelFile.isFile() ||
+            modelFile.suffix().compare(QStringLiteral("gguf"),
+                                       Qt::CaseInsensitive) != 0) {
+            QMessageBox::warning(
+              this,
+              dialogTr("Custom model"),
+              dialogTr("Choose an existing GGUF model before analysis."));
+            return;
+        }
+
+        if (!m_inspector) {
+            m_inspectionStatus->setText(
+              dialogTr("Automatic analysis is unavailable. You can still "
+                       "enter every setting manually."));
+            return;
+        }
+
+        QJsonObject request;
+        request.insert(QStringLiteral("model_path"),
+                       modelFile.absoluteFilePath());
+        request.insert(QStringLiteral("auto_match_mmproj"), true);
+        const QString mmprojPath = m_mmprojPath->text().trimmed();
+        if (!mmprojPath.isEmpty()) {
+            request.insert(QStringLiteral("mmproj_path"), mmprojPath);
+        }
+
+        const int serial = ++m_inspectionSerial;
+        m_inspectButton->setEnabled(false);
+        m_saveButton->setEnabled(false);
+        m_inspectionStatus->setText(
+          dialogTr("Analyzing GGUF metadata..."));
+
+        QPointer<CustomModelDialog> self(this);
+        m_inspector(
+          request,
+          [self, serial](bool ok,
+                         const QJsonObject& object,
+                         const QString& error) {
+              if (!self || serial != self->m_inspectionSerial) {
+                  return;
+              }
+
+              self->m_inspectButton->setEnabled(true);
+              self->m_saveButton->setEnabled(true);
+
+              if (!ok) {
+                  self->m_inspectionStatus->setText(
+                    dialogTr("Automatic analysis failed — %1 You can still "
+                             "enter every setting manually.")
+                      .arg(error));
+                  return;
+              }
+
+              self->applyInspection(object);
+          });
+    }
+
+    void applyInspection(const QJsonObject& inspection)
+    {
+        const QJsonObject suggested =
+          inspection.value(QStringLiteral("suggested")).toObject();
+        if (suggested.isEmpty()) {
+            m_inspectionStatus->setText(
+              dialogTr("The Runtime returned no model suggestions. You can "
+                       "still enter every setting manually."));
+            return;
+        }
+
+        const QString retainedId = m_id->text();
+        load(suggested);
+        if (m_editing) {
+            m_id->setText(retainedId);
+        }
+
+        QString architecture =
+          inspection.value(QStringLiteral("architecture")).toString();
+        if (architecture.isEmpty()) {
+            architecture = dialogTr("unknown");
+        }
+
+        QStringList details;
+        details.append(
+          dialogTr("Metadata read. Architecture: %1.").arg(architecture));
+
+        const qint64 nativeContext =
+          inspection.value(QStringLiteral("native_context_size"))
+            .toVariant()
+            .toLongLong();
+        if (nativeContext > 0) {
+            details.append(
+              dialogTr("Native context: %1.").arg(nativeContext));
+        }
+
+        details.append(
+          inspection.value(QStringLiteral("has_chat_template")).toBool(false)
+            ? dialogTr("Chat template detected.")
+            : dialogTr("No chat template was detected."));
+
+        const QJsonObject mmproj =
+          inspection.value(QStringLiteral("mmproj")).toObject();
+        const QString mmprojPath =
+          mmproj.value(QStringLiteral("path")).toString();
+        if (mmproj.value(QStringLiteral("auto_matched")).toBool(false) &&
+            !mmprojPath.isEmpty()) {
+            details.append(
+              dialogTr("MMProj automatically matched: %1.").arg(mmprojPath));
+        } else if (mmprojPath.isEmpty()) {
+            details.append(dialogTr("No MMProj was selected automatically."));
+        }
+
+        QStringList warnings;
+        const QJsonArray warningValues =
+          inspection.value(QStringLiteral("warnings")).toArray();
+        for (const QJsonValue& value : warningValues) {
+            const QString warning = value.toString().trimmed();
+            if (!warning.isEmpty()) {
+                warnings.append(localizedInspectionWarning(warning));
+            }
+        }
+        if (!warnings.isEmpty()) {
+            details.append(
+              dialogTr("Warnings: %1").arg(warnings.join(QLatin1Char(' '))));
+        }
+
+        details.append(
+          dialogTr("Review every suggested setting before saving."));
+        m_inspectionStatus->setText(details.join(QLatin1Char(' ')));
+    }
+
     void load(const QJsonObject& model)
     {
         m_id->setText(model.value(QStringLiteral("id")).toString());
@@ -362,6 +565,8 @@ private:
     }
 
     bool m_editing;
+    InspectFunction m_inspector;
+    int m_inspectionSerial{ 0 };
     QLineEdit* m_id;
     QLineEdit* m_name;
     QComboBox* m_type;
@@ -379,6 +584,9 @@ private:
     QCheckBox* m_temperature;
     QCheckBox* m_customPrompt;
     QCheckBox* m_contextCapability;
+    QLabel* m_inspectionStatus;
+    QPushButton* m_inspectButton;
+    QPushButton* m_saveButton;
 };
 }
 
@@ -512,7 +720,7 @@ OcrConf::OcrConf(QWidget* parent)
     modelButtonsLayout->setContentsMargins(0, 0, 0, 0);
     m_refreshModelsButton =
       new QPushButton(tr("Refresh models"), modelButtons);
-    m_addModelButton = new QPushButton(tr("Add custom model"), modelButtons);
+    m_addModelButton = new QPushButton(tr("Import GGUF model"), modelButtons);
     m_editModelButton = new QPushButton(tr("Edit"), modelButtons);
     m_removeEntryButton =
       new QPushButton(tr("Remove entry"), modelButtons);
@@ -534,7 +742,9 @@ OcrConf::OcrConf(QWidget* parent)
     auto* modelNote = new QLabel(
       tr("Catalog models are read-only. Custom entries may reference any "
          "local GGUF and optional MMProj file. Removing a custom entry "
-         "never deletes either file."),
+         "never deletes either file. Automatic GGUF analysis requires "
+         "Local AI Runtime 0.6.0 or later; every suggested setting remains "
+         "editable."),
       modelsBox);
     modelNote->setWordWrap(true);
     modelsLayout->addWidget(modelNote);
@@ -1012,7 +1222,15 @@ void OcrConf::updateModelButtons()
 
 void OcrConf::addCustomModel()
 {
-    CustomModelDialog dialog({}, this);
+    CustomModelDialog dialog(
+      {},
+      [this](const QJsonObject& payload, InspectResultCallback callback) {
+          sendModelRequest(QStringLiteral("POST"),
+                           QStringLiteral("/v1/models/inspect"),
+                           payload,
+                           callback);
+      },
+      this);
     if (dialog.exec() != QDialog::Accepted) {
         return;
     }
@@ -1045,7 +1263,15 @@ void OcrConf::editSelectedCustomModel()
         return;
     }
 
-    CustomModelDialog dialog(model, this);
+    CustomModelDialog dialog(
+      model,
+      [this](const QJsonObject& payload, InspectResultCallback callback) {
+          sendModelRequest(QStringLiteral("POST"),
+                           QStringLiteral("/v1/models/inspect"),
+                           payload,
+                           callback);
+      },
+      this);
     if (dialog.exec() != QDialog::Accepted) {
         return;
     }

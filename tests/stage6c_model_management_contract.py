@@ -46,7 +46,7 @@ print("CAPABILITY EDITOR          PASS")
 
 for label in (
     'tr("Runtime model management")',
-    'tr("Add custom model")',
+    'tr("Import GGUF model")',
     'tr("Remove entry")',
     'tr("Use for OCR")',
     "never deletes either file.",
@@ -84,13 +84,14 @@ contexts = {
 for context_name, sources in {
     "OcrConf": (
         "Runtime model management",
-        "Add custom model",
+        "Import GGUF model",
         "Remove entry",
         "Use for OCR",
         "Custom entry removed. External GGUF files were kept.",
     ),
     "CustomModelDialog": (
         "Edit custom model",
+        "Import custom GGUF model",
         "GGUF model:",
         "MMProj (optional):",
         "Context size:",

@@ -2876,6 +2876,10 @@ Installed size: %2</source>
         <translation>添加自定义模型</translation>
     </message>
     <message>
+        <source>Import GGUF model</source>
+        <translation>导入 GGUF 模型</translation>
+    </message>
+    <message>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
@@ -2894,6 +2898,10 @@ Installed size: %2</source>
     <message>
         <source>Catalog models are read-only. Custom entries may reference any local GGUF and optional MMProj file. Removing a custom entry never deletes either file.</source>
         <translation>目录模型为只读。自定义条目可以引用任意本地 GGUF 及可选的 MMProj 文件；删除自定义条目不会删除这些文件。</translation>
+    </message>
+    <message>
+        <source>Catalog models are read-only. Custom entries may reference any local GGUF and optional MMProj file. Removing a custom entry never deletes either file. Automatic GGUF analysis requires Local AI Runtime 0.6.0 or later; every suggested setting remains editable.</source>
+        <translation>目录模型为只读。自定义条目可以引用任意本地 GGUF 及可选的 MMProj 文件；删除自定义条目不会删除这些文件。自动分析 GGUF 需要 Local AI Runtime 0.6.0 或更高版本；每项建议设置均可编辑。</translation>
     </message>
     <message>
         <source>Model management is unavailable while the Runtime is disconnected.</source>
@@ -3035,6 +3043,10 @@ GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
         <translation>添加自定义模型</translation>
     </message>
     <message>
+        <source>Import custom GGUF model</source>
+        <translation>导入自定义 GGUF 模型</translation>
+    </message>
+    <message>
         <source>Model ID:</source>
         <translation>模型 ID：</translation>
     </message>
@@ -3073,6 +3085,98 @@ GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
     <message>
         <source>GGUF model:</source>
         <translation>GGUF 模型：</translation>
+    </message>
+    <message>
+        <source>Analyze GGUF</source>
+        <translation>分析 GGUF</translation>
+    </message>
+    <message>
+        <source>Choose a GGUF model. Runtime 0.6.0 will read its metadata and suggest editable settings.</source>
+        <translation>请选择 GGUF 模型。Runtime 0.6.0 将读取其元数据并给出可编辑的建议设置。</translation>
+    </message>
+    <message>
+        <source>Automatic analysis:</source>
+        <translation>自动分析：</translation>
+    </message>
+    <message>
+        <source>Choose an existing GGUF model before analysis.</source>
+        <translation>分析前请选择现有的 GGUF 模型。</translation>
+    </message>
+    <message>
+        <source>Automatic analysis is unavailable. You can still enter every setting manually.</source>
+        <translation>自动分析不可用；仍可手工填写全部设置。</translation>
+    </message>
+    <message>
+        <source>Analyzing GGUF metadata...</source>
+        <translation>正在分析 GGUF 元数据……</translation>
+    </message>
+    <message>
+        <source>Automatic analysis failed — %1 You can still enter every setting manually.</source>
+        <translation>自动分析失败 — %1 仍可手工填写全部设置。</translation>
+    </message>
+    <message>
+        <source>The Runtime returned no model suggestions. You can still enter every setting manually.</source>
+        <translation>Runtime 未返回模型建议；仍可手工填写全部设置。</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>未知</translation>
+    </message>
+    <message>
+        <source>Metadata read. Architecture: %1.</source>
+        <translation>已读取元数据。架构：%1。</translation>
+    </message>
+    <message>
+        <source>Native context: %1.</source>
+        <translation>原生上下文：%1。</translation>
+    </message>
+    <message>
+        <source>Chat template detected.</source>
+        <translation>已检测到聊天模板。</translation>
+    </message>
+    <message>
+        <source>No chat template was detected.</source>
+        <translation>未检测到聊天模板。</translation>
+    </message>
+    <message>
+        <source>MMProj automatically matched: %1.</source>
+        <translation>已自动匹配 MMProj：%1。</translation>
+    </message>
+    <message>
+        <source>No MMProj was selected automatically.</source>
+        <translation>未自动选择 MMProj。</translation>
+    </message>
+    <message>
+        <source>Warnings: %1</source>
+        <translation>警告：%1</translation>
+    </message>
+    <message>
+        <source>Review every suggested setting before saving.</source>
+        <translation>保存前请检查每项建议设置。</translation>
+    </message>
+    <message>
+        <source>The suggested context is capped at 4096 for a conservative memory default.</source>
+        <translation>为采用保守的内存默认值，建议上下文已限制为 4096。</translation>
+    </message>
+    <message>
+        <source>Several MMProj candidates are similarly likely; choose one manually.</source>
+        <translation>多个 MMProj 候选的匹配程度接近，请手工选择。</translation>
+    </message>
+    <message>
+        <source>A possible MMProj was found but was not selected automatically.</source>
+        <translation>找到可能的 MMProj，但未自动选择。</translation>
+    </message>
+    <message>
+        <source>GGUF has no general.architecture metadata; verify compatibility manually.</source>
+        <translation>GGUF 缺少 general.architecture 元数据，请手工确认兼容性。</translation>
+    </message>
+    <message>
+        <source>Only the first 64 same-directory GGUF files were checked.</source>
+        <translation>仅检查了同一目录中的前 64 个 GGUF 文件。</translation>
+    </message>
+    <message>
+        <source>The selected MMProj has no recognized projector metadata; verify it manually.</source>
+        <translation>所选 MMProj 没有可识别的投影器元数据，请手工确认。</translation>
     </message>
     <message>
         <source>MMProj (optional):</source>

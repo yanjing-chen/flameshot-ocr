@@ -67,6 +67,7 @@ jobs:
           python3 tests/local_ai_runtime_installer_contract.py
           python3 tests/stage6b_client_only_contract.py
           python3 tests/stage6c_model_management_contract.py
+          python3 tests/stage6e_guided_import_contract.py
 
       - name: Download linuxdeploy
         shell: bash
