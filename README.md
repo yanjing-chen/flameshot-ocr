@@ -39,9 +39,9 @@ Flameshot OCR
                 └── CPU / Vulkan / CUDA backends
 ```
 
-## Current development status
+## Current release
 
-- Flameshot OCR version: **v2.5 development branch**
+- Flameshot OCR version: **v2.5**
 - Upstream base: **Flameshot v14.0.0**
 - Local AI Runtime stable version: **0.6.0**
 - Default OCR model: **PaddleOCR-VL-1.6**

@@ -1,27 +1,53 @@
 # Flameshot OCR changelog
 
-## v2.5 (development)
+## v2.5 — 2026-09-26
+
+### Added
+
+- Independent Local AI Runtime integration with one-click per-user installation
+  and repair.
+- Runtime model catalog and editable custom GGUF model entries.
+- Guided GGUF import with metadata inspection, conservative context suggestions
+  and automatic same-directory MMProj discovery.
+- Automatic filename fallback for overly generic GGUF names such as `7B`.
+- Model capability declarations for chat, translation, OCR, vision, streaming,
+  thinking, temperature parameters, custom prompts and context size.
+- HY-MT2 translation support through the shared Runtime.
 
 ### Changed
 
-- Migrated OCR inference to the independent Local AI Runtime service.
-- Added one-click per-user Local AI Runtime installation and repair.
-- Reduced Flameshot's OCR layer to screenshot UI, HTTP client and installer.
-- Removed the embedded Vulkan and CPU `llama-server` binaries.
-- Removed the Flameshot-managed server lifecycle and PID manager.
-- Removed the legacy Flameshot model downloader and remote model manifest.
-- Removed the Flameshot CUDA Runtime Manager and CUDA build workflow.
-- Kept Local AI Runtime, its service and its models independent from Flameshot
-  package installation and removal.
-- Preserved existing screenshot and OCR shortcut behavior.
+- Migrated all OCR inference to Local AI Runtime 0.6.0.
+- Reduced Flameshot OCR to the screenshot UI, HTTP client and Runtime installer.
+- Ensured that inspection and registration do not load a model; inference loads
+  only the selected model and keeps single-model residency.
+- Improved Simplified Chinese UI and clarified “Supports temperature parameter”.
+- Isolated AppImage GIO/GVFS modules for compatibility with newer Ubuntu hosts.
+
+### Removed
+
+- Embedded Vulkan and CPU `llama-server` binaries.
+- The legacy model downloader, server/PID lifecycle manager and remote model
+  manifest.
+- Flameshot-managed CUDA Runtime Manager and CUDA build workflow.
+- The withdrawn HunyuanOCR integration and its model catalog entry.
 
 ### Verified
 
-- Chinese application and Qt translations in AppImage.
-- Product version and upstream base version output.
-- PaddleOCR-VL-1.6 through Local AI Runtime 0.3.2.
-- Exactly one shared `llama-server` process during OCR.
-- Vulkan inference and zero swap usage on Ryzen 7 6800H.
+- Ubuntu 26.04, GNOME/Wayland and Ryzen 7 6800H with Vulkan.
+- PaddleOCR-VL-1.6 real OCR and HY-MT2-7B real inference.
+- Guided GGUF import, MMProj matching and editable suggestions.
+- Real SSE streaming and HY-MT2 ↔ PaddleOCR model switching.
+- Exactly one shared `llama-server`, correct process release and zero swap usage.
+- AppImage direct tray launch, Simplified Chinese/Qt translations and GIO
+  isolation.
+- Client-only AppImage and Ubuntu 24.04 amd64 deb package contents.
+- Existing screenshot shortcuts and external GGUF/MMProj files remain unchanged.
+
+### Scope
+
+- CUDA integration and NVIDIA RTX 3050 hardware validation are deferred to
+  Stage 7 after the v2.5 release.
+- Markdown-formatted OCR and direct `.md` saving are planned for a later release.
 
 ## v2.3
 
