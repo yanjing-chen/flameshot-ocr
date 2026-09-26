@@ -3207,8 +3207,8 @@ GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
         <translation>思考</translation>
     </message>
     <message>
-        <source>Temperature</source>
-        <translation>温度</translation>
+        <source>Supports temperature parameter</source>
+        <translation>支持温度参数</translation>
     </message>
     <message>
         <source>Custom prompt</source>

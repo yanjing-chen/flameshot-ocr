@@ -193,7 +193,8 @@ public:
         m_thinking =
           new QCheckBox(dialogTr("Thinking"), capabilitiesBox);
         m_temperature =
-          new QCheckBox(dialogTr("Temperature"), capabilitiesBox);
+          new QCheckBox(dialogTr("Supports temperature parameter"),
+                        capabilitiesBox);
         m_customPrompt =
           new QCheckBox(dialogTr("Custom prompt"), capabilitiesBox);
         m_contextCapability =
@@ -385,7 +386,7 @@ private:
 
     void applyInspection(const QJsonObject& inspection)
     {
-        const QJsonObject suggested =
+        QJsonObject suggested =
           inspection.value(QStringLiteral("suggested")).toObject();
         if (suggested.isEmpty()) {
             m_inspectionStatus->setText(
@@ -395,6 +396,31 @@ private:
         }
 
         const QString retainedId = m_id->text();
+
+        // Some GGUF files expose only a generic general.name such as "7B".
+        // In that case the filename is a more useful, still-editable default.
+        const QString suggestedName =
+          suggested.value(QStringLiteral("name")).toString().trimmed();
+        static const QRegularExpression genericParameterName(
+          QStringLiteral("^[0-9]+(?:\\.[0-9]+)?[bBmM]$"));
+        if (genericParameterName.match(suggestedName).hasMatch()) {
+            const QString filenameName =
+              QFileInfo(m_modelPath->text().trimmed()).completeBaseName();
+            if (!filenameName.isEmpty()) {
+                suggested.insert(QStringLiteral("name"), filenameName);
+
+                QString filenameId = filenameName.toLower();
+                filenameId.replace(QRegularExpression(
+                                     QStringLiteral("[^a-z0-9]+")),
+                                   QStringLiteral("-"));
+                filenameId.remove(QRegularExpression(
+                  QStringLiteral("^-+|-+$")));
+                if (!filenameId.isEmpty()) {
+                    suggested.insert(QStringLiteral("id"), filenameId);
+                }
+            }
+        }
+
         load(suggested);
         if (m_editing) {
             m_id->setText(retainedId);
