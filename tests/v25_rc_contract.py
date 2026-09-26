@@ -19,12 +19,14 @@ for token in (
     'QStringLiteral("^[0-9]+(?:\\\\.[0-9]+)?[bBmM]$")',
     "completeBaseName()",
     'QStringLiteral("[^a-z0-9]+")',
-    'suggested.insert(QStringLiteral("name"), filenameName)',
+    'suggested.insert(QStringLiteral("display_name"),',
     'suggested.insert(QStringLiteral("id"), filenameId)',
 ):
     assert token in UI, token
 assert UI.index("genericParameterName") < UI.index("load(suggested);")
-print("GENERIC NAME FALLBACK          PASS")
+assert 'suggested.value(QStringLiteral("display_name"))' in UI
+assert 'suggested.value(QStringLiteral("name"))' not in UI
+print("GENERIC DISPLAY NAME FALLBACK  PASS")
 
 tree = ET.parse(TRANSLATIONS)
 contexts = {

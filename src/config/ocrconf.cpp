@@ -400,14 +400,17 @@ private:
         // Some GGUF files expose only a generic general.name such as "7B".
         // In that case the filename is a more useful, still-editable default.
         const QString suggestedName =
-          suggested.value(QStringLiteral("name")).toString().trimmed();
+          suggested.value(QStringLiteral("display_name"))
+            .toString()
+            .trimmed();
         static const QRegularExpression genericParameterName(
           QStringLiteral("^[0-9]+(?:\\.[0-9]+)?[bBmM]$"));
         if (genericParameterName.match(suggestedName).hasMatch()) {
             const QString filenameName =
               QFileInfo(m_modelPath->text().trimmed()).completeBaseName();
             if (!filenameName.isEmpty()) {
-                suggested.insert(QStringLiteral("name"), filenameName);
+                suggested.insert(QStringLiteral("display_name"),
+                                 filenameName);
 
                 QString filenameId = filenameName.toLower();
                 filenameId.replace(QRegularExpression(
