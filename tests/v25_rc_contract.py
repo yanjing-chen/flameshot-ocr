@@ -50,3 +50,14 @@ print("READ-ONLY INSPECTION GUARD     PASS")
 
 print()
 print("V2.5 RC CONTRACT: PASS")
+
+
+WORKFLOW = (ROOT / ".github/workflows/build.yml").read_text(encoding="utf-8")
+GIO_HOOK = ROOT / "packaging/appimage/flameshot-gio-isolation.sh"
+hook = GIO_HOOK.read_text(encoding="utf-8")
+assert "unset GIO_EXTRA_MODULES" in hook
+assert 'GIO_MODULE_DIR="$APPDIR/usr/lib/gio/modules"' in hook
+assert "flameshot-gio-isolation.sh" in WORKFLOW
+assert 'test -d "$APPROOT/usr/lib/gio/modules"' in WORKFLOW
+assert 'apprun-hooks/20-flameshot-gio-isolation.sh' in WORKFLOW
+print("APPIMAGE HOST GIO ISOLATION    PASS")
