@@ -8,6 +8,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPointer>
+#include <QStringList>
 
 namespace
 {
@@ -16,6 +17,17 @@ QString normalizedBaseUrl(QString value)
     value = value.trimmed();
     while (value.endsWith('/')) {
         value.chop(1);
+    }
+
+    const QStringList endpointSuffixes = {
+        QStringLiteral("/v1/chat/completions"),
+        QStringLiteral("/health"),
+    };
+    for (const QString& suffix : endpointSuffixes) {
+        if (value.endsWith(suffix)) {
+            value.chop(suffix.size());
+            break;
+        }
     }
 
     if (value.isEmpty()) {

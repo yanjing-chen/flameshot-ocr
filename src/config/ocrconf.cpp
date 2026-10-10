@@ -691,7 +691,8 @@ OcrConf::OcrConf(QWidget* parent)
     auto* connectionForm = new QFormLayout(connectionBox);
 
     m_serverUrl = new QLineEdit(connectionBox);
-    connectionForm->addRow(tr("API endpoint:"), m_serverUrl);
+    m_serverUrl->setPlaceholderText(QStringLiteral("http://127.0.0.1:8111"));
+    connectionForm->addRow(tr("Runtime base URL:"), m_serverUrl);
 
     m_modelId = new QLineEdit(connectionBox);
     connectionForm->addRow(tr("Model ID:"), m_modelId);
@@ -787,11 +788,11 @@ OcrConf::OcrConf(QWidget* parent)
     modelsLayout->addWidget(m_modelStatus);
 
     auto* modelNote = new QLabel(
-      tr("Catalog models are read-only. Custom entries may reference any "
-         "local GGUF and optional MMProj file. Removing a custom entry "
-         "never deletes either file. Automatic GGUF analysis requires "
-         "Local AI Runtime 0.6.0 or later; every suggested setting remains "
-         "editable."),
+      tr("Deleting a catalog model removes Runtime-managed model files. "
+         "Deleting a custom model removes only its registration and keeps "
+         "the external GGUF and MMProj files. Automatic GGUF analysis "
+         "requires Local AI Runtime 0.6.0 or later; every suggested setting "
+         "remains editable."),
       modelsBox);
     modelNote->setWordWrap(true);
     modelsLayout->addWidget(modelNote);
@@ -966,7 +967,7 @@ OcrConf::OcrConf(QWidget* parent)
     connect(m_removeEntryButton,
             &QPushButton::clicked,
             this,
-            &OcrConf::removeSelectedCustomModel);
+            &OcrConf::removeSelectedModel);
     connect(m_useModelButton,
             &QPushButton::clicked,
             this,
@@ -1083,6 +1084,7 @@ void OcrConf::setPreloadPreference(bool enabled)
         return;
     }
 
+    m_preloadSavePending = true;
     m_preloadOcrModel->setEnabled(false);
     m_preloadStatus->setText(tr("Saving startup preference..."));
     sendModelRequest(
@@ -1092,6 +1094,7 @@ void OcrConf::setPreloadPreference(bool enabled)
       [this, enabled](bool ok,
                       const QJsonObject&,
                       const QString& error) {
+          m_preloadSavePending = false;
           if (!ok) {
               QMessageBox::warning(
                 this,
@@ -1116,13 +1119,7 @@ void OcrConf::sendModelRequest(const QString& method,
                                const QJsonObject& payload,
                                JsonCallback callback)
 {
-    QString base = m_serverUrl->text().trimmed();
-    while (base.endsWith(QLatin1Char('/'))) {
-        base.chop(1);
-    }
-    if (base.isEmpty()) {
-        base = QStringLiteral("http://127.0.0.1:8111");
-    }
+    const QString base = OcrManager::instance()->serverBaseUrl().toString();
 
     QNetworkRequest request(QUrl(base + path));
     request.setRawHeader(QByteArrayLiteral("Accept"),
@@ -1365,6 +1362,9 @@ void OcrConf::updateModelButtons()
       selected && model.value(QStringLiteral("editable")).toBool(false);
     const bool installed =
       selected && model.value(QStringLiteral("installed")).toBool(false);
+    const bool custom =
+      model.value(QStringLiteral("source")).toString() ==
+      QStringLiteral("custom");
     const bool ocrCapable =
       model.value(QStringLiteral("capabilities"))
         .toObject()
@@ -1372,7 +1372,7 @@ void OcrConf::updateModelButtons()
         .toBool(false);
 
     m_editModelButton->setEnabled(editable);
-    m_removeEntryButton->setEnabled(editable);
+    m_removeEntryButton->setEnabled(selected && (custom || installed));
     m_useModelButton->setEnabled(installed && ocrCapable);
 }
 
@@ -1452,51 +1452,78 @@ void OcrConf::editSelectedCustomModel()
       });
 }
 
-void OcrConf::removeSelectedCustomModel()
+void OcrConf::removeSelectedModel()
 {
     const QJsonObject model = selectedModel();
-    if (model.isEmpty() ||
-        !model.value(QStringLiteral("editable")).toBool(false)) {
+    if (model.isEmpty()) {
         return;
     }
 
     const QString id = model.value(QStringLiteral("id")).toString();
+    const bool custom =
+      model.value(QStringLiteral("source")).toString() ==
+      QStringLiteral("custom");
+    if (!custom &&
+        !model.value(QStringLiteral("installed")).toBool(false)) {
+        return;
+    }
+
     const auto answer = QMessageBox::question(
       this,
-      tr("Remove custom model entry"),
-      tr("Remove the custom entry “%1”?\n\nThe GGUF and MMProj files "
-         "will remain on disk.")
-        .arg(id),
+      custom ? tr("Remove custom model registration")
+             : tr("Delete catalog model files"),
+      custom
+        ? tr("Remove the custom model registration “%1”?\n\nThe external "
+             "GGUF and MMProj files will remain on disk.")
+            .arg(id)
+        : tr("Delete all Runtime-managed files for “%1”?\n\nIf this model "
+             "is running, it will be unloaded first. You can download it "
+             "again later.")
+            .arg(id),
       QMessageBox::Yes | QMessageBox::No,
       QMessageBox::No);
     if (answer != QMessageBox::Yes) {
         return;
     }
 
-    m_modelStatus->setText(tr("Removing custom model entry..."));
+    m_modelStatus->setText(
+      custom ? tr("Removing custom model registration...")
+             : tr("Deleting catalog model files..."));
     sendModelRequest(
       QStringLiteral("POST"),
-      QStringLiteral("/v1/models/custom/remove"),
+      custom ? QStringLiteral("/v1/models/custom/remove")
+             : QStringLiteral("/v1/models/remove"),
       { { QStringLiteral("model"), id } },
-      [this, id](bool ok, const QJsonObject&, const QString& error) {
+      [this, id, custom](bool ok,
+                         const QJsonObject&,
+                         const QString& error) {
           if (!ok) {
-              m_modelStatus->setText(tr("Could not remove custom entry — %1")
-                                       .arg(error));
+              m_modelStatus->setText(
+                tr("Could not delete model — %1").arg(error));
               QMessageBox::warning(
-                this, tr("Custom model"), m_modelStatus->text());
+                this, tr("Delete model"), m_modelStatus->text());
               return;
           }
 
-          if (ConfigHandler().ocrModelId().trimmed() == id) {
+          if (custom && ConfigHandler().ocrModelId().trimmed() == id) {
               const QString fallback = QStringLiteral("paddleocr-vl-1.6");
               ConfigHandler().setOcrModelId(fallback);
               m_modelId->setText(fallback);
           }
 
-          m_modelStatus->setText(
-            tr("Custom entry removed. External GGUF files were kept."));
+          m_modelStatus->setText(custom
+                                   ? tr("Custom registration removed. External "
+                                        "GGUF files were kept.")
+                                   : tr("Catalog model files deleted."));
+          refreshPreloadPreference();
+          refreshSharedRuntimeStatus();
           refreshModelList();
       });
+}
+
+bool OcrConf::preloadSavePending() const
+{
+    return m_preloadSavePending;
 }
 
 void OcrConf::useSelectedModelForOcr()

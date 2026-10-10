@@ -11,7 +11,7 @@ header = (ROOT / "src/config/ocrconf.h").read_text(encoding="utf-8")
 
 for text in (
     'tr("Local AI Runtime")',
-    'tr("API endpoint:")',
+    'tr("Runtime base URL:")',
     'tr("Model ID:")',
     'tr("Test AI endpoint")',
     "Download and install",
@@ -30,7 +30,7 @@ for removed in (
     "Legacy NVIDIA CUDA Runtime",
     "Legacy OCR Model",
     "Download model",
-    "Delete model",
+    "Delete model files",
     "Check CUDA updates",
 ):
     assert removed not in ui, removed

@@ -6,6 +6,7 @@
 #include <QTabWidget>
 
 class FileNameEditor;
+class QCloseEvent;
 class ShortcutsWidget;
 class GeneralConf;
 class OcrConf;
@@ -24,6 +25,7 @@ signals:
 
 protected:
     void keyPressEvent(QKeyEvent*);
+    void closeEvent(QCloseEvent*) override;
 
 private:
     QTabWidget* m_tabWidget;

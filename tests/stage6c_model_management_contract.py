@@ -49,7 +49,7 @@ for label in (
     'tr("Import GGUF model")',
     'tr("Remove entry")',
     'tr("Use for OCR")',
-    "never deletes either file.",
+    "the external GGUF and MMProj files.",
 ):
     assert label in UI, label
 print("MODEL MANAGEMENT UI        PASS")
@@ -87,7 +87,7 @@ for context_name, sources in {
         "Import GGUF model",
         "Remove entry",
         "Use for OCR",
-        "Custom entry removed. External GGUF files were kept.",
+        "Custom registration removed. External GGUF files were kept.",
     ),
     "CustomModelDialog": (
         "Edit custom model",

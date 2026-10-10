@@ -740,6 +740,14 @@ Please solve them manually in the configuration file.</source>
         <source>OCR</source>
         <translation>OCR</translation>
     </message>
+    <message>
+        <source>Saving OCR settings</source>
+        <translation>正在保存 OCR 设置</translation>
+    </message>
+    <message>
+        <source>Please wait until the startup loading preference has been saved, then close the window again.</source>
+        <translation>请等待启动加载设置保存完成，然后再次关闭窗口。</translation>
+    </message>
 </context>
 <context>
     <name>Controller</name>
@@ -3102,6 +3110,54 @@ GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
     <message>
         <source>Showing %1 of %2 Runtime model(s). Custom entries are stored by Local AI Runtime.</source>
         <translation>正在显示 %2 个 Runtime 模型中的 %1 个。自定义条目由 Local AI Runtime 保存。</translation>
+    </message>
+    <message>
+        <source>Runtime base URL:</source>
+        <translation>Runtime 基础地址：</translation>
+    </message>
+    <message>
+        <source>Delete model</source>
+        <translation>删除模型</translation>
+    </message>
+    <message>
+        <source>Deleting a catalog model removes Runtime-managed model files. Deleting a custom model removes only its registration and keeps the external GGUF and MMProj files. Automatic GGUF analysis requires Local AI Runtime 0.6.0 or later; every suggested setting remains editable.</source>
+        <translation>删除目录模型会移除由 Runtime 管理的模型文件。删除自定义模型只会移除注册记录，并保留外部 GGUF 和 MMProj 文件。自动分析 GGUF 需要 Local AI Runtime 0.6.0 或更高版本；每项建议设置均可编辑。</translation>
+    </message>
+    <message>
+        <source>Remove custom model registration</source>
+        <translation>移除自定义模型注册</translation>
+    </message>
+    <message>
+        <source>Delete catalog model files</source>
+        <translation>删除目录模型文件</translation>
+    </message>
+    <message>
+        <source>Remove the custom model registration “%1”?\n\nThe external GGUF and MMProj files will remain on disk.</source>
+        <translation>要移除自定义模型“%1”的注册记录吗？\n\n外部 GGUF 和 MMProj 文件将保留在磁盘上。</translation>
+    </message>
+    <message>
+        <source>Delete all Runtime-managed files for “%1”?\n\nIf this model is running, it will be unloaded first. You can download it again later.</source>
+        <translation>要删除由 Runtime 管理的“%1”的全部文件吗？\n\n如果该模型正在运行，将先安全卸载；以后仍可重新下载。</translation>
+    </message>
+    <message>
+        <source>Removing custom model registration...</source>
+        <translation>正在移除自定义模型注册……</translation>
+    </message>
+    <message>
+        <source>Deleting catalog model files...</source>
+        <translation>正在删除目录模型文件……</translation>
+    </message>
+    <message>
+        <source>Could not delete model — %1</source>
+        <translation>无法删除模型 — %1</translation>
+    </message>
+    <message>
+        <source>Custom registration removed. External GGUF files were kept.</source>
+        <translation>已移除自定义模型注册；外部 GGUF 文件已保留。</translation>
+    </message>
+    <message>
+        <source>Catalog model files deleted.</source>
+        <translation>目录模型文件已删除。</translation>
     </message>
 </context>
 <context>

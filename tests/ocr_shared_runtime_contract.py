@@ -28,6 +28,8 @@ print("EXPLICIT MODEL FIELD        PASS")
 
 assert 'QStringLiteral("/health")' in manager
 assert 'QStringLiteral("/v1/chat/completions")' in manager
+assert 'QStringLiteral("/v1/chat/completions"),' in manager
+assert "value.chop(suffix.size())" in manager
 print("LOCAL AI API ENDPOINTS      PASS")
 
 assert "testConnection(" in manager

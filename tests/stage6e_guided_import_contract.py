@@ -89,7 +89,7 @@ for phrase in (
     "Automatic analysis is unavailable.",
     "enter every setting manually.",
     "Review every suggested setting before saving.",
-    "never deletes either file.",
+    "the external GGUF and MMProj files.",
 ):
     assert phrase in UI, phrase
 print("MANUAL FALLBACK            PASS")
@@ -105,7 +105,7 @@ contexts = {
 for context_name, sources in {
     "OcrConf": (
         "Import GGUF model",
-        "Catalog models are read-only. Custom entries may reference any local GGUF and optional MMProj file. Removing a custom entry never deletes either file. Automatic GGUF analysis requires Local AI Runtime 0.6.0 or later; every suggested setting remains editable.",
+        "Deleting a catalog model removes Runtime-managed model files. Deleting a custom model removes only its registration and keeps the external GGUF and MMProj files. Automatic GGUF analysis requires Local AI Runtime 0.6.0 or later; every suggested setting remains editable.",
     ),
     "CustomModelDialog": (
         "Import custom GGUF model",

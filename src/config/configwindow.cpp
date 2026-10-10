@@ -14,11 +14,13 @@
 #include "utils/pathinfo.h"
 
 #include <QApplication>
+#include <QCloseEvent>
 #include <QDialogButtonBox>
 #include <QFileSystemWatcher>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QMessageBox>
 #include <QSizePolicy>
 #include <QTabBar>
 #include <QTextStream>
@@ -130,6 +132,21 @@ void ConfigWindow::keyPressEvent(QKeyEvent* e)
     if (e->key() == Qt::Key_Escape) {
         close();
     }
+}
+
+void ConfigWindow::closeEvent(QCloseEvent* event)
+{
+    if (m_ocrConfig->preloadSavePending()) {
+        event->ignore();
+        QMessageBox::information(
+          this,
+          tr("Saving OCR settings"),
+          tr("Please wait until the startup loading preference has been "
+             "saved, then close the window again."));
+        return;
+    }
+
+    QWidget::closeEvent(event);
 }
 
 void ConfigWindow::initErrorIndicator(QWidget* tab, QWidget* widget)

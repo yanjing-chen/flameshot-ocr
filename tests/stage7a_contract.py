@@ -32,9 +32,18 @@ for token in (
     "Off by default.",
     "first OCR request",
     "next Runtime start",
+    'QStringLiteral("/v1/models/remove")',
+    'tr("Remove entry")',
 ):
     assert token in UI or token in UI_HEADER, token
 print("OCR STARTUP PRELOAD UI         PASS")
+
+CONFIG_WINDOW = (ROOT / "src/config/configwindow.cpp").read_text(
+    encoding="utf-8"
+)
+assert "preloadSavePending()" in CONFIG_WINDOW
+assert "event->ignore()" in CONFIG_WINDOW
+print("PRELOAD SAVE COMPLETION GUARD  PASS")
 
 assert 'OPTION("ocrShowUnavailableCatalogModels",Bool' in CONFIG
 assert "( false" in re.search(
@@ -76,6 +85,13 @@ for context_name, sources in {
         "Off by default. The model will load automatically on the first OCR request.",
         "Saved. The Runtime will stay idle until the first model request.",
         "Showing %1 of %2 Runtime model(s). Custom entries are stored by Local AI Runtime.",
+        "Remove entry",
+        "Delete catalog model files",
+        "Catalog model files deleted.",
+    ),
+    "ConfigWindow": (
+        "Saving OCR settings",
+        "Please wait until the startup loading preference has been saved, then close the window again.",
     ),
     "CaptureWidget": (
         "OCR Result — drag here to move the window",

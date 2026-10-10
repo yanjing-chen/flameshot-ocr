@@ -22,6 +22,7 @@ class OcrConf : public QWidget
 
 public:
     explicit OcrConf(QWidget* parent = nullptr);
+    bool preloadSavePending() const;
 
 public slots:
     void updateComponents();
@@ -37,7 +38,7 @@ private:
     void setPreloadPreference(bool enabled);
     void addCustomModel();
     void editSelectedCustomModel();
-    void removeSelectedCustomModel();
+    void removeSelectedModel();
     void useSelectedModelForOcr();
     void updateModelButtons();
     QJsonObject selectedModel() const;
@@ -51,6 +52,7 @@ private:
     QLabel* m_runtimeStatus;
     QCheckBox* m_preloadOcrModel;
     QLabel* m_preloadStatus;
+    bool m_preloadSavePending = false;
 
     QNetworkAccessManager* m_modelNetwork;
     QCheckBox* m_showUnavailableModels;
