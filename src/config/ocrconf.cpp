@@ -696,6 +696,18 @@ OcrConf::OcrConf(QWidget* parent)
     m_modelId = new QLineEdit(connectionBox);
     connectionForm->addRow(tr("Model ID:"), m_modelId);
 
+    m_preloadOcrModel = new QCheckBox(
+      tr("Load this OCR model when Local AI Runtime starts"), connectionBox);
+    m_preloadOcrModel->setEnabled(false);
+    connectionForm->addRow(tr("Startup loading:"), m_preloadOcrModel);
+
+    m_preloadStatus = new QLabel(
+      tr("Connect to Local AI Runtime 0.7.0 or later to configure startup "
+         "loading."),
+      connectionBox);
+    m_preloadStatus->setWordWrap(true);
+    connectionForm->addRow(QString(), m_preloadStatus);
+
     m_runtimeStatus = new QLabel(connectionBox);
     m_runtimeStatus->setWordWrap(true);
     connectionForm->addRow(tr("Runtime status:"), m_runtimeStatus);
@@ -722,6 +734,12 @@ OcrConf::OcrConf(QWidget* parent)
 
     auto* modelsBox = new QGroupBox(tr("Runtime model management"), content);
     auto* modelsLayout = new QVBoxLayout(modelsBox);
+
+    m_showUnavailableModels = new QCheckBox(
+      tr("Show catalog models whose files are not installed"), modelsBox);
+    m_showUnavailableModels->setChecked(
+      ConfigHandler().ocrShowUnavailableCatalogModels());
+    modelsLayout->addWidget(m_showUnavailableModels);
 
     m_modelTable = new QTableWidget(modelsBox);
     m_modelTable->setColumnCount(8);
@@ -914,7 +932,13 @@ OcrConf::OcrConf(QWidget* parent)
             m_modelId->setText(modelId);
         }
         ConfigHandler().setOcrModelId(modelId);
+        refreshPreloadPreference();
     });
+
+    connect(m_preloadOcrModel,
+            &QCheckBox::toggled,
+            this,
+            &OcrConf::setPreloadPreference);
 
     connect(m_testButton, &QPushButton::clicked, this, [this]() {
         refreshRuntimeStatus();
@@ -924,6 +948,13 @@ OcrConf::OcrConf(QWidget* parent)
             &QPushButton::clicked,
             this,
             &OcrConf::refreshModelList);
+    connect(m_showUnavailableModels,
+            &QCheckBox::toggled,
+            this,
+            [this](bool checked) {
+                ConfigHandler().setOcrShowUnavailableCatalogModels(checked);
+                refreshModelList();
+            });
     connect(m_addModelButton,
             &QPushButton::clicked,
             this,
@@ -980,13 +1011,103 @@ void OcrConf::refreshRuntimeStatus()
 
           if (ok) {
               refreshModelList();
+              refreshPreloadPreference();
           } else {
               m_modelStatus->setText(
                 tr("Model management is unavailable while the Runtime is "
                    "disconnected."));
               m_addModelButton->setEnabled(false);
+              m_preloadOcrModel->setEnabled(false);
+              m_preloadStatus->setText(
+                tr("Startup loading is unavailable while the Runtime is "
+                   "disconnected."));
               updateModelButtons();
           }
+      });
+}
+
+void OcrConf::refreshPreloadPreference()
+{
+    m_preloadOcrModel->setEnabled(false);
+    m_preloadStatus->setText(tr("Loading startup preference..."));
+
+    sendModelRequest(
+      QStringLiteral("GET"),
+      QStringLiteral("/v1/runtime/preferences"),
+      {},
+      [this](bool ok, const QJsonObject& object, const QString& error) {
+          if (!ok) {
+              const QSignalBlocker blocker(m_preloadOcrModel);
+              m_preloadOcrModel->setChecked(false);
+              m_preloadOcrModel->setEnabled(false);
+              m_preloadStatus->setText(
+                tr("Startup loading requires Local AI Runtime 0.7.0 or "
+                   "later. — %1")
+                  .arg(error));
+              return;
+          }
+
+          const QString configuredModel =
+            object.value(QStringLiteral("preload_model")).toString();
+          const QString selectedModel = m_modelId->text().trimmed();
+          const bool selectedIsPreloaded =
+            !selectedModel.isEmpty() && configuredModel == selectedModel;
+
+          {
+              const QSignalBlocker blocker(m_preloadOcrModel);
+              m_preloadOcrModel->setChecked(selectedIsPreloaded);
+          }
+          m_preloadOcrModel->setEnabled(true);
+
+          if (configuredModel.isEmpty()) {
+              m_preloadStatus->setText(
+                tr("Off by default. The model will load automatically on "
+                   "the first OCR request."));
+          } else if (selectedIsPreloaded) {
+              m_preloadStatus->setText(
+                tr("This model will load after the next Runtime start."));
+          } else {
+              m_preloadStatus->setText(
+                tr("Runtime is currently configured to preload “%1”. Enable "
+                   "this option to replace it with the selected OCR model.")
+                  .arg(configuredModel));
+          }
+      });
+}
+
+void OcrConf::setPreloadPreference(bool enabled)
+{
+    const QString modelId = m_modelId->text().trimmed();
+    if (enabled && modelId.isEmpty()) {
+        refreshPreloadPreference();
+        return;
+    }
+
+    m_preloadOcrModel->setEnabled(false);
+    m_preloadStatus->setText(tr("Saving startup preference..."));
+    sendModelRequest(
+      QStringLiteral("POST"),
+      QStringLiteral("/v1/runtime/preferences"),
+      { { QStringLiteral("preload_model"), enabled ? modelId : QString() } },
+      [this, enabled](bool ok,
+                      const QJsonObject&,
+                      const QString& error) {
+          if (!ok) {
+              QMessageBox::warning(
+                this,
+                tr("OCR startup loading"),
+                tr("Could not save the startup preference — %1").arg(error));
+              refreshPreloadPreference();
+              return;
+          }
+
+          m_preloadOcrModel->setEnabled(true);
+          m_preloadStatus->setText(
+            enabled
+              ? tr("Saved. This model will load after the next Runtime "
+                   "start.")
+              : tr("Saved. The Runtime will stay idle until the first model "
+                   "request."));
       });
 }
 
@@ -1007,7 +1128,7 @@ void OcrConf::sendModelRequest(const QString& method,
     request.setRawHeader(QByteArrayLiteral("Accept"),
                          QByteArrayLiteral("application/json"));
     request.setRawHeader(QByteArrayLiteral("User-Agent"),
-                         QByteArrayLiteral("Flameshot-OCR/2.5"));
+                         QByteArrayLiteral("Flameshot-OCR/2.6"));
     request.setAttribute(
       QNetworkRequest::RedirectPolicyAttribute,
       static_cast<int>(QNetworkRequest::NoLessSafeRedirectPolicy));
@@ -1129,15 +1250,20 @@ void OcrConf::refreshModelList()
               }
 
               const QJsonObject model = value.toObject();
-              const int row = m_modelTable->rowCount();
-              m_modelTable->insertRow(row);
-
               const QString id =
                 model.value(QStringLiteral("id")).toString();
               const QString source =
                 model.value(QStringLiteral("source")).toString();
               const bool installed =
                 model.value(QStringLiteral("installed")).toBool(false);
+              if (!installed && source != QStringLiteral("custom") &&
+                  id != activeModel &&
+                  !m_showUnavailableModels->isChecked()) {
+                  continue;
+              }
+
+              const int row = m_modelTable->rowCount();
+              m_modelTable->insertRow(row);
               const QJsonObject capabilities =
                 model.value(QStringLiteral("capabilities")).toObject();
               const QString type =
@@ -1209,9 +1335,10 @@ void OcrConf::refreshModelList()
           m_modelTable->setSortingEnabled(true);
           m_addModelButton->setEnabled(true);
           m_modelStatus->setText(
-            tr("Loaded %1 Runtime model(s). Custom entries are stored by "
-               "Local AI Runtime.")
-              .arg(m_modelTable->rowCount()));
+            tr("Showing %1 of %2 Runtime model(s). Custom entries are stored "
+               "by Local AI Runtime.")
+              .arg(m_modelTable->rowCount())
+              .arg(models.size()));
           updateModelButtons();
             });
       });
@@ -1385,6 +1512,7 @@ void OcrConf::useSelectedModelForOcr()
     m_modelStatus->setText(
       tr("%1 is now selected for Flameshot OCR.").arg(id));
     updateModelButtons();
+    refreshPreloadPreference();
 }
 
 void OcrConf::updateComponents()
@@ -1403,6 +1531,12 @@ void OcrConf::updateComponents()
             modelId = QStringLiteral("paddleocr-vl-1.6");
         }
         m_modelId->setText(modelId);
+    }
+
+    {
+        const QSignalBlocker blocker(m_showUnavailableModels);
+        m_showUnavailableModels->setChecked(
+          config.ocrShowUnavailableCatalogModels());
     }
 
     refreshRuntimeStatus();

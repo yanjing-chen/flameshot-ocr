@@ -13,6 +13,7 @@ class QLineEdit;
 class QNetworkAccessManager;
 class QProgressBar;
 class QPushButton;
+class QCheckBox;
 class QTableWidget;
 
 class OcrConf : public QWidget
@@ -32,6 +33,8 @@ private:
     void refreshRuntimeStatus();
     void refreshSharedRuntimeStatus();
     void refreshModelList();
+    void refreshPreloadPreference();
+    void setPreloadPreference(bool enabled);
     void addCustomModel();
     void editSelectedCustomModel();
     void removeSelectedCustomModel();
@@ -46,8 +49,11 @@ private:
     QLineEdit* m_serverUrl;
     QLineEdit* m_modelId;
     QLabel* m_runtimeStatus;
+    QCheckBox* m_preloadOcrModel;
+    QLabel* m_preloadStatus;
 
     QNetworkAccessManager* m_modelNetwork;
+    QCheckBox* m_showUnavailableModels;
     QTableWidget* m_modelTable;
     QLabel* m_modelStatus;
     QPushButton* m_refreshModelsButton;

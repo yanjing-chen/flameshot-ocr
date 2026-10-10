@@ -381,6 +381,14 @@ Press Space to open the side panel.</source>
         <translation>OCR 识别结果</translation>
     </message>
     <message>
+        <source>OCR Result — drag here to move the window</source>
+        <translation>OCR 识别结果 — 拖动此处可移动窗口</translation>
+    </message>
+    <message>
+        <source>Drag this bar to move the OCR result window.</source>
+        <translation>拖动此栏可移动 OCR 识别结果窗口。</translation>
+    </message>
+    <message>
         <location filename="../../src/widgets/capture/capturewidget.cpp" line="2296"/>
         <source>Copy</source>
         <translation>复制</translation>
@@ -3030,6 +3038,70 @@ GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
     <message>
         <source>Other</source>
         <translation>其他</translation>
+    </message>
+    <message>
+        <source>Load this OCR model when Local AI Runtime starts</source>
+        <translation>Local AI Runtime 启动时加载此 OCR 模型</translation>
+    </message>
+    <message>
+        <source>Startup loading:</source>
+        <translation>启动时加载：</translation>
+    </message>
+    <message>
+        <source>Connect to Local AI Runtime 0.7.0 or later to configure startup loading.</source>
+        <translation>连接 Local AI Runtime 0.7.0 或更高版本后可配置启动时加载。</translation>
+    </message>
+    <message>
+        <source>Show catalog models whose files are not installed</source>
+        <translation>显示尚未安装文件的目录模型</translation>
+    </message>
+    <message>
+        <source>Startup loading is unavailable while the Runtime is disconnected.</source>
+        <translation>Runtime 未连接时无法配置启动时加载。</translation>
+    </message>
+    <message>
+        <source>Loading startup preference...</source>
+        <translation>正在读取启动加载设置……</translation>
+    </message>
+    <message>
+        <source>Startup loading requires Local AI Runtime 0.7.0 or later. — %1</source>
+        <translation>启动时加载功能需要 Local AI Runtime 0.7.0 或更高版本。— %1</translation>
+    </message>
+    <message>
+        <source>Off by default. The model will load automatically on the first OCR request.</source>
+        <translation>默认关闭。模型将在首次 OCR 请求时自动加载。</translation>
+    </message>
+    <message>
+        <source>This model will load after the next Runtime start.</source>
+        <translation>此模型将在 Runtime 下次启动后加载。</translation>
+    </message>
+    <message>
+        <source>Runtime is currently configured to preload “%1”. Enable this option to replace it with the selected OCR model.</source>
+        <translation>Runtime 当前配置为预加载“%1”。启用此选项可改为预加载当前选择的 OCR 模型。</translation>
+    </message>
+    <message>
+        <source>Saving startup preference...</source>
+        <translation>正在保存启动加载设置……</translation>
+    </message>
+    <message>
+        <source>OCR startup loading</source>
+        <translation>OCR 启动加载</translation>
+    </message>
+    <message>
+        <source>Could not save the startup preference — %1</source>
+        <translation>无法保存启动加载设置 — %1</translation>
+    </message>
+    <message>
+        <source>Saved. This model will load after the next Runtime start.</source>
+        <translation>已保存。此模型将在 Runtime 下次启动后加载。</translation>
+    </message>
+    <message>
+        <source>Saved. The Runtime will stay idle until the first model request.</source>
+        <translation>已保存。Runtime 将保持空闲，直到收到首次模型请求。</translation>
+    </message>
+    <message>
+        <source>Showing %1 of %2 Runtime model(s). Custom entries are stored by Local AI Runtime.</source>
+        <translation>正在显示 %2 个 Runtime 模型中的 %1 个。自定义条目由 Local AI Runtime 保存。</translation>
     </message>
 </context>
 <context>

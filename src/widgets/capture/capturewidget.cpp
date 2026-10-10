@@ -40,7 +40,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -62,6 +64,29 @@
 #define MOUSE_DISTANCE_TO_START_MOVING 3
 
 auto const MOUSE_WHEEL_TRESHOLD = 60;
+
+namespace
+{
+class OcrResultDragHandle : public QLabel
+{
+public:
+    using QLabel::QLabel;
+
+protected:
+    void mousePressEvent(QMouseEvent* event) override
+    {
+        if (event->button() == Qt::LeftButton) {
+            QWidget* topLevel = window();
+            if (topLevel && topLevel->windowHandle() &&
+                topLevel->windowHandle()->startSystemMove()) {
+                event->accept();
+                return;
+            }
+        }
+        QLabel::mousePressEvent(event);
+    }
+};
+}
 
 // CaptureWidget is the main component used to capture the screen. It contains
 // an area of selection with its respective buttons.
@@ -2275,12 +2300,24 @@ void CaptureWidget::runOcr()
 
 void CaptureWidget::showOcrResult(const QString& text)
 {
-    auto* dialog = new QDialog(this);
+    auto* dialog =
+      new QDialog(nullptr, Qt::Window | Qt::WindowStaysOnTopHint);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowTitle(tr("OCR Result"));
+    dialog->setWindowModality(Qt::NonModal);
     dialog->resize(760, 520);
 
     auto* layout = new QVBoxLayout(dialog);
+
+    auto* dragHandle = new OcrResultDragHandle(
+      tr("OCR Result — drag here to move the window"), dialog);
+    dragHandle->setCursor(Qt::SizeAllCursor);
+    dragHandle->setToolTip(
+      tr("Drag this bar to move the OCR result window."));
+    dragHandle->setStyleSheet(QStringLiteral(
+      "QLabel { font-weight: 600; padding: 6px; "
+      "border-radius: 4px; background: palette(alternate-base); }"));
+    layout->addWidget(dragHandle);
 
     auto* editor = new QPlainTextEdit(dialog);
     editor->setPlainText(text);
@@ -2299,7 +2336,6 @@ void CaptureWidget::showOcrResult(const QString& text)
 
     layout->addWidget(buttons);
 
-    dialog->setWindowModality(Qt::WindowModal);
     dialog->show();
     dialog->raise();
     dialog->activateWindow();
