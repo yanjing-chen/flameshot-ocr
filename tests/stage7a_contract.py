@@ -100,6 +100,16 @@ for context_name, sources in {
 }.items():
     for source in sources:
         assert contexts[context_name].get(source), (context_name, source)
+
+for source in (
+    "Remove the custom model registration “%1”?\n\n"
+    "The external GGUF and MMProj files will remain on disk.",
+    "Delete all Runtime-managed files for “%1”?\n\n"
+    "If this model is running, it will be unloaded first. "
+    "You can download it again later.",
+):
+    assert contexts["OcrConf"].get(source), source
+    assert "\\n" not in source
 print("SIMPLIFIED CHINESE UI          PASS")
 
 for forbidden in (

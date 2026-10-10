@@ -3132,12 +3132,20 @@ GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
         <translation>删除目录模型文件</translation>
     </message>
     <message>
-        <source>Remove the custom model registration “%1”?\n\nThe external GGUF and MMProj files will remain on disk.</source>
-        <translation>要移除自定义模型“%1”的注册记录吗？\n\n外部 GGUF 和 MMProj 文件将保留在磁盘上。</translation>
+        <source>Remove the custom model registration “%1”?
+
+The external GGUF and MMProj files will remain on disk.</source>
+        <translation>要移除自定义模型“%1”的注册记录吗？
+
+外部 GGUF 和 MMProj 文件将保留在磁盘上。</translation>
     </message>
     <message>
-        <source>Delete all Runtime-managed files for “%1”?\n\nIf this model is running, it will be unloaded first. You can download it again later.</source>
-        <translation>要删除由 Runtime 管理的“%1”的全部文件吗？\n\n如果该模型正在运行，将先安全卸载；以后仍可重新下载。</translation>
+        <source>Delete all Runtime-managed files for “%1”?
+
+If this model is running, it will be unloaded first. You can download it again later.</source>
+        <translation>要删除由 Runtime 管理的“%1”的全部文件吗？
+
+如果该模型正在运行，将先安全卸载；以后仍可重新下载。</translation>
     </message>
     <message>
         <source>Removing custom model registration...</source>
