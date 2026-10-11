@@ -16,6 +16,7 @@ TRANSLATIONS = ROOT / "data/translations/Internationalization_zh_CN.ts"
 
 assert "set(FLAMESHOT_OCR_VERSION 2.7)" in CMAKE
 assert 'OCR_VERSION: "2.7"' in WORKFLOW
+assert "python3 tests/zh_cn_translation_contract.py" in WORKFLOW
 assert "stage7b_contract.py" in WORKFLOW
 assert "Flameshot-OCR/2.7" in UI
 assert "Flameshot-OCR/2.7" in INSTALLER

@@ -62,6 +62,7 @@ jobs:
       - name: Verify Stage 6B and 6C client architecture
         shell: bash
         run: |
+          python3 tests/zh_cn_translation_contract.py
           python3 tests/ocr_shared_runtime_contract.py
           python3 tests/ocr_shared_runtime_ui_contract.py
           python3 tests/local_ai_runtime_installer_contract.py

@@ -2753,7 +2753,7 @@ Click to select</source>
     <message>
         <location filename="../../src/config/ocrconf.cpp" line="791"/>
         <source>CPU</source>
-        <translation type="unfinished">CPU</translation>
+        <translation>CPU</translation>
     </message>
     <message>
         <location filename="../../src/config/ocrconf.cpp" line="808"/>
@@ -3116,10 +3116,6 @@ GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
         <translation>Runtime 基础地址：</translation>
     </message>
     <message>
-        <source>Delete model</source>
-        <translation>删除模型</translation>
-    </message>
-    <message>
         <source>Deleting a catalog model removes Runtime-managed model files. Deleting a custom model removes only its registration and keeps the external GGUF and MMProj files. Automatic GGUF analysis requires Local AI Runtime 0.6.0 or later; every suggested setting remains editable.</source>
         <translation>删除目录模型会移除由 Runtime 管理的模型文件。删除自定义模型只会移除注册记录，并保留外部 GGUF 和 MMProj 文件。自动分析 GGUF 需要 Local AI Runtime 0.6.0 或更高版本；每项建议设置均可编辑。</translation>
     </message>
@@ -3172,20 +3168,12 @@ If this model is running, it will be unloaded first. You can download it again l
         <translation>推理加速</translation>
     </message>
     <message>
-        <source>Automatic (recommended)</source>
-        <translation>自动（推荐）</translation>
-    </message>
-    <message>
         <source>NVIDIA CUDA</source>
         <translation>NVIDIA CUDA</translation>
     </message>
     <message>
         <source>Vulkan</source>
         <translation>Vulkan</translation>
-    </message>
-    <message>
-        <source>CPU</source>
-        <translation>CPU</translation>
     </message>
     <message>
         <source>None</source>
@@ -3200,10 +3188,6 @@ If this model is running, it will be unloaded first. You can download it again l
         <translation>后端状态：</translation>
     </message>
     <message>
-        <source>CUDA runtime:</source>
-        <translation>CUDA 运行环境：</translation>
-    </message>
-    <message>
         <source>Checking acceleration backends...</source>
         <translation>正在检查推理加速后端……</translation>
     </message>
@@ -3214,14 +3198,6 @@ If this model is running, it will be unloaded first. You can download it again l
     <message>
         <source>Refresh acceleration</source>
         <translation>刷新加速状态</translation>
-    </message>
-    <message>
-        <source>Install CUDA runtime</source>
-        <translation>安装 CUDA 运行环境</translation>
-    </message>
-    <message>
-        <source>Update CUDA runtime</source>
-        <translation>更新 CUDA 运行环境</translation>
     </message>
     <message>
         <source>Roll back CUDA runtime</source>
