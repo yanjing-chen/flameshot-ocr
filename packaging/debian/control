@@ -1,7 +1,7 @@
 Source: flameshot
 Section: graphics
 Priority: optional
-Maintainer: Boyuan Yang <byang@debian.org>
+Maintainer: Yanjing Chen <yanjing_chen@qq.com>
 Build-Depends:
  cmake (>= 3.22~),
  debhelper (>= 12),
@@ -13,9 +13,9 @@ Build-Depends:
  libgl-dev,
 Rules-Requires-Root: no
 Standards-Version: 4.7.2
-Homepage: https://flameshot.org/
-Vcs-Browser: https://github.com/flameshot-org/flameshot
-Vcs-Git: https://github.com/flameshot-org/flameshot.git
+Homepage: https://github.com/yanjing-chen/flameshot-ocr
+Vcs-Browser: https://github.com/yanjing-chen/flameshot-ocr
+Vcs-Git: https://github.com/yanjing-chen/flameshot-ocr.git
 
 Package: flameshot
 Architecture: any

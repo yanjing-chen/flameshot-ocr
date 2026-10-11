@@ -72,6 +72,7 @@ jobs:
           python3 tests/stage7a_contract.py
           python3 tests/stage7b_contract.py
           python3 tests/stage7c_contract.py
+          python3 tests/package_identity_contract.py
 
       - name: Download linuxdeploy
         shell: bash
@@ -357,6 +358,13 @@ jobs:
           dpkg-deb --build --root-owner-group "$ROOT" "$OUT_DEB"
 
           dpkg-deb -I "$OUT_DEB"
+
+          test "$(
+            dpkg-deb -f "$OUT_DEB" Maintainer
+          )" = "Yanjing Chen <yanjing_chen@qq.com>"
+          test "$(
+            dpkg-deb -f "$OUT_DEB" Homepage
+          )" = "https://github.com/yanjing-chen/flameshot-ocr"
 
           if dpkg-deb -c "$OUT_DEB" \
               | grep -E '/llama-server(-[^/]*)?$'; then

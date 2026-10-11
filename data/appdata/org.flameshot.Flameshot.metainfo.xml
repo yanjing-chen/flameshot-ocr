@@ -10,12 +10,12 @@ SPDX-License-Identifier: CC0-1.0
 
   <project_license>GPL-3.0-or-later</project_license>
 
-  <name>Flameshot</name>
+  <name>Flameshot OCR</name>
   
   <translation type="qt">flameshot</translation>
 
-  <developer id="org.flameshot">
-    <name>Flameshot Developers</name>
+  <developer id="io.github.yanjing-chen">
+    <name>Yanjing Chen</name>
   </developer>
 
   <supports>
@@ -69,13 +69,13 @@ SPDX-License-Identifier: CC0-1.0
     </screenshot>
   </screenshots>
 
-  <url type="homepage">https://github.com/flameshot-org/flameshot</url>
-  <url type="bugtracker">https://github.com/flameshot-org/flameshot/issues</url>
+  <url type="homepage">https://github.com/yanjing-chen/flameshot-ocr</url>
+  <url type="bugtracker">https://github.com/yanjing-chen/flameshot-ocr/issues</url>
   <url type="translate">https://hosted.weblate.org/projects/flameshot/</url>
-  <url type="contribute">https://github.com/flameshot-org/flameshot/blob/master/docs/CONTRIBUTING.md</url>
-  <url type="vcs-browser">https://github.com/flameshot-org/flameshot/</url>
+  <url type="contribute">https://github.com/yanjing-chen/flameshot-ocr</url>
+  <url type="vcs-browser">https://github.com/yanjing-chen/flameshot-ocr</url>
 
-  <update_contact>https://github.com/flameshot-org/flameshot/issues/new</update_contact>
+  <update_contact>yanjing_chen_at_qq.com</update_contact>
 
   <launchable type="desktop-id">org.flameshot.Flameshot.desktop</launchable>
 

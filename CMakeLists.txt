@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.22)
 set(FLAMESHOT_VERSION 14.0.0)
 
 set(FLAMESHOT_OCR_VERSION 2.8)
-# Flameshot-org
-set(GIT_API_URL "https://api.github.com/repos/flameshot-org/flameshot/releases/latest")
+# Flameshot OCR release feed
+set(GIT_API_URL "https://api.github.com/repos/yanjing-chen/flameshot-ocr/releases/latest")
 
 project(
   flameshot
@@ -153,11 +153,11 @@ endif()
 add_subdirectory(src)
 
 # CPack
-set(CPACK_PACKAGE_VENDOR "flameshot-org")
+set(CPACK_PACKAGE_VENDOR "Yanjing Chen")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Powerful yet simple to use screenshot software.")
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-set(CPACK_PACKAGE_HOMEPAGE_URL "https://flameshot.org")
-set(CPACK_PACKAGE_CONTACT "flameshot-org developers <info@flameshot.org>")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/yanjing-chen/flameshot-ocr")
+set(CPACK_PACKAGE_CONTACT "Yanjing Chen <yanjing_chen@qq.com>")
 set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data/img/app/org.flameshot.Flameshot.svg") # TODO: Can any generator make
 # use of this?
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md") # TODO: Where is this used? Do we need a better
