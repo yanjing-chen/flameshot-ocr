@@ -141,6 +141,7 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     // OCR
     OPTION("ocrServerUrl"               ,String             ( "http://127.0.0.1:8111" )),
     OPTION("ocrModelId"                 ,String             ( "paddleocr-vl-1.6" )),
+    OPTION("ocrOutputFormat"            ,String             ( "plain"         )),
     OPTION("ocrShowUnavailableCatalogModels",Bool           ( false          )),
 #if defined(Q_OS_WIN)
     // Not visible on settings dialog

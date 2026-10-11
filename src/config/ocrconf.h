@@ -55,6 +55,7 @@ private:
 
     QLineEdit* m_serverUrl;
     QLineEdit* m_modelId;
+    QComboBox* m_outputFormat;
     QLabel* m_runtimeStatus;
     QCheckBox* m_preloadOcrModel;
     QLabel* m_preloadStatus;

@@ -762,6 +762,11 @@ OcrConf::OcrConf(QWidget* parent)
     m_modelId = new QLineEdit(connectionBox);
     connectionForm->addRow(tr("Model ID:"), m_modelId);
 
+    m_outputFormat = new QComboBox(connectionBox);
+    m_outputFormat->addItem(tr("Plain text"), QStringLiteral("plain"));
+    m_outputFormat->addItem(tr("Markdown"), QStringLiteral("markdown"));
+    connectionForm->addRow(tr("Output format:"), m_outputFormat);
+
     m_preloadOcrModel = new QCheckBox(
       tr("Load this OCR model when Local AI Runtime starts"), connectionBox);
     m_preloadOcrModel->setEnabled(false);
@@ -1000,6 +1005,17 @@ OcrConf::OcrConf(QWidget* parent)
         ConfigHandler().setOcrModelId(modelId);
         refreshPreloadPreference();
     });
+
+    connect(m_outputFormat,
+            qOverload<int>(&QComboBox::currentIndexChanged),
+            this,
+            [this](int index) {
+                const QString format = m_outputFormat->itemData(index).toString();
+                ConfigHandler().setOcrOutputFormat(
+                  format == QStringLiteral("markdown")
+                    ? QStringLiteral("markdown")
+                    : QStringLiteral("plain"));
+            });
 
     connect(m_preloadOcrModel,
             &QCheckBox::toggled,
@@ -1449,7 +1465,7 @@ void OcrConf::sendModelRequest(const QString& method,
     request.setRawHeader(QByteArrayLiteral("Accept"),
                          QByteArrayLiteral("application/json"));
     request.setRawHeader(QByteArrayLiteral("User-Agent"),
-                         QByteArrayLiteral("Flameshot-OCR/2.7"));
+                         QByteArrayLiteral("Flameshot-OCR/2.8"));
     request.setAttribute(
       QNetworkRequest::RedirectPolicyAttribute,
       static_cast<int>(QNetworkRequest::NoLessSafeRedirectPolicy));
@@ -1882,6 +1898,15 @@ void OcrConf::updateComponents()
             modelId = QStringLiteral("paddleocr-vl-1.6");
         }
         m_modelId->setText(modelId);
+    }
+
+    {
+        const QSignalBlocker blocker(m_outputFormat);
+        const QString format = config.ocrOutputFormat().trimmed().toLower();
+        const int index = m_outputFormat->findData(
+          format == QStringLiteral("markdown") ? QStringLiteral("markdown")
+                                                : QStringLiteral("plain"));
+        m_outputFormat->setCurrentIndex(index >= 0 ? index : 0);
     }
 
     {

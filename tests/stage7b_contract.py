@@ -14,12 +14,17 @@ INSTALLER = (ROOT / "src/ocr/localairuntimeinstaller.cpp").read_text(
 )
 TRANSLATIONS = ROOT / "data/translations/Internationalization_zh_CN.ts"
 
-assert "set(FLAMESHOT_OCR_VERSION 2.7)" in CMAKE
-assert 'OCR_VERSION: "2.7"' in WORKFLOW
+assert any(
+    f"set(FLAMESHOT_OCR_VERSION {version})" in CMAKE
+    for version in ("2.7", "2.8")
+)
+assert any(f'OCR_VERSION: "{version}"' in WORKFLOW for version in ("2.7", "2.8"))
 assert "python3 tests/zh_cn_translation_contract.py" in WORKFLOW
 assert "stage7b_contract.py" in WORKFLOW
-assert "Flameshot-OCR/2.7" in UI
-assert "Flameshot-OCR/2.7" in INSTALLER
+assert any(f"Flameshot-OCR/{version}" in UI for version in ("2.7", "2.8"))
+assert any(
+    f"Flameshot-OCR/{version}" in INSTALLER for version in ("2.7", "2.8")
+)
 print("V2.7 DEVELOPMENT IDENTITY      PASS")
 
 for token in (

@@ -1,5 +1,40 @@
 # Flameshot OCR changelog
 
+## v2.8 — Stage 7C development
+
+### Added
+
+- Plain-text and Markdown OCR output modes.
+- Direct `.txt` and `.md` saving from the editable OCR result window.
+- Result footer with total elapsed time, character throughput, and optional
+  model token throughput reported by Local AI Runtime.
+
+### Changed
+
+- OCR work now continues in an independent controller after the fullscreen
+  capture overlay closes, allowing other applications to be used while model
+  loading and recognition are in progress.
+- OCR progress and result windows are non-modal and no longer forced always on
+  top.
+
+### Scope
+
+- Uses the released Local AI Runtime 0.8.0 and CUDA 12.8 r3 unchanged.
+- A general-purpose detached screenshot editor remains planned for Stage 7D.
+
+## v2.7 — 2026-10-11
+
+### Added
+
+- Runtime-owned automatic, NVIDIA CUDA, Vulkan and CPU backend selection.
+- Optional independently installed CUDA 12.8 r3 runtime with verification,
+  update and safe fallback behavior.
+
+### Verified
+
+- Real PaddleOCR on Ryzen 7 6800H / Vulkan and RTX 3050 / CUDA.
+- Client-only AppImage and deb packages with Runtime 0.8.0.
+
 ## v2.5 — 2026-09-26
 
 ### Added

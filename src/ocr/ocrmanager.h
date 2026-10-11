@@ -21,6 +21,7 @@ public:
     QUrl chatEndpoint() const;
 
     QString activeModelId() const;
+    QString outputFormat() const;
     QString activePrompt() const;
 
     void testConnection(

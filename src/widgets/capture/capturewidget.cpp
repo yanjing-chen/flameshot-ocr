@@ -14,7 +14,7 @@
 #include "config/generalconf.h"
 #include "core/flameshot.h"
 #include "core/qguiappcurrentscreen.h"
-#include "ocr/ocrmanager.h"
+#include "ocr/ocrrequestcontroller.h"
 #include "tools/copy/copytool.h"
 #include "utils/abstractlogger.h"
 #include "utils/screengrabber.h"
@@ -30,32 +30,18 @@
 #include "widgets/panel/utilitypanel.h"
 
 #include <QApplication>
-#include <QBuffer>
 #include <QCheckBox>
 #include <QClipboard>
 #include <QDateTime>
-#include <QDialog>
-#include <QDialogButtonBox>
 #include <QFontMetrics>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QPlainTextEdit>
-#include <QProgressDialog>
 #include <QPushButton>
 #include <QScreen>
 #include <QShortcut>
-#include <QUrl>
-#include <QVBoxLayout>
-#include <QWindow>
 
 #if !defined(DISABLE_UPDATE_CHECKER)
 #include "widgets/updatenotificationwidget.h"
@@ -64,29 +50,6 @@
 #define MOUSE_DISTANCE_TO_START_MOVING 3
 
 auto const MOUSE_WHEEL_TRESHOLD = 60;
-
-namespace
-{
-class OcrResultDragHandle : public QLabel
-{
-public:
-    using QLabel::QLabel;
-
-protected:
-    void mousePressEvent(QMouseEvent* event) override
-    {
-        if (event->button() == Qt::LeftButton) {
-            QWidget* topLevel = window();
-            if (topLevel && topLevel->windowHandle() &&
-                topLevel->windowHandle()->startSystemMove()) {
-                event->accept();
-                return;
-            }
-        }
-        QLabel::mousePressEvent(event);
-    }
-};
-}
 
 // CaptureWidget is the main component used to capture the screen. It contains
 // an area of selection with its respective buttons.
@@ -100,6 +63,7 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
   , m_toolSizeByKeyboard(0)
   , m_mouseIsClicked(false)
   , m_captureDone(false)
+  , m_ocrDetached(false)
   , m_previewEnabled(true)
   , m_adjustmentButtonPressed(false)
   , m_configError(false)
@@ -367,7 +331,7 @@ CaptureWidget::~CaptureWidget()
         geometry.setTopLeft(geometry.topLeft() + m_context.widgetOffset);
         Flameshot::instance()->exportCapture(
           pixmap(), geometry, m_context.request);
-    } else {
+    } else if (!m_ocrDetached) {
         emit Flameshot::instance()->captureFailed();
     }
 }
@@ -2121,224 +2085,14 @@ void CaptureWidget::runOcr()
         return;
     }
 
-    auto* progress =
-      new QProgressDialog(tr("Preparing PaddleOCR-VL service..."),
-                          tr("Cancel"),
-                          0,
-                          0,
-                          this);
-    progress->setWindowTitle(tr("OCR"));
-    progress->setWindowModality(Qt::WindowModal);
-    progress->setMinimumDuration(0);
-    progress->setAutoClose(false);
-    progress->setAutoReset(false);
-    progress->show();
+    auto* controller = new OcrRequestController(selected, qApp);
+    controller->start();
 
-    OcrManager::instance()->ensureReady(
-      this,
-      [this, selected, progress](bool ready, const QString& error) {
-          if (!progress || progress->wasCanceled()) {
-              if (progress) {
-                  progress->close();
-                  progress->deleteLater();
-              }
-              return;
-          }
-
-          if (!ready) {
-              progress->close();
-              progress->deleteLater();
-              QMessageBox::warning(
-                this,
-                tr("OCR server unavailable"),
-                tr("PaddleOCR-VL is not ready.\n\n%1").arg(error));
-              return;
-          }
-
-          progress->setLabelText(tr("Recognizing text with PaddleOCR-VL..."));
-
-          QByteArray pngData;
-          QBuffer buffer(&pngData);
-          if (!buffer.open(QIODevice::WriteOnly) ||
-              !selected.save(&buffer, "PNG")) {
-              progress->close();
-              progress->deleteLater();
-              QMessageBox::warning(
-                this,
-                tr("OCR"),
-                tr("Failed to prepare the selected image for OCR."));
-              return;
-          }
-
-          const QString dataUrl =
-            QStringLiteral("data:image/png;base64,") +
-            QString::fromLatin1(pngData.toBase64());
-
-          QJsonObject imageUrl;
-          imageUrl.insert(QStringLiteral("url"), dataUrl);
-
-          QJsonObject imagePart;
-          imagePart.insert(QStringLiteral("type"), QStringLiteral("image_url"));
-          imagePart.insert(QStringLiteral("image_url"), imageUrl);
-
-          QJsonObject textPart;
-          textPart.insert(QStringLiteral("type"), QStringLiteral("text"));
-          textPart.insert(QStringLiteral("text"),
-                          OcrManager::instance()->activePrompt());
-
-          QJsonArray content;
-          content.append(imagePart);
-          content.append(textPart);
-
-          QJsonObject message;
-          message.insert(QStringLiteral("role"), QStringLiteral("user"));
-          message.insert(QStringLiteral("content"), content);
-
-          QJsonArray messages;
-          messages.append(message);
-
-          QJsonObject payload;
-
-          // Local AI Runtime routes requests through the
-          // OpenAI-compatible model field.
-          payload.insert(QStringLiteral("model"),
-                         OcrManager::instance()->activeModelId());
-          payload.insert(QStringLiteral("messages"), messages);
-          payload.insert(QStringLiteral("temperature"), 0);
-          payload.insert(QStringLiteral("stream"), false);
-
-          auto* manager = new QNetworkAccessManager(this);
-          QNetworkRequest request(OcrManager::instance()->chatEndpoint());
-          request.setHeader(QNetworkRequest::ContentTypeHeader,
-                            QStringLiteral("application/json"));
-
-          QNetworkReply* reply =
-            manager->post(request,
-                          QJsonDocument(payload).toJson(QJsonDocument::Compact));
-
-          connect(progress,
-                  &QProgressDialog::canceled,
-                  reply,
-                  &QNetworkReply::abort);
-
-          connect(reply,
-                  &QNetworkReply::finished,
-                  this,
-                  [this, reply, manager, progress]() {
-                      progress->close();
-                      progress->deleteLater();
-
-                      const QByteArray response = reply->readAll();
-
-                      if (reply->error() != QNetworkReply::NoError) {
-                          const QString details = reply->errorString();
-                          reply->deleteLater();
-                          manager->deleteLater();
-
-                          QMessageBox::warning(
-                            this,
-                            tr("OCR server unavailable"),
-                            tr("The OCR request failed.\n\n%1").arg(details));
-                          return;
-                      }
-
-                      QJsonParseError parseError;
-                      const QJsonDocument doc =
-                        QJsonDocument::fromJson(response, &parseError);
-
-                      if (parseError.error != QJsonParseError::NoError ||
-                          !doc.isObject()) {
-                          reply->deleteLater();
-                          manager->deleteLater();
-
-                          QMessageBox::warning(
-                            this,
-                            tr("OCR"),
-                            tr("The OCR server returned invalid JSON."));
-                          return;
-                      }
-
-                      const QJsonArray choices =
-                        doc.object()
-                          .value(QStringLiteral("choices"))
-                          .toArray();
-
-                      if (choices.isEmpty()) {
-                          reply->deleteLater();
-                          manager->deleteLater();
-
-                          QMessageBox::warning(
-                            this,
-                            tr("OCR"),
-                            tr("The OCR server returned no recognition result."));
-                          return;
-                      }
-
-                      const QString text =
-                        choices.at(0)
-                          .toObject()
-                          .value(QStringLiteral("message"))
-                          .toObject()
-                          .value(QStringLiteral("content"))
-                          .toString();
-
-                      reply->deleteLater();
-                      manager->deleteLater();
-
-                      if (text.isEmpty()) {
-                          QMessageBox::information(
-                            this,
-                            tr("OCR"),
-                            tr("No text was recognized in the selected area."));
-                          return;
-                      }
-
-                      showOcrResult(text);
-                  });
-      });
-}
-
-void CaptureWidget::showOcrResult(const QString& text)
-{
-    auto* dialog =
-      new QDialog(nullptr, Qt::Window | Qt::WindowStaysOnTopHint);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setWindowTitle(tr("OCR Result"));
-    dialog->setWindowModality(Qt::NonModal);
-    dialog->resize(760, 520);
-
-    auto* layout = new QVBoxLayout(dialog);
-
-    auto* dragHandle = new OcrResultDragHandle(
-      tr("OCR Result — drag here to move the window"), dialog);
-    dragHandle->setCursor(Qt::SizeAllCursor);
-    dragHandle->setToolTip(
-      tr("Drag this bar to move the OCR result window."));
-    dragHandle->setStyleSheet(QStringLiteral(
-      "QLabel { font-weight: 600; padding: 6px; "
-      "border-radius: 4px; background: palette(alternate-base); }"));
-    layout->addWidget(dragHandle);
-
-    auto* editor = new QPlainTextEdit(dialog);
-    editor->setPlainText(text);
-    editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
-    layout->addWidget(editor);
-
-    auto* buttons = new QDialogButtonBox(dialog);
-    auto* copyButton =
-      buttons->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
-    auto* closeButton = buttons->addButton(QDialogButtonBox::Close);
-
-    connect(copyButton, &QPushButton::clicked, dialog, [editor]() {
-        QApplication::clipboard()->setText(editor->toPlainText());
-    });
-    connect(closeButton, &QPushButton::clicked, dialog, &QDialog::close);
-
-    layout->addWidget(buttons);
-
-    dialog->show();
-    dialog->raise();
-    dialog->activateWindow();
+    // The OCR job owns its image and top-level progress/result windows. Close
+    // the fullscreen capture overlay immediately so the desktop becomes usable
+    // while model loading and recognition continue.
+    m_ocrDetached = true;
+    close();
 }
 
 void CaptureWidget::drawErrorMessage(const QString& msg, QPainter* painter)

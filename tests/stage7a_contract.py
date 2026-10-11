@@ -18,8 +18,8 @@ CMAKE = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 TRANSLATIONS = ROOT / "data/translations/Internationalization_zh_CN.ts"
 
 
-assert re.search(r"set\(FLAMESHOT_OCR_VERSION 2\.[67]\)", CMAKE)
-assert re.search(r'OCR_VERSION: "2\.[67]"', WORKFLOW)
+assert re.search(r"set\(FLAMESHOT_OCR_VERSION 2\.[678]\)", CMAKE)
+assert re.search(r'OCR_VERSION: "2\.[678]"', WORKFLOW)
 assert "stage7a_contract.py" in WORKFLOW
 print("V2.6+ RELEASE IDENTITY         PASS")
 
@@ -56,18 +56,15 @@ assert "id != activeModel" in UI
 assert "Showing %1 of %2 Runtime model(s)." in UI
 print("MISSING CATALOG FILTER          PASS")
 
-result_body = re.search(
-    r"void CaptureWidget::showOcrResult\(.*?\n}\n\nvoid CaptureWidget::drawErrorMessage",
-    CAPTURE,
-    re.DOTALL,
+CONTROLLER = (ROOT / "src/ocr/ocrrequestcontroller.cpp").read_text(
+    encoding="utf-8"
 )
-assert result_body, "showOcrResult body"
-result_source = result_body.group(0)
+result_source = CONTROLLER
 assert "new QDialog(nullptr" in result_source
 assert "Qt::NonModal" in result_source
 assert "Qt::WindowModal" not in result_source
 assert "OcrResultDragHandle" in result_source
-assert "startSystemMove()" in CAPTURE
+assert "startSystemMove()" in result_source
 print("WAYLAND RESULT WINDOW DRAG     PASS")
 
 tree = ET.parse(TRANSLATIONS)

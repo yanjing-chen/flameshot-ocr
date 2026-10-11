@@ -394,6 +394,56 @@ Press Space to open the side panel.</source>
         <translation>复制</translation>
     </message>
     <message>
+        <source>OCR Markdown Result</source>
+        <translation>OCR Markdown 识别结果</translation>
+    </message>
+    <message>
+        <source>OCR Markdown Result — drag here to move the window</source>
+        <translation>OCR Markdown 识别结果 — 拖动此处可移动窗口</translation>
+    </message>
+    <message>
+        <source>Elapsed: %1 s | %2 characters | %3 characters/s</source>
+        <translation>耗时：%1 秒 | %2 字符 | %3 字符/秒</translation>
+    </message>
+    <message>
+        <source>Model speed: %1 token/s</source>
+        <translation>模型速度：%1 token/秒</translation>
+    </message>
+    <message>
+        <source>Elapsed time includes Runtime readiness and model loading.</source>
+        <translation>耗时包含 Runtime 就绪检查和模型加载时间。</translation>
+    </message>
+    <message>
+        <source>Copy Markdown</source>
+        <translation>复制 Markdown</translation>
+    </message>
+    <message>
+        <source>Save Markdown...</source>
+        <translation>保存 Markdown…</translation>
+    </message>
+    <message>
+        <source>Save Text...</source>
+        <translation>保存文本…</translation>
+    </message>
+    <message>
+        <source>Markdown files (*.md);;All files (*)</source>
+        <translation>Markdown 文件 (*.md);;所有文件 (*)</translation>
+    </message>
+    <message>
+        <source>Text files (*.txt);;All files (*)</source>
+        <translation>文本文件 (*.txt);;所有文件 (*)</translation>
+    </message>
+    <message>
+        <source>Save OCR result</source>
+        <translation>保存 OCR 结果</translation>
+    </message>
+    <message>
+        <source>Could not save the OCR result to:
+%1</source>
+        <translation>无法将 OCR 结果保存到：
+%1</translation>
+    </message>
+    <message>
         <source>Close</source>
         <translation type="vanished">关闭</translation>
     </message>
@@ -3114,6 +3164,18 @@ GGUF 与 MMProj 文件仍会保留在磁盘上。</translation>
     <message>
         <source>Runtime base URL:</source>
         <translation>Runtime 基础地址：</translation>
+    </message>
+    <message>
+        <source>Output format:</source>
+        <translation>输出格式：</translation>
+    </message>
+    <message>
+        <source>Plain text</source>
+        <translation>纯文本</translation>
+    </message>
+    <message>
+        <source>Markdown</source>
+        <translation>Markdown</translation>
     </message>
     <message>
         <source>Deleting a catalog model removes Runtime-managed model files. Deleting a custom model removes only its registration and keeps the external GGUF and MMProj files. Automatic GGUF analysis requires Local AI Runtime 0.6.0 or later; every suggested setting remains editable.</source>

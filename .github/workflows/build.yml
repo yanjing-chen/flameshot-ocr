@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 env:
-  OCR_VERSION: "2.7"
+  OCR_VERSION: "2.8"
 
 jobs:
   appimage:
@@ -71,6 +71,7 @@ jobs:
           python3 tests/stage6e_guided_import_contract.py
           python3 tests/stage7a_contract.py
           python3 tests/stage7b_contract.py
+          python3 tests/stage7c_contract.py
 
       - name: Download linuxdeploy
         shell: bash
@@ -218,7 +219,7 @@ jobs:
             <<<"$VERSION_OUTPUT"
 
           grep -Fq \
-            "Flameshot OCR v2.7 (based on Flameshot v14.0.0, ${GITHUB_SHA::8})" \
+            "Flameshot OCR v2.8 (based on Flameshot v14.0.0, ${GITHUB_SHA::8})" \
             <<<"$VERSION_OUTPUT"
 
           (

@@ -116,7 +116,9 @@ add_subdirectory(tools)
 target_sources(flameshot PRIVATE
     ocr/ocrmanager.cpp
     ocr/localairuntimeinstaller.cpp
+    ocr/ocrrequestcontroller.cpp
     ocr/ocrmanager.h
+    ocr/ocrrequestcontroller.h
 )
 
 

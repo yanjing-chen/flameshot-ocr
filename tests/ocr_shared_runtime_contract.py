@@ -9,6 +9,9 @@ ROOT = Path(__file__).resolve().parents[1]
 capture = (ROOT / "src/widgets/capture/capturewidget.cpp").read_text(
     encoding="utf-8"
 )
+request = (ROOT / "src/ocr/ocrrequestcontroller.cpp").read_text(
+    encoding="utf-8"
+)
 manager = (ROOT / "src/ocr/ocrmanager.cpp").read_text(encoding="utf-8")
 header = (ROOT / "src/ocr/ocrmanager.h").read_text(encoding="utf-8")
 config = (ROOT / "src/utils/confighandler.cpp").read_text(encoding="utf-8")
@@ -21,7 +24,7 @@ assert re.search(
     r'payload\.insert\(\s*'
     r'QStringLiteral\("model"\)\s*,\s*'
     r'OcrManager::instance\(\)->activeModelId\(\)\s*\)',
-    capture,
+    request,
     re.S,
 )
 print("EXPLICIT MODEL FIELD        PASS")
@@ -57,7 +60,7 @@ for needle in (
     'QStringLiteral("temperature")',
     'QStringLiteral("stream")',
 ):
-    assert needle in capture, needle
+    assert needle in request, needle
 print("OCR REQUEST COMPATIBILITY   PASS")
 
 print()

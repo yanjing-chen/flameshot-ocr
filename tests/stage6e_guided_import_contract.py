@@ -122,7 +122,10 @@ for context_name, sources in {
         assert contexts[context_name].get(source), (context_name, source)
 print("SIMPLIFIED CHINESE UI      PASS")
 
-assert "Local AI Runtime stable version: **0.7.0**" in README
+assert any(
+    f"Local AI Runtime stable version: **{version}**" in README
+    for version in ("0.7.0", "0.8.0")
+)
 assert "自动分析不会加载模型" in README
 assert "stage6e_guided_import_contract.py" in WORKFLOW
 print("DOCUMENTATION / CI GATE    PASS")
