@@ -8,6 +8,7 @@
 #include "tools/circlecount/circlecounttool.h"
 #include "tools/copy/copytool.h"
 #include "tools/ocr/ocrtool.h"
+#include "tools/windowededitor/windowededitortool.h"
 #include "tools/exit/exittool.h"
 #ifdef ENABLE_IMGUR
 #include "tools/imgupload/imguploadertool.h"
@@ -68,6 +69,7 @@ CaptureTool* ToolFactory::CreateTool(CaptureTool::Type t, QObject* parent)
         if_TYPE_return_TOOL(TYPE_INVERT, InvertTool);
         if_TYPE_return_TOOL(TYPE_ACCEPT, AcceptTool);
         if_TYPE_return_TOOL(TYPE_OCR, OcrTool);
+        if_TYPE_return_TOOL(TYPE_WINDOWED_EDITOR, WindowedEditorTool);
         default:
             return nullptr;
     }

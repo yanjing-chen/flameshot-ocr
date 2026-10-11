@@ -76,11 +76,26 @@ QString OcrManager::activeModelId() const
 QString OcrManager::activePrompt() const
 {
     if (outputFormat() == QStringLiteral("markdown")) {
-        return QStringLiteral(
-          "Recognize all visible text and return Markdown only. Preserve "
-          "headings, paragraphs, lists, tables, code blocks, emphasis, and "
-          "reading order when they are visible. Do not add explanations or "
-          "wrap the entire response in a code fence.");
+        QString prompt = QStringLiteral(
+          "OCR:\nRecognize all visible text and return Markdown only. "
+          "Preserve headings, paragraphs, lists, tables, code blocks, "
+          "emphasis, and reading order when they are visible. Represent "
+          "clearly bold text with **text** and clearly italic text with "
+          "*text*. Do not add explanations or wrap the entire response in "
+          "a code fence.");
+        ConfigHandler config;
+        const QString additional =
+          config.ocrMarkdownExtraPrompt().trimmed().left(4000);
+        if (config.ocrMarkdownExtraPromptEnabled() && !additional.isEmpty()) {
+            prompt += QStringLiteral(
+                        "\n\nAdditional formatting instructions:\n") +
+                      additional;
+            prompt += QStringLiteral(
+              "\n\nThe additional instructions may refine formatting only. "
+              "Never omit visible text, invent content, add explanations, or "
+              "wrap the entire response in a code fence.");
+        }
+        return prompt;
     }
     return QStringLiteral("OCR:");
 }

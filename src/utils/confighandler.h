@@ -145,8 +145,17 @@ public:
     CONFIG_GETTER_SETTER(ocrServerUrl, setOcrServerUrl, QString)
     CONFIG_GETTER_SETTER(ocrModelId, setOcrModelId, QString)
     CONFIG_GETTER_SETTER(ocrOutputFormat, setOcrOutputFormat, QString)
+    CONFIG_GETTER_SETTER(ocrMarkdownExtraPromptEnabled,
+                         setOcrMarkdownExtraPromptEnabled,
+                         bool)
+    CONFIG_GETTER_SETTER(ocrMarkdownExtraPrompt,
+                         setOcrMarkdownExtraPrompt,
+                         QString)
     CONFIG_GETTER_SETTER(ocrShowUnavailableCatalogModels,
                          setOcrShowUnavailableCatalogModels,
+                         bool)
+    CONFIG_GETTER_SETTER(stage7dWindowedEditorMigrationDone,
+                         setStage7dWindowedEditorMigrationDone,
                          bool)
     CONFIG_GETTER_SETTER(showSelectionGeometryHideTime,
                          showSelectionGeometryHideTime,

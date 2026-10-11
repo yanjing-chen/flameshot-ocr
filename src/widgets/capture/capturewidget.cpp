@@ -32,6 +32,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
+#include <QCloseEvent>
 #include <QDateTime>
 #include <QFontMetrics>
 #include <QLabel>
@@ -64,6 +65,8 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
   , m_mouseIsClicked(false)
   , m_captureDone(false)
   , m_ocrDetached(false)
+  , m_windowedEditor(false)
+  , m_closeConfirmed(false)
   , m_previewEnabled(true)
   , m_adjustmentButtonPressed(false)
   , m_configError(false)
@@ -340,6 +343,15 @@ void CaptureWidget::initButtons()
 {
     auto allButtonTypes = CaptureToolButton::getIterableButtonTypes();
     auto visibleButtonTypes = m_config.buttons();
+    // Existing installations persist their visible toolbar buttons. Add the
+    // new Stage 7D action once without resetting any previous choices.
+    if (!m_config.stage7dWindowedEditorMigrationDone()) {
+        if (!visibleButtonTypes.contains(CaptureTool::TYPE_WINDOWED_EDITOR)) {
+            visibleButtonTypes.append(CaptureTool::TYPE_WINDOWED_EDITOR);
+            m_config.setButtons(visibleButtonTypes);
+        }
+        m_config.setStage7dWindowedEditorMigrationDone(true);
+    }
     if ((m_context.request.tasks() == CaptureRequest::NO_TASK) ||
         (m_context.request.tasks() == CaptureRequest::PRINT_GEOMETRY)) {
         allButtonTypes.removeOne(CaptureTool::TYPE_ACCEPT);
@@ -354,6 +366,7 @@ void CaptureWidget::initButtons()
 #endif
             buttonList->removeOne(CaptureTool::TYPE_OPEN_APP);
             buttonList->removeOne(CaptureTool::TYPE_PIN);
+            buttonList->removeOne(CaptureTool::TYPE_WINDOWED_EDITOR);
         }
     }
     QVector<CaptureToolButton*> vectorButtons;
@@ -629,6 +642,24 @@ void CaptureWidget::uncheckActiveTool()
 
 void CaptureWidget::closeEvent(QCloseEvent* event)
 {
+    const bool hasUnsavedEdits =
+      m_undoStack.count() > 0 || !m_activeTool.isNull();
+    if (m_windowedEditor && hasUnsavedEdits && !m_captureDone &&
+        !m_ocrDetached && !m_closeConfirmed) {
+        const auto answer = QMessageBox::question(
+          this,
+          tr("Discard screenshot edits?"),
+          tr("This screenshot has unsaved edits. Close the editor and discard "
+             "them?"),
+          QMessageBox::Discard | QMessageBox::Cancel,
+          QMessageBox::Cancel);
+        if (answer != QMessageBox::Discard) {
+            event->ignore();
+            return;
+        }
+        m_closeConfirmed = true;
+    }
+
 #if !(defined(Q_OS_MACOS) || defined(Q_OS_WIN))
     /* GNOME copy problem workaround, copy
        operation seems to work only when there
@@ -1178,8 +1209,10 @@ void CaptureWidget::wheelEvent(QWheelEvent* e)
 void CaptureWidget::resizeEvent(QResizeEvent* e)
 {
     QWidget::resizeEvent(e);
-    m_context.widgetOffset = mapToGlobal(QPoint(0, 0));
-    if (!m_context.fullscreen) {
+    if (!m_windowedEditor) {
+        m_context.widgetOffset = mapToGlobal(QPoint(0, 0));
+    }
+    if (!m_context.fullscreen || m_windowedEditor) {
         m_panel->setFixedHeight(height());
         m_buttonHandler->updateScreenRegions(rect());
     }
@@ -1188,7 +1221,12 @@ void CaptureWidget::resizeEvent(QResizeEvent* e)
 void CaptureWidget::moveEvent(QMoveEvent* e)
 {
     QWidget::moveEvent(e);
-    m_context.widgetOffset = mapToGlobal(QPoint(0, 0));
+    // In windowed editor mode the canvas still uses coordinates from the
+    // original captured screen. Moving the managed window must not change the
+    // saved or pinned selection geometry.
+    if (!m_windowedEditor) {
+        m_context.widgetOffset = mapToGlobal(QPoint(0, 0));
+    }
 }
 
 void CaptureWidget::changeEvent(QEvent* e)
@@ -1513,6 +1551,9 @@ void CaptureWidget::handleToolSignal(CaptureTool::Request r)
         }
         case CaptureTool::REQ_OCR:
             runOcr();
+            break;
+        case CaptureTool::REQ_WINDOWED_EDITOR:
+            continueInWindowedEditor();
             break;
         default:
             break;
@@ -2093,6 +2134,43 @@ void CaptureWidget::runOcr()
     // while model loading and recognition continue.
     m_ocrDetached = true;
     close();
+}
+
+void CaptureWidget::continueInWindowedEditor()
+{
+    if (m_windowedEditor) {
+        return;
+    }
+    if (!m_selection || !m_selection->isVisible() ||
+        m_selection->geometry().isEmpty()) {
+        QMessageBox::warning(
+          this,
+          tr("Screenshot Editor"),
+          tr("Select a screenshot area before continuing in the editor."));
+        return;
+    }
+
+    commitCurrentTool();
+    m_windowedEditor = true;
+
+    // Recreate only the native surface. The CaptureWidget instance and all of
+    // its child objects remain alive, preserving layers, object coordinates,
+    // the active settings, and the complete QUndoStack.
+    setWindowFlags(Qt::Window | Qt::WindowTitleHint |
+                   Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint |
+                   Qt::WindowCloseButtonHint);
+    setWindowTitle(tr("Flameshot OCR — Screenshot Editor"));
+    showMaximized();
+    raise();
+    activateWindow();
+
+    m_buttonHandler->updateScreenRegions(rect());
+    m_buttonHandler->updatePosition(m_selection->geometry());
+    m_buttonHandler->show();
+    if (m_panel) {
+        m_panel->setFixedHeight(height());
+    }
+    update();
 }
 
 void CaptureWidget::drawErrorMessage(const QString& msg, QPainter* painter)

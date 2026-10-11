@@ -142,7 +142,10 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("ocrServerUrl"               ,String             ( "http://127.0.0.1:8111" )),
     OPTION("ocrModelId"                 ,String             ( "paddleocr-vl-1.6" )),
     OPTION("ocrOutputFormat"            ,String             ( "plain"         )),
+    OPTION("ocrMarkdownExtraPromptEnabled",Bool             ( false           )),
+    OPTION("ocrMarkdownExtraPrompt"    ,String             ( ""              )),
     OPTION("ocrShowUnavailableCatalogModels",Bool           ( false          )),
+    OPTION("stage7dWindowedEditorMigrationDone",Bool         ( false          )),
 #if defined(Q_OS_WIN)
     // Not visible on settings dialog
     OPTION("ignorePrntScrForcesSnipping" ,Bool               ( false         )),
@@ -216,6 +219,7 @@ static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {
     SHORTCUT("TYPE_SIZEDECREASE"        ,                           ),
     SHORTCUT("TYPE_CIRCLECOUNT"         ,                           ),
     SHORTCUT("TYPE_OCR"                 ,   "Ctrl+Shift+O"          ),
+    SHORTCUT("TYPE_WINDOWED_EDITOR"     ,   "Ctrl+Shift+E"          ),
 };
 // clang-format on
 

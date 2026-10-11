@@ -10,13 +10,13 @@
 OCR interface backed by the separately installed
 [Local AI Runtime](https://github.com/yanjing-chen/local-ai-runtime).
 
-The v2.8 development application is based on Flameshot v14.0.0.
+The v2.9 development application is based on Flameshot v14.0.0.
 
 > This repository is not an official Flameshot release.
 
-## v2.8 architecture
+## v2.9 architecture
 
-Flameshot OCR v2.8 has three responsibilities:
+Flameshot OCR v2.9 has three responsibilities:
 
 - capture screenshots,
 - provide the OCR interface and result window,
@@ -41,8 +41,8 @@ Flameshot OCR
 
 ## Current development
 
-- Flameshot OCR development version: **v2.8**
-- Latest stable Flameshot OCR version: **v2.7**
+- Flameshot OCR development version: **v2.9**
+- Latest stable Flameshot OCR version: **v2.8**
 - Upstream base: **Flameshot v14.0.0**
 - Local AI Runtime stable version: **0.8.0**
 - Default OCR model: **PaddleOCR-VL-1.6**
@@ -74,6 +74,7 @@ The OCR settings page provides:
 - API endpoint,
 - OpenAI-compatible model ID,
 - plain-text or Markdown OCR output,
+- built-in Markdown structure rules and an optional saved additional prompt,
 - optional startup loading for the selected OCR model (off by default),
 - automatic/CUDA/Vulkan/CPU backend selection,
 - optional CUDA runtime installation, update and rollback through Local AI Runtime,
@@ -95,6 +96,14 @@ applications remain usable during model loading and recognition. The result
 footer reports total elapsed time, character throughput, and the model token
 rate when the Runtime supplies it. Markdown output can be saved directly as a
 `.md` file.
+
+In v2.9 an optional **Continue in Editor** action converts the active capture
+overlay into a normal desktop window without rebuilding the editing session.
+The captured canvas, annotation objects, object coordinates, layers, complete
+undo/redo history, active tool settings, and save/copy/pin/OCR actions remain
+available. The window can be minimized or switched away from, and closing it
+with unsaved edits asks for confirmation. The original one-step capture flow
+remains unchanged when this action is not used.
 
 ## Packages
 
@@ -129,6 +138,7 @@ python3 tests/stage6e_guided_import_contract.py
 python3 tests/stage7a_contract.py
 python3 tests/stage7b_contract.py
 python3 tests/stage7c_contract.py
+python3 tests/stage7d_contract.py
 ```
 
 ## Credits and licenses
@@ -144,7 +154,7 @@ See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and `LICENSE`.
 
 ## 中文说明
 
-Flameshot OCR v2.8 开发版是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
+Flameshot OCR v2.9 开发版是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
 截图、OCR 界面和识别结果展示，并作为独立 Local AI Runtime 的客户端和
 一键安装器。
 
@@ -177,3 +187,14 @@ v2.8 开发版新增纯文本 / Markdown 输出选择和 `.md` 直接保存。�
 操作其他软件。结果窗口底部显示总耗时、字符速度，以及 Runtime 返回时的模型
 token 速度。本阶段继续使用 Local AI Runtime 0.8.0 和已发布的 CUDA r3，不修改
 Runtime。
+
+v2.9 开发版新增可选的“在窗口中继续编辑”操作。它会把当前全屏截图遮罩切换为
+普通桌面窗口，但仍复用同一个编辑会话，因此截图画布、标注对象与坐标、图层、
+完整撤销/重做记录、当前工具设置以及保存、复制、固定和 OCR 操作都会保留。
+进入窗口模式后可以最小化窗口或切换到其他应用；存在未保存编辑时，关闭窗口会
+请求确认。不使用此操作时，原来的快速截图流程保持不变。
+
+Markdown 模式新增高级设置：内置结构规则始终启用，尽量保留可见的标题、段落、
+粗体、斜体、列表、表格、代码块与阅读顺序；用户还可选择启用附加 Markdown 指令。
+附加指令默认关闭，关闭时仍会保存文本，但不会发送给模型，也不会影响纯文本模式。
+本阶段还清理了托盘菜单快捷字母提示和当前 Linux 设置页中遗留的英文翻译。

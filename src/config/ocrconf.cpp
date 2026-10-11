@@ -767,6 +767,53 @@ OcrConf::OcrConf(QWidget* parent)
     m_outputFormat->addItem(tr("Markdown"), QStringLiteral("markdown"));
     connectionForm->addRow(tr("Output format:"), m_outputFormat);
 
+    m_markdownAdvancedBox =
+      new QGroupBox(tr("Markdown advanced settings"), connectionBox);
+    auto* markdownLayout = new QVBoxLayout(m_markdownAdvancedBox);
+
+    auto* builtInPromptTitle =
+      new QLabel(tr("Built-in recognition rules (always active)"),
+                 m_markdownAdvancedBox);
+    markdownLayout->addWidget(builtInPromptTitle);
+
+    auto* builtInPrompt = new QLabel(
+      tr("Preserve visible headings, paragraphs, emphasis, lists, tables, "
+         "code blocks, and reading order. Clearly bold text is written as "
+         "**text** and clearly italic text as *text*. Return only Markdown "
+         "without explanations or an outer code fence."),
+      m_markdownAdvancedBox);
+    builtInPrompt->setWordWrap(true);
+    builtInPrompt->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    markdownLayout->addWidget(builtInPrompt);
+
+    m_markdownExtraPromptEnabled = new QCheckBox(
+      tr("Enable additional Markdown instructions"), m_markdownAdvancedBox);
+    markdownLayout->addWidget(m_markdownExtraPromptEnabled);
+
+    m_markdownExtraPrompt = new QPlainTextEdit(m_markdownAdvancedBox);
+    m_markdownExtraPrompt->setPlaceholderText(
+      tr("Example: Keep names and job titles bold, use italics for image "
+         "captions, and preserve blank lines between paragraphs."));
+    m_markdownExtraPrompt->setMaximumBlockCount(100);
+    m_markdownExtraPrompt->setMinimumHeight(90);
+    markdownLayout->addWidget(m_markdownExtraPrompt);
+
+    auto* markdownPromptFooter = new QWidget(m_markdownAdvancedBox);
+    auto* markdownPromptFooterLayout =
+      new QHBoxLayout(markdownPromptFooter);
+    markdownPromptFooterLayout->setContentsMargins(0, 0, 0, 0);
+    auto* markdownPromptNote = new QLabel(
+      tr("Additional instructions are saved when disabled, but are sent only "
+         "when this option is enabled."),
+      markdownPromptFooter);
+    markdownPromptNote->setWordWrap(true);
+    m_resetMarkdownPromptButton =
+      new QPushButton(tr("Restore default"), markdownPromptFooter);
+    markdownPromptFooterLayout->addWidget(markdownPromptNote, 1);
+    markdownPromptFooterLayout->addWidget(m_resetMarkdownPromptButton);
+    markdownLayout->addWidget(markdownPromptFooter);
+    connectionForm->addRow(QString(), m_markdownAdvancedBox);
+
     m_preloadOcrModel = new QCheckBox(
       tr("Load this OCR model when Local AI Runtime starts"), connectionBox);
     m_preloadOcrModel->setEnabled(false);
@@ -1015,6 +1062,29 @@ OcrConf::OcrConf(QWidget* parent)
                   format == QStringLiteral("markdown")
                     ? QStringLiteral("markdown")
                     : QStringLiteral("plain"));
+                updateMarkdownPromptControls();
+            });
+
+    connect(m_markdownExtraPromptEnabled,
+            &QCheckBox::toggled,
+            this,
+            [this](bool enabled) {
+                ConfigHandler().setOcrMarkdownExtraPromptEnabled(enabled);
+                updateMarkdownPromptControls();
+            });
+    connect(m_markdownExtraPrompt,
+            &QPlainTextEdit::textChanged,
+            this,
+            [this]() {
+                ConfigHandler().setOcrMarkdownExtraPrompt(
+                  m_markdownExtraPrompt->toPlainText());
+            });
+    connect(m_resetMarkdownPromptButton,
+            &QPushButton::clicked,
+            this,
+            [this]() {
+                m_markdownExtraPromptEnabled->setChecked(false);
+                m_markdownExtraPrompt->clear();
             });
 
     connect(m_preloadOcrModel,
@@ -1465,7 +1535,7 @@ void OcrConf::sendModelRequest(const QString& method,
     request.setRawHeader(QByteArrayLiteral("Accept"),
                          QByteArrayLiteral("application/json"));
     request.setRawHeader(QByteArrayLiteral("User-Agent"),
-                         QByteArrayLiteral("Flameshot-OCR/2.8"));
+                         QByteArrayLiteral("Flameshot-OCR/2.9"));
     request.setAttribute(
       QNetworkRequest::RedirectPolicyAttribute,
       static_cast<int>(QNetworkRequest::NoLessSafeRedirectPolicy));
@@ -1910,6 +1980,15 @@ void OcrConf::updateComponents()
     }
 
     {
+        const QSignalBlocker enabledBlocker(m_markdownExtraPromptEnabled);
+        const QSignalBlocker promptBlocker(m_markdownExtraPrompt);
+        m_markdownExtraPromptEnabled->setChecked(
+          config.ocrMarkdownExtraPromptEnabled());
+        m_markdownExtraPrompt->setPlainText(config.ocrMarkdownExtraPrompt());
+    }
+    updateMarkdownPromptControls();
+
+    {
         const QSignalBlocker blocker(m_showUnavailableModels);
         m_showUnavailableModels->setChecked(
           config.ocrShowUnavailableCatalogModels());
@@ -1917,4 +1996,16 @@ void OcrConf::updateComponents()
 
     refreshRuntimeStatus();
     refreshSharedRuntimeStatus();
+}
+
+void OcrConf::updateMarkdownPromptControls()
+{
+    const bool markdown =
+      m_outputFormat->currentData().toString() == QStringLiteral("markdown");
+    m_markdownAdvancedBox->setVisible(markdown);
+    m_markdownExtraPrompt->setEnabled(
+      markdown && m_markdownExtraPromptEnabled->isChecked());
+    m_resetMarkdownPromptButton->setEnabled(
+      markdown && (m_markdownExtraPromptEnabled->isChecked() ||
+                   !m_markdownExtraPrompt->toPlainText().isEmpty()));
 }

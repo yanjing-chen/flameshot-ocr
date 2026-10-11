@@ -1,6 +1,36 @@
 # Flameshot OCR changelog
 
-## v2.8 — Stage 7C development
+## v2.9 — Stage 7D development
+
+### Added
+
+- Optional **Continue in Editor** action that converts the active fullscreen
+  capture overlay into a normal managed window while keeping the same editing
+  session alive.
+- Full preservation of the captured canvas, annotation objects, object
+  coordinates, layers, undo/redo history, active tool settings and existing
+  save/copy/pin/OCR actions.
+- Unsaved-edit confirmation when closing the managed editor window.
+- Built-in Markdown recognition rules for headings, paragraphs, emphasis,
+  lists, tables, code blocks and reading order.
+- Optional saved additional Markdown instructions, disabled by default and
+  never applied to plain-text OCR.
+
+### Changed
+
+- Existing v2.8 toolbar configurations receive the new editor action through
+  a one-time migration without resetting the user's selected tools.
+- Removed mnemonic-letter suffixes from the Simplified Chinese tray menu.
+- Completed the visible Linux general-settings translations and improved the
+  wording of the insecure pixelation option.
+
+### Scope
+
+- Local AI Runtime 0.8.0, CUDA 12.8 r3 and model ownership remain unchanged.
+- Catalog models remain non-editable; their Runtime-managed files can still be
+  removed. Custom GGUF entries remain editable.
+
+## v2.8 — 2026-10-11
 
 ### Added
 

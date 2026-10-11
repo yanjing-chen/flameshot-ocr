@@ -52,6 +52,7 @@ public:
         TYPE_ACCEPT = 23,
         TYPE_CANCEL = 24,
         TYPE_OCR = 25,
+        TYPE_WINDOWED_EDITOR = 26,
     };
     Q_ENUM(Type);
 
@@ -83,7 +84,9 @@ public:
         // Commit the active tool.
         REQ_COMMIT_CURRENT_TOOL,
         // Run OCR on the current capture selection.
-        REQ_OCR
+        REQ_OCR,
+        // Keep the current capture session but release the fullscreen overlay.
+        REQ_WINDOWED_EDITOR
     };
 
     explicit CaptureTool(QObject* parent = nullptr)

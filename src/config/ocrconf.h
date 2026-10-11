@@ -15,6 +15,8 @@ class QProgressBar;
 class QPushButton;
 class QCheckBox;
 class QComboBox;
+class QGroupBox;
+class QPlainTextEdit;
 class QTableWidget;
 
 class OcrConf : public QWidget
@@ -47,6 +49,7 @@ private:
     void removeSelectedModel();
     void useSelectedModelForOcr();
     void updateModelButtons();
+    void updateMarkdownPromptControls();
     QJsonObject selectedModel() const;
     void sendModelRequest(const QString& method,
                           const QString& path,
@@ -56,6 +59,10 @@ private:
     QLineEdit* m_serverUrl;
     QLineEdit* m_modelId;
     QComboBox* m_outputFormat;
+    QGroupBox* m_markdownAdvancedBox;
+    QCheckBox* m_markdownExtraPromptEnabled;
+    QPlainTextEdit* m_markdownExtraPrompt;
+    QPushButton* m_resetMarkdownPromptButton;
     QLabel* m_runtimeStatus;
     QCheckBox* m_preloadOcrModel;
     QLabel* m_preloadStatus;
