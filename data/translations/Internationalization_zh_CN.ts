@@ -3167,6 +3167,162 @@ If this model is running, it will be unloaded first. You can download it again l
         <source>Catalog model files deleted.</source>
         <translation>目录模型文件已删除。</translation>
     </message>
+    <message>
+        <source>Inference acceleration</source>
+        <translation>推理加速</translation>
+    </message>
+    <message>
+        <source>Automatic (recommended)</source>
+        <translation>自动（推荐）</translation>
+    </message>
+    <message>
+        <source>NVIDIA CUDA</source>
+        <translation>NVIDIA CUDA</translation>
+    </message>
+    <message>
+        <source>Vulkan</source>
+        <translation>Vulkan</translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation>CPU</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Preferred backend:</source>
+        <translation>首选后端：</translation>
+    </message>
+    <message>
+        <source>Backend status:</source>
+        <translation>后端状态：</translation>
+    </message>
+    <message>
+        <source>CUDA runtime:</source>
+        <translation>CUDA 运行环境：</translation>
+    </message>
+    <message>
+        <source>Checking acceleration backends...</source>
+        <translation>正在检查推理加速后端……</translation>
+    </message>
+    <message>
+        <source>Checking optional CUDA runtime...</source>
+        <translation>正在检查可选 CUDA 运行环境……</translation>
+    </message>
+    <message>
+        <source>Refresh acceleration</source>
+        <translation>刷新加速状态</translation>
+    </message>
+    <message>
+        <source>Install CUDA runtime</source>
+        <translation>安装 CUDA 运行环境</translation>
+    </message>
+    <message>
+        <source>Update CUDA runtime</source>
+        <translation>更新 CUDA 运行环境</translation>
+    </message>
+    <message>
+        <source>Roll back CUDA runtime</source>
+        <translation>回滚 CUDA 运行环境</translation>
+    </message>
+    <message>
+        <source>Automatic mode tries CUDA, then Vulkan, then CPU. The optional CUDA runtime is downloaded and managed by Local AI Runtime; it is not included in Flameshot OCR packages.</source>
+        <translation>自动模式依次尝试 CUDA、Vulkan 和 CPU。可选 CUDA 运行环境由 Local AI Runtime 下载和管理，不包含在 Flameshot OCR 软件包中。</translation>
+    </message>
+    <message>
+        <source>Acceleration management is unavailable while the Runtime is disconnected.</source>
+        <translation>Runtime 未连接时无法管理推理加速。</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未连接</translation>
+    </message>
+    <message>
+        <source>Backend selection requires Local AI Runtime 0.8.0 or later. — %1</source>
+        <translation>选择推理后端需要 Local AI Runtime 0.8.0 或更高版本。— %1</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Effective: %1. Available: %2.</source>
+        <translation>实际使用：%1。可用后端：%2。</translation>
+    </message>
+    <message>
+        <source>Active model backend: %1.</source>
+        <translation>当前模型后端：%1。</translation>
+    </message>
+    <message>
+        <source>The requested backend is unavailable; a safe fallback is selected.</source>
+        <translation>请求的后端不可用，已选择安全的回退后端。</translation>
+    </message>
+    <message>
+        <source>CUDA runtime management is unavailable — %1</source>
+        <translation>CUDA 运行环境管理不可用 — %1</translation>
+    </message>
+    <message>
+        <source>CUDA runtime operation is running: %1</source>
+        <translation>CUDA 运行环境操作正在进行：%1</translation>
+    </message>
+    <message>
+        <source>CUDA runtime operation failed — %1</source>
+        <translation>CUDA 运行环境操作失败 — %1</translation>
+    </message>
+    <message>
+        <source>Installed: %1. Update available: %2.</source>
+        <translation>已安装：%1。可更新至：%2。</translation>
+    </message>
+    <message>
+        <source>Installed: %1.</source>
+        <translation>已安装：%1。</translation>
+    </message>
+    <message>
+        <source>Not installed. Available: %1.</source>
+        <translation>尚未安装。可用版本：%1。</translation>
+    </message>
+    <message>
+        <source>CUDA download information is unavailable — %1</source>
+        <translation>CUDA 下载信息不可用 — %1</translation>
+    </message>
+    <message>
+        <source>No CUDA runtime release is currently available.</source>
+        <translation>目前没有可用的 CUDA 运行环境版本。</translation>
+    </message>
+    <message>
+        <source>Saving backend preference...</source>
+        <translation>正在保存后端偏好……</translation>
+    </message>
+    <message>
+        <source>Could not save the backend preference — %1</source>
+        <translation>无法保存后端偏好 — %1</translation>
+    </message>
+    <message>
+        <source>Starting CUDA runtime operation...</source>
+        <translation>正在启动 CUDA 运行环境操作……</translation>
+    </message>
+    <message>
+        <source>CUDA runtime</source>
+        <translation>CUDA 运行环境</translation>
+    </message>
+    <message>
+        <source>Could not start the CUDA runtime operation — %1</source>
+        <translation>无法启动 CUDA 运行环境操作 — %1</translation>
+    </message>
+    <message>
+        <source>Switch to the previously installed CUDA runtime? An active model will be unloaded safely and will restart on the next request.</source>
+        <translation>切换到之前安装的 CUDA 运行环境吗？当前模型将被安全卸载，并在下次请求时重新启动。</translation>
+    </message>
+    <message>
+        <source>Rolling back CUDA runtime...</source>
+        <translation>正在回滚 CUDA 运行环境……</translation>
+    </message>
+    <message>
+        <source>Could not roll back the CUDA runtime — %1</source>
+        <translation>无法回滚 CUDA 运行环境 — %1</translation>
+    </message>
 </context>
 <context>
     <name>CustomModelDialog</name>

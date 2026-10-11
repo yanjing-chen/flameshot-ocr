@@ -37,6 +37,7 @@
 #include <QScrollArea>
 #include <QSignalBlocker>
 #include <QSpinBox>
+#include <QStringList>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QTimer>
@@ -48,6 +49,20 @@ namespace
 QString dialogTr(const char* source)
 {
     return QCoreApplication::translate("CustomModelDialog", source);
+}
+
+QString backendDisplayName(const QString& backend)
+{
+    if (backend == QStringLiteral("cuda")) {
+        return QCoreApplication::translate("OcrConf", "NVIDIA CUDA");
+    }
+    if (backend == QStringLiteral("vulkan")) {
+        return QCoreApplication::translate("OcrConf", "Vulkan");
+    }
+    if (backend == QStringLiteral("cpu")) {
+        return QCoreApplication::translate("OcrConf", "CPU");
+    }
+    return QCoreApplication::translate("OcrConf", "None");
 }
 
 using InspectResultCallback =
@@ -687,6 +702,56 @@ OcrConf::OcrConf(QWidget* parent)
 
     layout->addWidget(sharedBox);
 
+    auto* accelerationBox =
+      new QGroupBox(tr("Inference acceleration"), content);
+    auto* accelerationForm = new QFormLayout(accelerationBox);
+
+    m_backendPreference = new QComboBox(accelerationBox);
+    m_backendPreference->addItem(tr("Automatic (recommended)"),
+                                 QStringLiteral("auto"));
+    m_backendPreference->addItem(tr("NVIDIA CUDA"), QStringLiteral("cuda"));
+    m_backendPreference->addItem(tr("Vulkan"), QStringLiteral("vulkan"));
+    m_backendPreference->addItem(tr("CPU"), QStringLiteral("cpu"));
+    m_backendPreference->setEnabled(false);
+    accelerationForm->addRow(tr("Preferred backend:"), m_backendPreference);
+
+    m_backendStatus = new QLabel(tr("Checking acceleration backends..."),
+                                 accelerationBox);
+    m_backendStatus->setWordWrap(true);
+    accelerationForm->addRow(tr("Backend status:"), m_backendStatus);
+
+    m_cudaBackendStatus =
+      new QLabel(tr("Checking optional CUDA runtime..."), accelerationBox);
+    m_cudaBackendStatus->setWordWrap(true);
+    accelerationForm->addRow(tr("CUDA runtime:"), m_cudaBackendStatus);
+
+    auto* accelerationButtons = new QWidget(accelerationBox);
+    auto* accelerationButtonsLayout = new QHBoxLayout(accelerationButtons);
+    accelerationButtonsLayout->setContentsMargins(0, 0, 0, 0);
+    m_refreshBackendsButton =
+      new QPushButton(tr("Refresh acceleration"), accelerationButtons);
+    m_cudaInstallButton =
+      new QPushButton(tr("Install CUDA runtime"), accelerationButtons);
+    m_cudaRollbackButton =
+      new QPushButton(tr("Roll back CUDA runtime"), accelerationButtons);
+    m_refreshBackendsButton->setEnabled(false);
+    m_cudaInstallButton->setEnabled(false);
+    m_cudaRollbackButton->setEnabled(false);
+    accelerationButtonsLayout->addWidget(m_refreshBackendsButton);
+    accelerationButtonsLayout->addWidget(m_cudaInstallButton);
+    accelerationButtonsLayout->addWidget(m_cudaRollbackButton);
+    accelerationButtonsLayout->addStretch();
+    accelerationForm->addRow(QString(), accelerationButtons);
+
+    auto* accelerationNote = new QLabel(
+      tr("Automatic mode tries CUDA, then Vulkan, then CPU. The optional "
+         "CUDA runtime is downloaded and managed by Local AI Runtime; it is "
+         "not included in Flameshot OCR packages."),
+      accelerationBox);
+    accelerationNote->setWordWrap(true);
+    accelerationForm->addRow(QString(), accelerationNote);
+    layout->addWidget(accelerationBox);
+
     auto* connectionBox = new QGroupBox(tr("OCR connection"), content);
     auto* connectionForm = new QFormLayout(connectionBox);
 
@@ -941,6 +1006,23 @@ OcrConf::OcrConf(QWidget* parent)
             this,
             &OcrConf::setPreloadPreference);
 
+    connect(m_backendPreference,
+            qOverload<int>(&QComboBox::currentIndexChanged),
+            this,
+            &OcrConf::setBackendPreference);
+    connect(m_refreshBackendsButton,
+            &QPushButton::clicked,
+            this,
+            &OcrConf::refreshAccelerationStatus);
+    connect(m_cudaInstallButton,
+            &QPushButton::clicked,
+            this,
+            &OcrConf::requestCudaBackendInstall);
+    connect(m_cudaRollbackButton,
+            &QPushButton::clicked,
+            this,
+            &OcrConf::requestCudaBackendRollback);
+
     connect(m_testButton, &QPushButton::clicked, this, [this]() {
         refreshRuntimeStatus();
     });
@@ -1013,6 +1095,7 @@ void OcrConf::refreshRuntimeStatus()
           if (ok) {
               refreshModelList();
               refreshPreloadPreference();
+              refreshAccelerationStatus();
           } else {
               m_modelStatus->setText(
                 tr("Model management is unavailable while the Runtime is "
@@ -1022,8 +1105,249 @@ void OcrConf::refreshRuntimeStatus()
               m_preloadStatus->setText(
                 tr("Startup loading is unavailable while the Runtime is "
                    "disconnected."));
+              m_backendPreference->setEnabled(false);
+              m_refreshBackendsButton->setEnabled(false);
+              m_cudaInstallButton->setEnabled(false);
+              m_cudaRollbackButton->setEnabled(false);
+              m_backendStatus->setText(
+                tr("Acceleration management is unavailable while the "
+                   "Runtime is disconnected."));
+              m_cudaBackendStatus->setText(tr("Not connected"));
               updateModelButtons();
           }
+      });
+}
+
+void OcrConf::refreshAccelerationStatus()
+{
+    m_backendPreference->setEnabled(false);
+    m_refreshBackendsButton->setEnabled(false);
+    m_backendStatus->setText(tr("Checking acceleration backends..."));
+
+    sendModelRequest(
+      QStringLiteral("GET"),
+      QStringLiteral("/v1/runtime/backends"),
+      {},
+      [this](bool ok, const QJsonObject& object, const QString& error) {
+          if (!ok) {
+              m_backendStatus->setText(
+                tr("Backend selection requires Local AI Runtime 0.8.0 or "
+                   "later. — %1")
+                  .arg(error));
+              m_backendPreference->setEnabled(false);
+              m_refreshBackendsButton->setEnabled(true);
+              m_cudaInstallButton->setEnabled(false);
+              m_cudaRollbackButton->setEnabled(false);
+              return;
+          }
+
+          const QString preference =
+            object.value(QStringLiteral("preference")).toString(
+              QStringLiteral("auto"));
+          const int index = m_backendPreference->findData(preference);
+          if (index >= 0) {
+              const QSignalBlocker blocker(m_backendPreference);
+              m_backendPreference->setCurrentIndex(index);
+          }
+
+          const QString effective =
+            object.value(QStringLiteral("effective_backend")).toString();
+          const QString active =
+            object.value(QStringLiteral("active_backend")).toString();
+          const QString fallback =
+            object.value(QStringLiteral("fallback")).toString();
+          const QJsonObject availability =
+            object.value(QStringLiteral("availability")).toObject();
+          QStringList usable;
+          for (const QString& id : { QStringLiteral("cuda"),
+                                     QStringLiteral("vulkan"),
+                                     QStringLiteral("cpu") }) {
+              if (availability.value(id)
+                    .toObject()
+                    .value(QStringLiteral("usable"))
+                    .toBool(false)) {
+                  usable.append(backendDisplayName(id));
+              }
+          }
+
+          QString status = tr("Effective: %1. Available: %2.")
+                             .arg(backendDisplayName(effective),
+                                  usable.isEmpty() ? tr("none")
+                                                   : usable.join(
+                                                       QStringLiteral(", ")));
+          if (!active.isEmpty()) {
+              status += QStringLiteral(" ") +
+                        tr("Active model backend: %1.")
+                          .arg(backendDisplayName(active));
+          }
+          if (!fallback.isEmpty()) {
+              status += QStringLiteral(" ") +
+                        tr("The requested backend is unavailable; a safe "
+                           "fallback is selected.");
+          }
+          m_backendStatus->setText(status);
+          m_backendPreference->setEnabled(true);
+          m_refreshBackendsButton->setEnabled(true);
+          refreshCudaBackendStatus(true);
+      });
+}
+
+void OcrConf::refreshCudaBackendStatus(bool refreshManifest)
+{
+    const QString path = refreshManifest
+                           ? QStringLiteral("/v1/runtime/cuda/status?refresh=1")
+                           : QStringLiteral("/v1/runtime/cuda/status");
+    sendModelRequest(
+      QStringLiteral("GET"),
+      path,
+      {},
+      [this](bool ok, const QJsonObject& object, const QString& error) {
+          if (!ok) {
+              m_cudaBackendStatus->setText(
+                tr("CUDA runtime management is unavailable — %1").arg(error));
+              m_cudaInstallButton->setEnabled(false);
+              m_cudaRollbackButton->setEnabled(false);
+              return;
+          }
+
+          const QJsonObject operation =
+            object.value(QStringLiteral("operation")).toObject();
+          const QString operationState =
+            operation.value(QStringLiteral("state")).toString();
+          const bool operationWasRunning = m_cudaOperationRunning;
+          m_cudaOperationRunning = operationState == QStringLiteral("running");
+          const QString current =
+            object.value(QStringLiteral("current")).toString();
+          const QString latest = object.value(QStringLiteral("latest")).toString();
+          const QString previous =
+            object.value(QStringLiteral("previous")).toString();
+          const QString manifestError =
+            object.value(QStringLiteral("manifest_error")).toString();
+
+          if (m_cudaOperationRunning) {
+              const QString phase =
+                operation.value(QStringLiteral("phase")).toString();
+              m_cudaBackendStatus->setText(
+                tr("CUDA runtime operation is running: %1").arg(phase));
+          } else if (operationState == QStringLiteral("error")) {
+              m_cudaBackendStatus->setText(
+                tr("CUDA runtime operation failed — %1")
+                  .arg(operation.value(QStringLiteral("error")).toString()));
+          } else if (!current.isEmpty()) {
+              m_cudaBackendStatus->setText(
+                object.value(QStringLiteral("update_available")).toBool(false)
+                  ? tr("Installed: %1. Update available: %2.")
+                      .arg(current, latest)
+                  : tr("Installed: %1.").arg(current));
+          } else if (!latest.isEmpty()) {
+              m_cudaBackendStatus->setText(
+                tr("Not installed. Available: %1.").arg(latest));
+          } else if (!manifestError.isEmpty()) {
+              m_cudaBackendStatus->setText(
+                tr("CUDA download information is unavailable — %1")
+                  .arg(manifestError));
+          } else {
+              m_cudaBackendStatus->setText(
+                tr("No CUDA runtime release is currently available."));
+          }
+
+          const bool canInstall =
+            !m_cudaOperationRunning && !latest.isEmpty() &&
+            (current.isEmpty() || current != latest);
+          m_cudaInstallButton->setEnabled(canInstall);
+          m_cudaInstallButton->setText(
+            current.isEmpty() ? tr("Install CUDA runtime")
+                              : tr("Update CUDA runtime"));
+          m_cudaRollbackButton->setEnabled(!m_cudaOperationRunning &&
+                                           !previous.isEmpty());
+
+          if (m_cudaOperationRunning) {
+              QTimer::singleShot(
+                1000, this, [this]() { refreshCudaBackendStatus(false); });
+          } else if (operationWasRunning &&
+                     operationState == QStringLiteral("success")) {
+              refreshAccelerationStatus();
+          }
+      });
+}
+
+void OcrConf::setBackendPreference(int index)
+{
+    const QString preference =
+      m_backendPreference->itemData(index).toString();
+    if (preference.isEmpty()) {
+        return;
+    }
+
+    m_backendSavePending = true;
+    m_backendPreference->setEnabled(false);
+    m_backendStatus->setText(tr("Saving backend preference..."));
+    sendModelRequest(
+      QStringLiteral("POST"),
+      QStringLiteral("/v1/runtime/preferences"),
+      { { QStringLiteral("backend_preference"), preference } },
+      [this](bool ok, const QJsonObject&, const QString& error) {
+          m_backendSavePending = false;
+          if (!ok) {
+              QMessageBox::warning(
+                this,
+                tr("Inference acceleration"),
+                tr("Could not save the backend preference — %1").arg(error));
+          }
+          refreshAccelerationStatus();
+      });
+}
+
+void OcrConf::requestCudaBackendInstall()
+{
+    m_cudaInstallButton->setEnabled(false);
+    m_cudaRollbackButton->setEnabled(false);
+    m_cudaBackendStatus->setText(tr("Starting CUDA runtime operation..."));
+    sendModelRequest(
+      QStringLiteral("POST"),
+      QStringLiteral("/v1/runtime/cuda/install"),
+      {},
+      [this](bool ok, const QJsonObject&, const QString& error) {
+          if (!ok) {
+              QMessageBox::warning(
+                this,
+                tr("CUDA runtime"),
+                tr("Could not start the CUDA runtime operation — %1")
+                  .arg(error));
+          }
+          refreshCudaBackendStatus(false);
+      });
+}
+
+void OcrConf::requestCudaBackendRollback()
+{
+    const auto answer = QMessageBox::question(
+      this,
+      tr("Roll back CUDA runtime"),
+      tr("Switch to the previously installed CUDA runtime? An active model "
+         "will be unloaded safely and will restart on the next request."),
+      QMessageBox::Yes | QMessageBox::No,
+      QMessageBox::No);
+    if (answer != QMessageBox::Yes) {
+        return;
+    }
+
+    m_cudaInstallButton->setEnabled(false);
+    m_cudaRollbackButton->setEnabled(false);
+    m_cudaBackendStatus->setText(tr("Rolling back CUDA runtime..."));
+    sendModelRequest(
+      QStringLiteral("POST"),
+      QStringLiteral("/v1/runtime/cuda/rollback"),
+      {},
+      [this](bool ok, const QJsonObject&, const QString& error) {
+          if (!ok) {
+              QMessageBox::warning(
+                this,
+                tr("CUDA runtime"),
+                tr("Could not roll back the CUDA runtime — %1").arg(error));
+          }
+          refreshCudaBackendStatus(true);
+          refreshAccelerationStatus();
       });
 }
 
@@ -1125,7 +1449,7 @@ void OcrConf::sendModelRequest(const QString& method,
     request.setRawHeader(QByteArrayLiteral("Accept"),
                          QByteArrayLiteral("application/json"));
     request.setRawHeader(QByteArrayLiteral("User-Agent"),
-                         QByteArrayLiteral("Flameshot-OCR/2.6"));
+                         QByteArrayLiteral("Flameshot-OCR/2.7"));
     request.setAttribute(
       QNetworkRequest::RedirectPolicyAttribute,
       static_cast<int>(QNetworkRequest::NoLessSafeRedirectPolicy));
@@ -1523,7 +1847,7 @@ void OcrConf::removeSelectedModel()
 
 bool OcrConf::preloadSavePending() const
 {
-    return m_preloadSavePending;
+    return m_preloadSavePending || m_backendSavePending;
 }
 
 void OcrConf::useSelectedModelForOcr()

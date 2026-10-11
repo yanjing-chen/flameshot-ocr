@@ -10,13 +10,13 @@
 OCR interface backed by the separately installed
 [Local AI Runtime](https://github.com/yanjing-chen/local-ai-runtime).
 
-The v2.6 application is based on Flameshot v14.0.0.
+The v2.7 development application is based on Flameshot v14.0.0.
 
 > This repository is not an official Flameshot release.
 
-## v2.6 architecture
+## v2.7 architecture
 
-Flameshot OCR v2.6 has three responsibilities:
+Flameshot OCR v2.7 has three responsibilities:
 
 - capture screenshots,
 - provide the OCR interface and result window,
@@ -39,9 +39,10 @@ Flameshot OCR
                 └── CPU / Vulkan / CUDA backends
 ```
 
-## Current release
+## Current development
 
-- Flameshot OCR version: **v2.6**
+- Flameshot OCR development version: **v2.7**
+- Latest stable Flameshot OCR version: **v2.6**
 - Upstream base: **Flameshot v14.0.0**
 - Local AI Runtime stable version: **0.7.0**
 - Default OCR model: **PaddleOCR-VL-1.6**
@@ -73,14 +74,17 @@ The OCR settings page provides:
 - API endpoint,
 - OpenAI-compatible model ID,
 - optional startup loading for the selected OCR model (off by default),
+- automatic/CUDA/Vulkan/CPU backend selection,
+- optional CUDA runtime installation, update and rollback through Local AI Runtime,
 - endpoint connection test,
 - installed/custom model list with an option to show unavailable catalog entries,
 - guided custom GGUF inspection, registration and editing,
 - optional MMProj, context size and GPU-layer controls,
 - chat, translation, OCR, vision and inference capability declarations.
 
-Flameshot sends these model-management requests to Local AI Runtime 0.7.0 or
-later. It does not copy or delete external GGUF/MMProj files. Catalog models
+Flameshot sends model-management requests to Local AI Runtime 0.7.0 or later;
+the acceleration controls require Runtime 0.8.0 or later. It does not copy or
+delete external GGUF/MMProj files. Catalog models
 remain read-only, and removing a custom entry only removes its Runtime registry
 record. With startup loading disabled, the Runtime service stays available but
 does not start llama-server until the first OCR or plugin request. The OCR
@@ -117,6 +121,7 @@ python3 tests/stage6b_client_only_contract.py
 python3 tests/stage6c_model_management_contract.py
 python3 tests/stage6e_guided_import_contract.py
 python3 tests/stage7a_contract.py
+python3 tests/stage7b_contract.py
 ```
 
 ## Credits and licenses
@@ -132,7 +137,7 @@ See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and `LICENSE`.
 
 ## 中文说明
 
-Flameshot OCR v2.6 是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
+Flameshot OCR v2.7 开发版是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
 截图、OCR 界面和识别结果展示，并作为独立 Local AI Runtime 的客户端和
 一键安装器。
 
@@ -154,3 +159,8 @@ v2.6 默认隐藏尚未安装文件的目录模型，可通过开关重新显示
 启动时加载当前 OCR 模型”选项且默认关闭。关闭后 Runtime 服务仍会启动并
 监听端口，llama-server 与模型会在首次 OCR 或插件请求时按需加载。OCR
 识别结果改为独立非模态窗口，并提供兼容 Wayland 的拖动栏。
+
+v2.7 开发版新增推理后端选择，可设为自动、NVIDIA CUDA、Vulkan 或 CPU。
+自动模式依次尝试 CUDA、Vulkan 与 CPU；指定后端不可用时 Runtime 会安全
+回退。CUDA 运行环境仍由 Local AI Runtime 0.8 独立下载、校验、更新和回滚，
+不会写入 AppImage 或 deb。

@@ -207,7 +207,7 @@ void LocalAiRuntimeInstaller::getJson(
 
     request.setRawHeader(
       QByteArrayLiteral("User-Agent"),
-      QByteArrayLiteral("Flameshot-OCR/2.6"));
+      QByteArrayLiteral("Flameshot-OCR/2.7"));
 
     request.setAttribute(
       QNetworkRequest::RedirectPolicyAttribute,
@@ -293,7 +293,7 @@ void LocalAiRuntimeInstaller::postJson(
 
     request.setRawHeader(
       QByteArrayLiteral("User-Agent"),
-      QByteArrayLiteral("Flameshot-OCR/2.6"));
+      QByteArrayLiteral("Flameshot-OCR/2.7"));
 
     request.setAttribute(
       QNetworkRequest::RedirectPolicyAttribute,
@@ -843,7 +843,7 @@ void LocalAiRuntimeInstaller::downloadAppBundle()
 
     request.setRawHeader(
       QByteArrayLiteral("User-Agent"),
-      QByteArrayLiteral("Flameshot-OCR/2.6"));
+      QByteArrayLiteral("Flameshot-OCR/2.7"));
 
     request.setAttribute(
       QNetworkRequest::RedirectPolicyAttribute,

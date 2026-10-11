@@ -14,6 +14,7 @@ class QNetworkAccessManager;
 class QProgressBar;
 class QPushButton;
 class QCheckBox;
+class QComboBox;
 class QTableWidget;
 
 class OcrConf : public QWidget
@@ -36,6 +37,11 @@ private:
     void refreshModelList();
     void refreshPreloadPreference();
     void setPreloadPreference(bool enabled);
+    void refreshAccelerationStatus();
+    void refreshCudaBackendStatus(bool refreshManifest);
+    void setBackendPreference(int index);
+    void requestCudaBackendInstall();
+    void requestCudaBackendRollback();
     void addCustomModel();
     void editSelectedCustomModel();
     void removeSelectedModel();
@@ -53,6 +59,15 @@ private:
     QCheckBox* m_preloadOcrModel;
     QLabel* m_preloadStatus;
     bool m_preloadSavePending = false;
+
+    QComboBox* m_backendPreference;
+    QLabel* m_backendStatus;
+    QLabel* m_cudaBackendStatus;
+    QPushButton* m_refreshBackendsButton;
+    QPushButton* m_cudaInstallButton;
+    QPushButton* m_cudaRollbackButton;
+    bool m_backendSavePending = false;
+    bool m_cudaOperationRunning = false;
 
     QNetworkAccessManager* m_modelNetwork;
     QCheckBox* m_showUnavailableModels;
