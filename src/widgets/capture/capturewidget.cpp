@@ -731,7 +731,7 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
           QIcon(QStringLiteral(":/img/window-editor/dark/%1.svg")
                   .arg(iconName)));
 
-        QString labelText = sourceButton->name();
+        QString labelText = sourceButton->tool()->name();
         labelText.replace(QStringLiteral(" Tool"), QString());
 
         auto* label = new QLabel(labelText, cell);

@@ -22,7 +22,9 @@ checks = {
         and "syncWindowEditorToolbarState" in CPP,
     "TOOL LABELS":
         'windowEditorToolLabel' in CPP
-        and "sourceButton->name()" in CPP,
+        and "sourceButton->tool()->name()" in CPP,
+    "NO UNDEFINED BUTTON NAME WRAPPER":
+        "sourceButton->name()" not in CPP,
     "ORDER PERSISTENCE PRESERVED":
         "windowEditorToolbarOrder()" in CPP
         and "orderedTypes" in CPP,
