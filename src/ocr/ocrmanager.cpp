@@ -75,23 +75,7 @@ QString OcrManager::activeModelId() const
 
 QString OcrManager::activePrompt() const
 {
-    if (outputFormat() == QStringLiteral("markdown")) {
-        return QStringLiteral(
-          "Recognize all visible text and return Markdown only. Preserve "
-          "headings, paragraphs, lists, tables, code blocks, emphasis, and "
-          "reading order when they are visible. Do not add explanations or "
-          "wrap the entire response in a code fence.");
-    }
     return QStringLiteral("OCR:");
-}
-
-QString OcrManager::outputFormat() const
-{
-    const QString configured =
-      ConfigHandler().ocrOutputFormat().trimmed().toLower();
-    return configured == QStringLiteral("markdown")
-             ? QStringLiteral("markdown")
-             : QStringLiteral("plain");
 }
 
 void OcrManager::testConnection(

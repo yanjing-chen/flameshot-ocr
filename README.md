@@ -10,13 +10,13 @@
 OCR interface backed by the separately installed
 [Local AI Runtime](https://github.com/yanjing-chen/local-ai-runtime).
 
-The v2.8 development application is based on Flameshot v14.0.0.
+The v2.9 development application is based on Flameshot v14.0.0.
 
 > This repository is not an official Flameshot release.
 
-## v2.8 architecture
+## v2.9 architecture
 
-Flameshot OCR v2.8 has three responsibilities:
+Flameshot OCR v2.9 has three responsibilities:
 
 - capture screenshots,
 - provide the OCR interface and result window,
@@ -41,8 +41,8 @@ Flameshot OCR
 
 ## Current development
 
-- Flameshot OCR development version: **v2.8**
-- Latest stable Flameshot OCR version: **v2.7**
+- Flameshot OCR development version: **v2.9**
+- Latest stable Flameshot OCR version: **v2.8**
 - Upstream base: **Flameshot v14.0.0**
 - Local AI Runtime stable version: **0.8.0**
 - Default OCR model: **PaddleOCR-VL-1.6**
@@ -60,7 +60,7 @@ runtime switching between PaddleOCR-VL-1.6 and HY-MT2-7B has also been tested.
 4. Confirm that the runtime, llama.cpp and PaddleOCR-VL entries are installed.
 5. Start a normal Flameshot capture.
 6. Select an area containing text and choose the OCR tool.
-7. Copy, edit, or save the recognized plain-text or Markdown result.
+7. Copy, edit, or save the recognized plain-text result.
 
 Existing Flameshot shortcuts are preserved. Flameshot OCR does not require or
 install a fixed OCR shortcut.
@@ -73,7 +73,7 @@ The OCR settings page provides:
 - runtime application, llama.cpp and PaddleOCR-VL status,
 - API endpoint,
 - OpenAI-compatible model ID,
-- plain-text or Markdown OCR output,
+- plain-text OCR output using the model's native `OCR:` task prompt,
 - optional startup loading for the selected OCR model (off by default),
 - automatic/CUDA/Vulkan/CPU backend selection,
 - optional CUDA runtime installation, update and rollback through Local AI Runtime,
@@ -93,8 +93,8 @@ result is an independent non-modal window with a Wayland-compatible drag bar.
 In v2.8 the fullscreen capture overlay closes as soon as OCR starts, so other
 applications remain usable during model loading and recognition. The result
 footer reports total elapsed time, character throughput, and the model token
-rate when the Runtime supplies it. Markdown output can be saved directly as a
-`.md` file.
+rate when the Runtime supplies it. In v2.9 OCR uses the model's native
+`OCR:` task prompt, and results are saved as plain `.txt` files.
 
 ## Packages
 
@@ -144,7 +144,7 @@ See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and `LICENSE`.
 
 ## 中文说明
 
-Flameshot OCR v2.8 开发版是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
+Flameshot OCR v2.9 开发版是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
 截图、OCR 界面和识别结果展示，并作为独立 Local AI Runtime 的客户端和
 一键安装器。
 
@@ -172,8 +172,9 @@ v2.7 新增推理后端选择，可设为自动、NVIDIA CUDA、Vulkan 或 CPU�
 回退。CUDA 运行环境仍由 Local AI Runtime 0.8 独立下载、校验、更新和回滚，
 不会写入 AppImage 或 deb。
 
-v2.8 开发版新增纯文本 / Markdown 输出选择和 `.md` 直接保存。点击 OCR 后全屏
-截图高亮层会立即关闭，模型加载与识别在独立非模态窗口中继续，因此可以同时
-操作其他软件。结果窗口底部显示总耗时、字符速度，以及 Runtime 返回时的模型
-token 速度。本阶段继续使用 Local AI Runtime 0.8.0 和已发布的 CUDA r3，不修改
-Runtime。
+v2.8 曾加入纯文本 / Markdown 输出选择和 `.md` 保存。v2.9 已移除 Markdown
+输出模式，OCR 固定使用模型原生 `OCR:` 任务提示，识别结果以普通文本显示、
+复制并保存为 `.txt`。点击 OCR 后全屏截图高亮层仍会立即关闭，模型加载与识别
+在独立非模态窗口中继续，因此可以同时操作其他软件。结果窗口底部显示总耗时、
+字符速度，以及 Runtime 返回时的模型 token 速度。本阶段继续使用 Local AI
+Runtime 0.8.0 和已发布的 CUDA r3，不修改 Runtime。

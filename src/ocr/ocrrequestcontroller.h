@@ -30,10 +30,9 @@ private:
     void handleReply();
     void showFailure(const QString& title, const QString& message);
     void showResult(const QString& text, double modelTokensPerSecond);
-    void saveResult(const QString& text, bool markdown, QWidget* parent);
+    void saveResult(const QString& text, QWidget* parent);
 
     QPixmap m_image;
-    QString m_outputFormat;
     QElapsedTimer m_elapsed;
     QPointer<QProgressDialog> m_progress;
     QPointer<QNetworkReply> m_reply;

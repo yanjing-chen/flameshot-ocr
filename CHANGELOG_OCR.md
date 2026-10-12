@@ -1,14 +1,22 @@
 # Flameshot OCR changelog
 
-## v2.9 — Stage 7D-C localization development
+## v2.9 — Stage 7D localization and OCR simplification development
 
 ### Changed
 
 - Removed mnemonic-letter suffixes such as `(T)`, `(O)`, `(C)`, `(A)` and `(Q)` from active Simplified Chinese tray-menu translations.
 - Completed the Simplified Chinese translations for visible Linux general-settings items already present in v2.8.
 - Improved the Simplified Chinese wording of the insecure pixelation option.
-- This stage contains no windowed-editor implementation and no new Markdown prompt logic.
+- This stage contains no windowed-editor implementation.
+- Markdown OCR output has been removed; OCR now always uses PaddleOCR-VL's native `OCR:` task prompt.
 - Local AI Runtime 0.8.0 and the existing OCR/model-management boundaries remain unchanged.
+
+### Removed
+
+- Markdown OCR output mode and the output-format selector.
+- Markdown-specific result labels and direct `.md` saving.
+- The legacy `ocrOutputFormat` configuration key remains recognized only for
+  v2.8 configuration compatibility and is ignored by the v2.9 OCR workflow.
 
 ## v2.8 — Stage 7C development
 

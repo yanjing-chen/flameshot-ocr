@@ -64,7 +64,6 @@ OcrRequestController::OcrRequestController(const QPixmap& image,
                                            QObject* parent)
   : QObject(parent)
   , m_image(image)
-  , m_outputFormat(OcrManager::instance()->outputFormat())
   , m_network(new QNetworkAccessManager(this))
 {
 }
@@ -255,10 +254,10 @@ void OcrRequestController::showFailure(const QString& title,
     deleteLater();
 }
 
-void OcrRequestController::showResult(const QString& text,
-                                      double modelTokensPerSecond)
+void OcrRequestController::showResult(
+  const QString& text,
+  double modelTokensPerSecond)
 {
-    const bool markdown = m_outputFormat == QStringLiteral("markdown");
     const qint64 elapsedMs = qMax<qint64>(1, m_elapsed.elapsed());
     const qsizetype characters = text.toUcs4().size();
     const double seconds = static_cast<double>(elapsedMs) / 1000.0;
@@ -267,16 +266,14 @@ void OcrRequestController::showResult(const QString& text,
 
     auto* dialog = new QDialog(nullptr, Qt::Window);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setWindowTitle(markdown ? ocrTr("OCR Markdown Result")
-                                    : ocrTr("OCR Result"));
+    dialog->setWindowTitle(ocrTr("OCR Result"));
     dialog->setWindowModality(Qt::NonModal);
     dialog->resize(760, 560);
 
     auto* layout = new QVBoxLayout(dialog);
+
     auto* dragHandle = new OcrResultDragHandle(
-      markdown ? ocrTr("OCR Markdown Result — drag here to move the window")
-               : ocrTr("OCR Result — drag here to move the window"),
-      dialog);
+      ocrTr("OCR Result — drag here to move the window"), dialog);
     dragHandle->setCursor(Qt::SizeAllCursor);
     dragHandle->setToolTip(
       ocrTr("Drag this bar to move the OCR result window."));
@@ -295,11 +292,13 @@ void OcrRequestController::showResult(const QString& text,
         .arg(QString::number(seconds, 'f', 2))
         .arg(static_cast<qlonglong>(characters))
         .arg(QString::number(charactersPerSecond, 'f', 1));
+
     if (modelTokensPerSecond > 0.0) {
         metrics += QStringLiteral(" | ") +
                    ocrTr("Model speed: %1 token/s")
                      .arg(QString::number(modelTokensPerSecond, 'f', 1));
     }
+
     auto* metricsLabel = new QLabel(metrics, dialog);
     metricsLabel->setToolTip(
       ocrTr("Elapsed time includes Runtime readiness and model loading."));
@@ -307,67 +306,89 @@ void OcrRequestController::showResult(const QString& text,
     layout->addWidget(metricsLabel);
 
     auto* buttons = new QDialogButtonBox(dialog);
-    auto* copyButton = buttons->addButton(
-      markdown ? ocrTr("Copy Markdown") : ocrTr("Copy"),
-      QDialogButtonBox::ActionRole);
-    auto* saveButton = buttons->addButton(
-      markdown ? ocrTr("Save Markdown...") : ocrTr("Save Text..."),
-      QDialogButtonBox::ActionRole);
-    auto* closeButton = buttons->addButton(QDialogButtonBox::Close);
+
+    auto* copyButton =
+      buttons->addButton(ocrTr("Copy"), QDialogButtonBox::ActionRole);
+
+    auto* saveButton =
+      buttons->addButton(ocrTr("Save Text..."),
+                         QDialogButtonBox::ActionRole);
+
+    auto* closeButton =
+      buttons->addButton(QDialogButtonBox::Close);
 
     connect(copyButton, &QPushButton::clicked, dialog, [editor]() {
         QApplication::clipboard()->setText(editor->toPlainText());
     });
+
     connect(saveButton,
             &QPushButton::clicked,
             dialog,
-            [this, editor, markdown, dialog]() {
-                saveResult(editor->toPlainText(), markdown, dialog);
+            [this, editor, dialog]() {
+                saveResult(editor->toPlainText(), dialog);
             });
-    connect(closeButton, &QPushButton::clicked, dialog, &QDialog::close);
-    connect(dialog, &QObject::destroyed, this, &QObject::deleteLater);
+
+    connect(closeButton,
+            &QPushButton::clicked,
+            dialog,
+            &QDialog::close);
+
+    connect(dialog,
+            &QObject::destroyed,
+            this,
+            &QObject::deleteLater);
 
     layout->addWidget(buttons);
+
     dialog->show();
     dialog->raise();
     dialog->activateWindow();
 }
 
-void OcrRequestController::saveResult(const QString& text,
-                                      bool markdown,
-                                      QWidget* parent)
+void OcrRequestController::saveResult(
+  const QString& text,
+  QWidget* parent)
 {
     QString directory =
-      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+      QStandardPaths::writableLocation(
+        QStandardPaths::DocumentsLocation);
+
     if (directory.isEmpty()) {
         directory = QDir::homePath();
     }
-    const QString extension = markdown ? QStringLiteral("md")
-                                       : QStringLiteral("txt");
+
     const QString suggested =
       QDir(directory)
-        .filePath(QStringLiteral("ocr-result-%1.%2")
-                    .arg(QDateTime::currentDateTime().toString(
-                           QStringLiteral("yyyyMMdd-HHmmss")),
-                         extension));
-    const QString filter = markdown
-                             ? ocrTr("Markdown files (*.md);;All files (*)")
-                             : ocrTr("Text files (*.txt);;All files (*)");
-    QString fileName = QFileDialog::getSaveFileName(
-      parent, ocrTr("Save OCR result"), suggested, filter);
+        .filePath(
+          QStringLiteral("ocr-result-%1.txt")
+            .arg(
+              QDateTime::currentDateTime().toString(
+                QStringLiteral("yyyyMMdd-HHmmss"))));
+
+    QString fileName =
+      QFileDialog::getSaveFileName(
+        parent,
+        ocrTr("Save OCR result"),
+        suggested,
+        ocrTr("Text files (*.txt);;All files (*)"));
+
     if (fileName.isEmpty()) {
         return;
     }
+
     if (QFileInfo(fileName).suffix().isEmpty()) {
-        fileName += QStringLiteral(".") + extension;
+        fileName += QStringLiteral(".txt");
     }
 
     QSaveFile file(fileName);
+
     if (!file.open(QIODevice::WriteOnly) ||
-        file.write(text.toUtf8()) < 0 || !file.commit()) {
+        file.write(text.toUtf8()) < 0 ||
+        !file.commit()) {
         QMessageBox::warning(
           parent,
           ocrTr("Save OCR result"),
-          ocrTr("Could not save the OCR result to:\n%1").arg(fileName));
+          ocrTr("Could not save the OCR result to:\n%1")
+            .arg(fileName));
     }
 }
