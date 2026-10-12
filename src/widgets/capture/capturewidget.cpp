@@ -43,6 +43,7 @@
 #include <QPushButton>
 #include <QScreen>
 #include <QShortcut>
+#include <QVBoxLayout>
 
 #if !defined(DISABLE_UPDATE_CHECKER)
 #include "widgets/updatenotificationwidget.h"
@@ -51,6 +52,77 @@
 #define MOUSE_DISTANCE_TO_START_MOVING 3
 
 auto const MOUSE_WHEEL_TRESHOLD = 60;
+
+namespace {
+
+class WindowedEditorHost final : public QWidget
+{
+public:
+    explicit WindowedEditorHost(CaptureWidget* editor)
+      : QWidget(nullptr,
+                Qt::Window | Qt::WindowTitleHint |
+                  Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint |
+                  Qt::WindowCloseButtonHint)
+      , m_editor(editor)
+      , m_layout(new QVBoxLayout(this))
+    {
+        setAttribute(Qt::WA_DeleteOnClose);
+        setAttribute(Qt::WA_QuitOnClose, false);
+
+        m_layout->setContentsMargins(0, 0, 0, 0);
+        m_layout->setSpacing(0);
+
+        QObject::connect(editor, &QObject::destroyed, this, [this]() {
+            m_editor = nullptr;
+            if (!m_closing) {
+                m_closing = true;
+                close();
+            }
+        });
+    }
+
+    void adoptEditor()
+    {
+        if (!m_editor) {
+            return;
+        }
+
+        // This is a top-level -> child reparent, not a Wayland top-level role
+        // mutation. The CaptureWidget C++ object and all of its children stay
+        // alive, so edit state and the QUndoStack remain intact.
+        m_editor->hide();
+        m_editor->setParent(this, Qt::Widget);
+        m_layout->addWidget(m_editor);
+        m_editor->show();
+        m_editor->setFocus(Qt::OtherFocusReason);
+    }
+
+protected:
+    void closeEvent(QCloseEvent* event) override
+    {
+        if (m_closing || !m_editor) {
+            QWidget::closeEvent(event);
+            return;
+        }
+
+        // Let CaptureWidget run the Stage 7D unsaved-edit guard. QWidget::close
+        // returns false when its closeEvent ignores the request.
+        if (!m_editor->close()) {
+            event->ignore();
+            return;
+        }
+
+        m_closing = true;
+        QWidget::closeEvent(event);
+    }
+
+private:
+    QPointer<CaptureWidget> m_editor;
+    QVBoxLayout* m_layout;
+    bool m_closing{ false };
+};
+
+} // namespace
 
 // CaptureWidget is the main component used to capture the screen. It contains
 // an area of selection with its respective buttons.
@@ -2153,23 +2225,24 @@ void CaptureWidget::continueInWindowedEditor()
     commitCurrentTool();
     m_windowedEditor = true;
 
-    // GNOME Wayland: do not change a mapped capture overlay directly into a
-    // normal managed top-level window. Unmap the native surface first, then
-    // change the window role on the next Qt event-loop turn. The same
-    // CaptureWidget remains alive, preserving annotations, coordinates,
-    // selection, tool settings, layers and the complete QUndoStack.
-    hide();
+    // GNOME Wayland does not reliably support changing the already-mapped
+    // capture overlay into a normal managed top-level window. Create the
+    // managed window first, then reparent this *same* CaptureWidget into it.
+    // No screenshot flattening, object recreation, or QUndoStack replacement
+    // occurs.
+    auto* host = new WindowedEditorHost(this);
+    host->setWindowTitle(tr("Flameshot OCR — Screenshot Editor"));
+    host->resize(size());
 
-    QTimer::singleShot(0, this, [this]() {
-        setWindowFlags(Qt::Window | Qt::WindowTitleHint |
-                       Qt::WindowSystemMenuHint |
-                       Qt::WindowMinMaxButtonsHint |
-                       Qt::WindowCloseButtonHint);
-        setWindowTitle(tr("Flameshot OCR — Screenshot Editor"));
+    // Make sure a managed top-level already exists before the overlay native
+    // surface is released.
+    host->show();
 
-        showMaximized();
-        raise();
-        activateWindow();
+    QTimer::singleShot(0, host, [this, host]() {
+        host->adoptEditor();
+        host->showMaximized();
+        host->raise();
+        host->activateWindow();
 
         m_buttonHandler->updateScreenRegions(rect());
         m_buttonHandler->updatePosition(m_selection->geometry());
