@@ -1,6 +1,6 @@
 # Flameshot OCR changelog
 
-## v2.9 — Stage 7D localization and OCR simplification development
+## v2.9 — 2026-10-12
 
 ### Changed
 

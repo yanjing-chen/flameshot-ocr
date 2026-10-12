@@ -10,7 +10,7 @@
 OCR interface backed by the separately installed
 [Local AI Runtime](https://github.com/yanjing-chen/local-ai-runtime).
 
-The v2.9 development application is based on Flameshot v14.0.0.
+Flameshot OCR v2.9 is based on Flameshot v14.0.0.
 
 > This repository is not an official Flameshot release.
 
@@ -41,8 +41,7 @@ Flameshot OCR
 
 ## Current development
 
-- Flameshot OCR development version: **v2.9**
-- Latest stable Flameshot OCR version: **v2.8**
+- Current stable Flameshot OCR version: **v2.9**
 - Upstream base: **Flameshot v14.0.0**
 - Local AI Runtime stable version: **0.8.0**
 - Default OCR model: **PaddleOCR-VL-1.6**
@@ -144,7 +143,7 @@ See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and `LICENSE`.
 
 ## 中文说明
 
-Flameshot OCR v2.9 开发版是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
+Flameshot OCR v2.9 正式版是基于 Flameshot v14.0.0 的非官方 Linux 分支。它负责
 截图、OCR 界面和识别结果展示，并作为独立 Local AI Runtime 的客户端和
 一键安装器。
 

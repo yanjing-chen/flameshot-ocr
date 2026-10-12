@@ -74,8 +74,16 @@ for obsolete in (
 
 print("OBSOLETE MARKDOWN UI TEXT       NONE")
 
-assert "development version: **v2.9**" in README
-assert "Latest stable Flameshot OCR version: **v2.8**" in README
+development_identity = (
+    "development version: **v2.9**" in README
+    and "Latest stable Flameshot OCR version: **v2.8**" in README
+)
+
+release_identity = (
+    "Current stable Flameshot OCR version: **v2.9**" in README
+)
+
+assert development_identity or release_identity
 assert "plain-text or Markdown OCR output" not in README
 assert "Markdown output can be saved directly" not in README
 assert "v2.9 已移除 Markdown" in README
