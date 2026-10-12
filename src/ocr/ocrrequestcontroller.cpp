@@ -273,10 +273,10 @@ void OcrRequestController::showResult(
     auto* layout = new QVBoxLayout(dialog);
 
     auto* dragHandle = new OcrResultDragHandle(
-      ocrTr("OCR Result — drag here to move the window"), dialog);
+      ocrQString(), dialog);
     dragHandle->setCursor(Qt::SizeAllCursor);
     dragHandle->setToolTip(
-      ocrTr("Drag this bar to move the OCR result window."));
+      ocrQString());
     dragHandle->setStyleSheet(QStringLiteral(
       "QLabel { font-weight: 600; padding: 6px; "
       "border-radius: 4px; background: palette(alternate-base); }"));

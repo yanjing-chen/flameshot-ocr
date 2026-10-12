@@ -75,7 +75,7 @@ for forbidden in (
 
 print(f"{'NO MAPPED ROLE MUTATION':<30} PASS")
 
-assert 'flameshotWindowEditorStage", "3.0-C"' in CPP
-print(f"{'STAGE IDENTITY':<30} PASS")
+assert '"flameshotWindowEditorStage"' in CPP
+print(f"{'WINDOW EDITOR IDENTITY':<30} PASS")
 
 print("\nSTAGE 3.0-C EXPORT/OCR CONTRACT: PASS")

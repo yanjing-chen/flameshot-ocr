@@ -226,7 +226,11 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
               QSize(qMax(1, qRound(initialScreenshot.width() / dpr)),
                     qMax(1, qRound(initialScreenshot.height() / dpr)));
         }
-        resize(logicalImageSize);
+        const QSize editorCanvasMinimumSize(720, 420);
+        const QSize editorCanvasSize(
+          qMax(logicalImageSize.width(), editorCanvasMinimumSize.width()),
+          qMax(logicalImageSize.height(), editorCanvasMinimumSize.height()));
+        resize(editorCanvasSize);
     }
 
     QVector<QRect> areas;
@@ -317,7 +321,7 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
       m_context.fullscreen && !areas.isEmpty() ? areas.first() : rect();
     OverlayMessage::init(this, overlayArea);
 
-    if (m_config.showHelp()) {
+    if (m_config.showHelp() && !m_windowEditorMode) {
         initHelpMessage();
         OverlayMessage::push(m_helpMessage);
     }
@@ -1520,9 +1524,12 @@ void CaptureWidget::initSelection()
                                 qMax(320, available.height() * 85 / 100));
                     }
 
+                    const QSize editorMinimumWindowSize(760, 460);
                     QSize desiredWindowSize(
-                      qMax(360, logicalImageSize.width() + 24),
-                      qMax(240, logicalImageSize.height() + 24));
+                      qMax(editorMinimumWindowSize.width(),
+                           logicalImageSize.width() + 24),
+                      qMax(editorMinimumWindowSize.height(),
+                           logicalImageSize.height() + 24));
 
                     desiredWindowSize.setWidth(
                       qMin(desiredWindowSize.width(),
@@ -1531,9 +1538,13 @@ void CaptureWidget::initSelection()
                       qMin(desiredWindowSize.height(),
                            maximumWindowSize.height()));
 
+                    const QSize boundedMinimumWindowSize(
+                      qMin(720, maximumWindowSize.width()),
+                      qMin(420, maximumWindowSize.height()));
+                    editor->setMinimumSize(boundedMinimumWindowSize);
                     editor->resize(desiredWindowSize);
                     editor->setProperty(
-                      "flameshotWindowEditorStage", "3.0-C");
+                      "flameshotWindowEditorStage", "3.0-D");
 
                     setProperty("windowEditorPreviewDetached", true);
                     close();
