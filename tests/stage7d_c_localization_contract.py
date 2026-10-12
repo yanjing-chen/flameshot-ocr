@@ -52,19 +52,50 @@ assert "像素" in pixelate
 
 print("GENERAL SETTINGS ZH_CN          PASS")
 
-# Markdown removal may change OCR files, but the failed window-editor
-# experiment must still never enter this branch.
-for path in (
-    "src/widgets/capture/capturewidget.cpp",
-    "src/widgets/capture/capturewidget.h",
-):
-    result = subprocess.run(
-        ["git", "diff", "--quiet", VALIDATED_7DC, "--", path],
-        cwd=ROOT,
-    )
-    assert result.returncode == 0, path
+# v2.9 deliberately excluded the failed Stage 7D-A implementation.
+# v3.0 now introduces a different architecture, so capturewidget.cpp is
+# expected to differ from the validated 7D-C commit. Keep the historical
+# safety guard by inspecting only lines newly added after the 7D-C baseline
+# and rejecting the old mapped-surface mutation techniques that failed on
+# GNOME Wayland.
+result = subprocess.run(
+    [
+        "git",
+        "diff",
+        "--unified=0",
+        VALIDATED_7DC,
+        "--",
+        "src/widgets/capture/capturewidget.cpp",
+        "src/widgets/capture/capturewidget.h",
+    ],
+    cwd=ROOT,
+    text=True,
+    capture_output=True,
+)
+assert result.returncode == 0
 
-print("NO 7D-A WINDOW CODE IMPORTED    PASS")
+added_lines = []
+for line in result.stdout.splitlines():
+    if line.startswith("+++"):
+        continue
+    if line.startswith("+"):
+        added_lines.append(line[1:])
+
+added_text = "\n".join(added_lines)
+
+for forbidden in (
+    "showNormal(",
+    "setParent(",
+    "setWindowState(",
+    "stage7dWindowedEditorMigrationDone",
+):
+    assert forbidden not in added_text, forbidden
+
+# setWindowFlags() exists in original Flameshot capture setup, so reject it
+# only when newly added after the validated 7D-C baseline.
+assert "setWindowFlags(" not in added_text
+
+print("LEGACY 7D-A ROLE MUTATION ABSENT PASS")
 
 print()
 print("STAGE 7D-C LOCALIZATION CONTRACT: PASS")

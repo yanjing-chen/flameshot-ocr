@@ -80,7 +80,13 @@ print("PLAIN TEXT RESULT AND SAVE      PASS")
 
 assert "new OcrRequestController(selected, qApp)" in CAPTURE
 assert "m_ocrDetached = true" in CAPTURE
-assert "else if (!m_ocrDetached)" in CAPTURE
+# v2.8/v2.9 detached OCR must still suppress captureFailed.
+# v3.0-A adds a second successful handoff path for the normal window editor,
+# so the old exact source spelling `else if (!m_ocrDetached)` is intentionally
+# no longer stable. Test the semantic guards instead of one formatting string.
+assert "!m_ocrDetached" in CAPTURE
+assert 'windowEditorPreviewDetached' in CAPTURE
+assert "emit Flameshot::instance()->captureFailed();" in CAPTURE
 assert "bool m_ocrDetached" in CAPTURE_HEADER
 assert "Qt::NonModal" in CONTROLLER
 assert "Qt::WindowModal" not in CONTROLLER
