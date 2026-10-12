@@ -536,11 +536,11 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
     // settings, but present tools through a new modern proxy toolbar.
     auto* toolbarFrame = new QFrame(parent);
     toolbarFrame->setObjectName(QStringLiteral("windowEditorToolbarFrame"));
-    toolbarFrame->setProperty("flameshotUiStage", "3.0-E.1");
-    toolbarFrame->setFixedHeight(88);
+    toolbarFrame->setProperty("flameshotUiStage", "3.0-E.2A");
+    toolbarFrame->setFixedHeight(70);
 
     auto* outer = new QHBoxLayout(toolbarFrame);
-    outer->setContentsMargins(12, 7, 12, 7);
+    outer->setContentsMargins(8, 5, 8, 5);
     outer->setSpacing(0);
 
     auto* scroll = new QScrollArea(toolbarFrame);
@@ -549,14 +549,14 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scroll->setWidgetResizable(true);
-    scroll->setFixedHeight(74);
+    scroll->setFixedHeight(58);
 
     auto* content = new QWidget(scroll);
     content->setObjectName(QStringLiteral("windowEditorToolbarContent"));
 
     auto* row = new QHBoxLayout(content);
-    row->setContentsMargins(4, 2, 4, 2);
-    row->setSpacing(5);
+    row->setContentsMargins(2, 0, 2, 0);
+    row->setSpacing(2);
     row->setSizeConstraint(QLayout::SetMinimumSize);
 
     const QString alignment = m_config.windowEditorToolbarAlignment();
@@ -705,7 +705,7 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
 
         auto* cell = new QFrame(content);
         cell->setObjectName(QStringLiteral("windowEditorToolCell"));
-        cell->setFixedSize(58, 62);
+        cell->setFixedSize(46, 50);
 
         auto* cellLayout = new QVBoxLayout(cell);
         cellLayout->setContentsMargins(2, 2, 2, 1);
@@ -715,9 +715,12 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
         auto* proxy = new QToolButton(cell);
         proxy->setObjectName(QStringLiteral("windowEditorToolButton"));
         proxy->setAutoRaise(true);
-        proxy->setFixedSize(40, 38);
-        proxy->setIconSize(QSize(22, 22));
-        proxy->setToolTip(sourceButton->toolTip());
+        proxy->setFixedSize(34, 32);
+        proxy->setIconSize(QSize(20, 20));
+        proxy->setToolTip(
+          QStringLiteral("%1 — %2")
+            .arg(sourceButton->tool()->name(),
+                 sourceButton->toolTip()));
         proxy->setCheckable(sourceButton->tool()->isSelectable());
         proxy->setProperty(
           "sourceButton",
@@ -737,7 +740,7 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
         auto* label = new QLabel(labelText, cell);
         label->setObjectName(QStringLiteral("windowEditorToolLabel"));
         label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        label->setFixedWidth(54);
+        label->setFixedWidth(44);
 
         cellLayout->addWidget(proxy, 0, Qt::AlignHCenter);
         cellLayout->addWidget(label, 0, Qt::AlignHCenter);
@@ -802,7 +805,7 @@ QLabel#windowEditorToolLabel {
     color: #30343b;
     background: transparent;
     border: none;
-    font-size: 10px;
+    font-size: 9px;
 }
 QScrollBar:horizontal {
     height: 5px;
@@ -1593,6 +1596,17 @@ void CaptureWidget::wheelEvent(QWheelEvent* e)
     setToolSize(m_context.toolSize + toolSizeOffset);
 }
 
+bool CaptureWidget::eventFilter(QObject* watched, QEvent* event)
+{
+    if (m_windowEditorMode && watched == window() &&
+        event && event->type() == QEvent::Resize) {
+        QTimer::singleShot(
+          0, this, [this]() { updateWindowEditorToolbarCompactMode(); });
+    }
+
+    return QWidget::eventFilter(watched, event);
+}
+
 void CaptureWidget::resizeEvent(QResizeEvent* e)
 {
     QWidget::resizeEvent(e);
@@ -1872,6 +1886,7 @@ void CaptureWidget::initSelection()
 
                     auto* toolbar =
                       canvas->createWindowEditorToolbar(editor);
+                    editor->installEventFilter(canvas);
 
                     auto* layout = new QVBoxLayout(editor);
                     layout->setContentsMargins(0, 0, 0, 0);
@@ -1930,8 +1945,9 @@ void CaptureWidget::initSelection()
                     setProperty("windowEditorPreviewDetached", true);
                     close();
 
-                    QTimer::singleShot(0, editor, [editor]() {
+                    QTimer::singleShot(0, editor, [editor, canvas]() {
                         editor->show();
+                        canvas->updateWindowEditorToolbarCompactMode();
                         editor->raise();
                         editor->activateWindow();
                     });
@@ -2023,6 +2039,143 @@ void CaptureWidget::syncWindowEditorToolbarState()
                   .arg(variant, iconName)));
     }
 }
+
+void CaptureWidget::updateWindowEditorToolbarCompactMode()
+{
+    if (!m_windowEditorMode) {
+        return;
+    }
+
+    QWidget* editorShell = window();
+    if (!editorShell) {
+        return;
+    }
+
+    auto* toolbarFrame =
+      editorShell->findChild<QFrame*>(
+        QStringLiteral("windowEditorToolbarFrame"));
+    auto* toolbarScroll =
+      editorShell->findChild<QScrollArea*>(
+        QStringLiteral("windowEditorToolbarScroll"));
+    auto* toolbarContent =
+      editorShell->findChild<QWidget*>(
+        QStringLiteral("windowEditorToolbarContent"));
+
+    if (!toolbarFrame || !toolbarScroll || !toolbarContent) {
+        return;
+    }
+
+    const auto cells =
+      toolbarContent->findChildren<QFrame*>(
+        QStringLiteral("windowEditorToolCell"),
+        Qt::FindDirectChildrenOnly);
+
+    const int toolCount = cells.size();
+    if (toolCount <= 0) {
+        return;
+    }
+
+    // Regular mode is already deliberately compact. Compact mode is only
+    // entered when the visible tool set would otherwise require horizontal
+    // scrolling. This calculation automatically adapts to user hide/show
+    // choices because it uses the actual number of visible toolbar cells.
+    constexpr int regularCellWidth = 46;
+    constexpr int regularSpacing = 2;
+    constexpr int regularChrome = 24;
+
+    const int regularRequiredWidth =
+      toolCount * regularCellWidth +
+      qMax(0, toolCount - 1) * regularSpacing +
+      regularChrome;
+
+    const bool compact =
+      toolbarFrame->width() < regularRequiredWidth;
+
+    if (toolbarFrame->property("compactMode").isValid() &&
+        toolbarFrame->property("compactMode").toBool() == compact) {
+        return;
+    }
+
+    toolbarFrame->setProperty("compactMode", compact);
+
+    auto* outer = qobject_cast<QHBoxLayout*>(toolbarFrame->layout());
+    auto* row = qobject_cast<QHBoxLayout*>(toolbarContent->layout());
+
+    if (compact) {
+        toolbarFrame->setFixedHeight(48);
+        toolbarScroll->setFixedHeight(40);
+
+        if (outer) {
+            outer->setContentsMargins(6, 3, 6, 3);
+        }
+        if (row) {
+            row->setContentsMargins(1, 0, 1, 0);
+            row->setSpacing(1);
+        }
+
+        for (QFrame* cell : cells) {
+            if (!cell) {
+                continue;
+            }
+
+            cell->setFixedSize(32, 34);
+
+            auto* proxy =
+              cell->findChild<QToolButton*>(
+                QStringLiteral("windowEditorToolButton"));
+            auto* label =
+              cell->findChild<QLabel*>(
+                QStringLiteral("windowEditorToolLabel"));
+
+            if (proxy) {
+                proxy->setFixedSize(30, 30);
+                proxy->setIconSize(QSize(18, 18));
+            }
+            if (label) {
+                label->hide();
+            }
+        }
+    } else {
+        toolbarFrame->setFixedHeight(70);
+        toolbarScroll->setFixedHeight(58);
+
+        if (outer) {
+            outer->setContentsMargins(8, 5, 8, 5);
+        }
+        if (row) {
+            row->setContentsMargins(2, 0, 2, 0);
+            row->setSpacing(2);
+        }
+
+        for (QFrame* cell : cells) {
+            if (!cell) {
+                continue;
+            }
+
+            cell->setFixedSize(46, 50);
+
+            auto* proxy =
+              cell->findChild<QToolButton*>(
+                QStringLiteral("windowEditorToolButton"));
+            auto* label =
+              cell->findChild<QLabel*>(
+                QStringLiteral("windowEditorToolLabel"));
+
+            if (proxy) {
+                proxy->setFixedSize(34, 32);
+                proxy->setIconSize(QSize(20, 20));
+            }
+            if (label) {
+                label->setFixedWidth(44);
+                label->show();
+            }
+        }
+    }
+
+    toolbarFrame->updateGeometry();
+    toolbarContent->updateGeometry();
+}
+
 
 void CaptureWidget::setState(CaptureToolButton* b)
 {

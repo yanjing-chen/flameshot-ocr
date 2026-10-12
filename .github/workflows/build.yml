@@ -83,6 +83,7 @@ jobs:
           python3 tests/stage30d2_canvas_contract.py
           python3 tests/stage30d2_zhcn_contract.py
           python3 tests/stage30e1_modern_toolbar_contract.py
+          python3 tests/stage30e2a_responsive_toolbar_contract.py
           python3 tests/package_identity_contract.py
 
       - name: Download linuxdeploy

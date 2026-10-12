@@ -103,6 +103,7 @@ public:
     void showxywh();
 
 protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
     void paintEvent(QPaintEvent* paintEvent) override;
     void mousePressEvent(QMouseEvent* mouseEvent) override;
     void mouseMoveEvent(QMouseEvent* mouseEvent) override;
@@ -137,6 +138,7 @@ private:
     void updateSelectionState();
     void updateTool(CaptureTool* tool);
     void syncWindowEditorToolbarState();
+    void updateWindowEditorToolbarCompactMode();
     void updateLayersPanel();
     bool promptQuit();
     void pushToolToStack();
