@@ -395,7 +395,7 @@ Press Space to open the side panel.</source>
     </message>
     <message>
         <source>Elapsed: %1 s | %2 characters | %3 characters/s</source>
-        <translation>耗时：%1 秒 | %2 字符 | %3 字符/秒</translation>
+        <translation>用时：%1 秒 | %2 个字符 | %3 字符/秒</translation>
     </message>
     <message>
         <source>Model speed: %1 token/s</source>
@@ -403,7 +403,7 @@ Press Space to open the side panel.</source>
     </message>
     <message>
         <source>Elapsed time includes Runtime readiness and model loading.</source>
-        <translation>耗时包含 Runtime 就绪检查和模型加载时间。</translation>
+        <translation>用时包含 Runtime 就绪检查和模型加载时间。</translation>
     </message>
     <message>
         <source>Save Text...</source>
@@ -415,17 +415,22 @@ Press Space to open the side panel.</source>
     </message>
     <message>
         <source>Save OCR result</source>
-        <translation>保存 OCR 结果</translation>
+        <translation>保存 OCR 识别结果</translation>
     </message>
     <message>
         <source>Could not save the OCR result to:
 %1</source>
-        <translation>无法将 OCR 结果保存到：
+        <translation>无法将 OCR 识别结果保存到：
 %1</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="vanished">关闭</translation>
+        <translation>关闭</translation>
+    </message>
+
+    <message>
+        <source>Flameshot OCR - Window Editor</source>
+        <translation>Flameshot OCR - 截图编辑器</translation>
     </message>
 </context>
 <context>
