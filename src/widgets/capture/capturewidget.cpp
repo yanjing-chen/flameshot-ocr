@@ -263,11 +263,12 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
               QSize(qMax(1, qRound(initialScreenshot.width() / dpr)),
                     qMax(1, qRound(initialScreenshot.height() / dpr)));
         }
-        const QSize editorCanvasMinimumSize(720, 420);
-        const QSize editorCanvasSize(
-          qMax(logicalImageSize.width(), editorCanvasMinimumSize.width()),
-          qMax(logicalImageSize.height(), editorCanvasMinimumSize.height()));
-        resize(editorCanvasSize);
+        // Stage 3.0-D.2 final canvas geometry:
+        // Keep the CaptureWidget exactly the logical size of the screenshot.
+        // The surrounding QScrollArea owns the workspace background and
+        // centers small screenshots via Qt::AlignCenter. Large screenshots
+        // remain scrollable because widgetResizable is disabled.
+        resize(logicalImageSize);
     }
 
     QVector<QRect> areas;

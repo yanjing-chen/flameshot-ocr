@@ -9,9 +9,10 @@ OCR_CPP = Path("src/ocr/ocrrequestcontroller.cpp").read_text(encoding="utf-8")
 checks = {
     "EDITOR HELP OVERLAY SUPPRESSED":
         "m_config.showHelp() && !m_windowEditorMode" in CPP,
-    "MINIMUM EDITOR CANVAS":
-        "editorCanvasMinimumSize(720, 420)" in CPP
-        and "editorCanvasSize(" in CPP,
+    "IMAGE-SIZED EDITOR CANVAS":
+        "resize(logicalImageSize);" in CPP
+        and "editorCanvasMinimumSize" not in CPP
+        and "editorCanvasSize(" not in CPP,
     "MINIMUM EDITOR WINDOW":
         "editorMinimumWindowSize(760, 520)" in CPP
         and "editor->setMinimumSize(boundedMinimumWindowSize);" in CPP,
