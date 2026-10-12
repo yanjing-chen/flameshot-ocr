@@ -4,6 +4,7 @@ from pathlib import Path
 import re
 
 CPP = Path("src/widgets/capture/capturewidget.cpp").read_text(encoding="utf-8")
+OCR_CPP = Path("src/ocr/ocrrequestcontroller.cpp").read_text(encoding="utf-8")
 
 checks = {
     "EDITOR HELP OVERLAY SUPPRESSED":
@@ -23,6 +24,11 @@ checks = {
         "case CaptureTool::REQ_OCR:" in CPP
         and "saveToClipboardGnomeWorkaround(pixmap(), this);" in CPP
         and "setWindowEditorSourceGeometry" in CPP,
+    "OCR HINT BUILD REGRESSION ABSENT":
+        "ocrQString" not in OCR_CPP,
+    "OCR MOVE HINTS REMOVED":
+        "OCR Result — drag here to move the window" not in OCR_CPP
+        and "Drag this bar to move the OCR result window." not in OCR_CPP,
 }
 
 for label, ok in checks.items():
