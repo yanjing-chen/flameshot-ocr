@@ -24,8 +24,8 @@ arm_pos = CPP.index('setProperty("windowEditorAutoOpenEnabled", true)')
 assert arm_pos > emit_pos
 print(f"{'INITIAL-SELECTION GUARD':<28} PASS")
 
-stage_start = CPP.index("// Stage 3.0-A:")
-stage_end = CPP.index("// Historical Flameshot path.", stage_start)
+stage_start = CPP.index("if (m_context.fullscreen &&", CPP.index("void CaptureWidget::initSelection()"))
+stage_end = CPP.index("connect(m_selection, &SelectionWidget::visibilityChanged", stage_start)
 stage_block = CPP[stage_start:stage_end]
 for forbidden in (
     "setWindowFlags(",

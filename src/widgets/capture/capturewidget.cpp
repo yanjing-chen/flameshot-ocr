@@ -32,7 +32,6 @@
 #include <QApplication>
 #include <QCursor>
 #include <QGuiApplication>
-#include <QLabel>
 #include <QScrollArea>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -40,7 +39,6 @@
 #include <QClipboard>
 #include <QDateTime>
 #include <QFontMetrics>
-#include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QPaintEvent>
@@ -64,12 +62,15 @@ auto const MOUSE_WHEEL_TRESHOLD = 60;
 
 CaptureWidget::CaptureWidget(const CaptureRequest& req,
                              bool fullScreen,
-                             QWidget* parent)
+                             QWidget* parent,
+                             const QPixmap& initialScreenshot,
+                             bool windowEditorMode)
   : QWidget(parent)
   , m_toolSizeByKeyboard(0)
   , m_mouseIsClicked(false)
   , m_captureDone(false)
   , m_ocrDetached(false)
+  , m_windowEditorMode(windowEditorMode)
   , m_previewEnabled(true)
   , m_adjustmentButtonPressed(false)
   , m_configError(false)
@@ -212,6 +213,20 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
             windowHandle()->setScreen(selectedScreen);
         }
 #endif
+    } else if (m_windowEditorMode && !initialScreenshot.isNull()) {
+        // Stage 3.0-B: initialize a brand-new non-fullscreen CaptureWidget
+        // from the selected screenshot before editing controls are created.
+        m_context.screenshot = initialScreenshot;
+        m_context.origScreenshot = initialScreenshot;
+
+        const qreal dpr = initialScreenshot.devicePixelRatio();
+        QSize logicalImageSize = initialScreenshot.size();
+        if (dpr > 0.0) {
+            logicalImageSize =
+              QSize(qMax(1, qRound(initialScreenshot.width() / dpr)),
+                    qMax(1, qRound(initialScreenshot.height() / dpr)));
+        }
+        resize(logicalImageSize);
     }
 
     QVector<QRect> areas;
@@ -347,6 +362,22 @@ void CaptureWidget::initButtons()
 {
     auto allButtonTypes = CaptureToolButton::getIterableButtonTypes();
     auto visibleButtonTypes = m_config.buttons();
+
+    if (m_windowEditorMode) {
+        // Stage 3.0-B exposes editing tools only.
+        // Save/copy/pin/OCR are connected in Stage 3.0-C.
+        for (auto* buttonList : { &allButtonTypes, &visibleButtonTypes }) {
+            buttonList->removeOne(CaptureTool::TYPE_COPY);
+            buttonList->removeOne(CaptureTool::TYPE_SAVE);
+#ifdef ENABLE_IMGUR
+            buttonList->removeOne(CaptureTool::TYPE_IMAGEUPLOADER);
+#endif
+            buttonList->removeOne(CaptureTool::TYPE_OPEN_APP);
+            buttonList->removeOne(CaptureTool::TYPE_PIN);
+            buttonList->removeOne(CaptureTool::TYPE_OCR);
+            buttonList->removeOne(CaptureTool::TYPE_ACCEPT);
+        }
+    }
     if ((m_context.request.tasks() == CaptureRequest::NO_TASK) ||
         (m_context.request.tasks() == CaptureRequest::PRINT_GEOMETRY)) {
         allButtonTypes.removeOne(CaptureTool::TYPE_ACCEPT);
@@ -1378,33 +1409,48 @@ void CaptureWidget::initSelection()
                 return;
             }
 
-            // Stage 3.0-A:
-            // The fullscreen CaptureWidget is now only the selector.
-            // After the user settles a selection, copy that region into a
-            // completely separate, ordinary top-level window.  We do NOT
-            // change the window role or window flags of the already-mapped
-            // Wayland fullscreen surface.
-            if (property("windowEditorAutoOpenEnabled").toBool() &&
+            // Stage 3.0-B:
+            // The fullscreen widget remains a selector only. After selection,
+            // create a second CaptureWidget in non-fullscreen editor mode.
+            // The second widget has never been mapped as a Wayland fullscreen
+            // surface, so the original Flameshot editing engine is reusable.
+            if (m_context.fullscreen &&
+                property("windowEditorAutoOpenEnabled").toBool() &&
                 !property("windowEditorPreviewDetached").toBool()) {
                 const QPixmap selected = pixmap();
 
                 if (!selected.isNull()) {
+                    CaptureRequest editorRequest(
+                      CaptureRequest::GRAPHICAL_MODE);
+                    editorRequest.setInitialSelection(selected.rect());
+
                     auto* editor = new QWidget(nullptr, Qt::Window);
                     editor->setAttribute(Qt::WA_DeleteOnClose);
                     editor->setAttribute(Qt::WA_QuitOnClose, false);
                     editor->setWindowTitle(
-                      tr("Flameshot OCR - Window Editor Preview"));
+                      tr("Flameshot OCR - Window Editor"));
 
                     auto* scrollArea = new QScrollArea(editor);
                     scrollArea->setAlignment(Qt::AlignCenter);
                     scrollArea->setWidgetResizable(false);
 
-                    auto* imageLabel = new QLabel;
-                    imageLabel->setAlignment(Qt::AlignCenter);
-                    imageLabel->setPixmap(selected);
-                    imageLabel->adjustSize();
+                    auto* canvas = new CaptureWidget(editorRequest,
+                                                     false,
+                                                     nullptr,
+                                                     selected,
+                                                     true);
+                    canvas->setProperty(
+                      "windowEditorPreviewDetached", true);
+                    scrollArea->setWidget(canvas);
 
-                    scrollArea->setWidget(imageLabel);
+                    connect(canvas,
+                            &QObject::destroyed,
+                            editor,
+                            [editor]() {
+                                if (editor && editor->isVisible()) {
+                                    editor->close();
+                                }
+                            });
 
                     auto* layout = new QVBoxLayout(editor);
                     layout->setContentsMargins(0, 0, 0, 0);
@@ -1414,8 +1460,8 @@ void CaptureWidget::initSelection()
                     QSize logicalImageSize = selected.size();
                     if (dpr > 0.0) {
                         logicalImageSize =
-                          QSize(qRound(selected.width() / dpr),
-                                qRound(selected.height() / dpr));
+                          QSize(qMax(1, qRound(selected.width() / dpr)),
+                                qMax(1, qRound(selected.height() / dpr)));
                     }
 
                     QScreen* screen =
@@ -1445,15 +1491,10 @@ void CaptureWidget::initSelection()
                            maximumWindowSize.height()));
 
                     editor->resize(desiredWindowSize);
-                    editor->setProperty("flameshotWindowEditorStage", "3.0-A");
+                    editor->setProperty(
+                      "flameshotWindowEditorStage", "3.0-B");
 
-                    // Tell the CaptureWidget destructor that the capture has
-                    // been deliberately handed to another top-level window.
                     setProperty("windowEditorPreviewDetached", true);
-
-                    // Destroy the special fullscreen Wayland surface first.
-                    // The ordinary editor window is shown on the next event
-                    // loop turn, so no mapped surface changes its window role.
                     close();
 
                     QTimer::singleShot(0, editor, [editor]() {
@@ -1495,7 +1536,9 @@ void CaptureWidget::initSelection()
     // Stage 3.0-A: only user-settled selections may launch the normal window.
     // This deliberately comes after the initialSelection geometrySettled()
     // emission above.
-    setProperty("windowEditorAutoOpenEnabled", true);
+    if (m_context.fullscreen) {
+        setProperty("windowEditorAutoOpenEnabled", true);
+    }
 }
 
 void CaptureWidget::setState(CaptureToolButton* b)

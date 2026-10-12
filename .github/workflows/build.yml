@@ -75,6 +75,7 @@ jobs:
           python3 tests/stage7d_c_localization_contract.py
           python3 tests/stage7d_plain_ocr_contract.py
           python3 tests/stage30a_window_editor_contract.py
+          python3 tests/stage30b_editor_reuse_contract.py
           python3 tests/package_identity_contract.py
 
       - name: Download linuxdeploy
