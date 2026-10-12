@@ -63,8 +63,15 @@ result_source = CONTROLLER
 assert "new QDialog(nullptr" in result_source
 assert "Qt::NonModal" in result_source
 assert "Qt::WindowModal" not in result_source
-assert "OcrResultDragHandle" in result_source
-assert "startSystemMove()" in result_source
+# Stage 3.0-D.2 intentionally removed the custom OCR drag strip.
+# The OCR result is now a normal managed Qt window and is moved by
+# the native system title bar.
+assert "OcrResultDragHandle" not in result_source
+assert "startSystemMove()" not in result_source
+assert "new QDialog(nullptr, Qt::Window)" in result_source
+assert 'setWindowTitle(ocrTr("OCR Result"))' in result_source
+print("NATIVE RESULT WINDOW MOVE     PASS")
+
 print("WAYLAND RESULT WINDOW DRAG     PASS")
 
 tree = ET.parse(TRANSLATIONS)
