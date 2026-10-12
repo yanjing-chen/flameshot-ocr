@@ -1564,7 +1564,7 @@ Please solve them manually in the configuration file.</source>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="870"/>
         <source>Insecure Pixelate</source>
-        <translation>不安全Pixelate</translation>
+        <translation>使用不安全的像素化处理</translation>
     </message>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="872"/>
@@ -1574,32 +1574,32 @@ Please solve them manually in the configuration file.</source>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="927"/>
         <source>Capture active monitor in X11 and Windows (skip monitor selection)</source>
-        <translation type="unfinished"></translation>
+        <translation>在 X11 和 Windows 中截取当前活动显示器（跳过显示器选择）</translation>
     </message>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="930"/>
         <source>Automatically capture the monitor where the cursor is located instead of showing the monitor selection dialog. This feature is not supported on macOS and Wayland.</source>
-        <translation type="unfinished"></translation>
+        <translation>自动截取鼠标指针所在的显示器，不再显示显示器选择对话框。macOS 和 Wayland 不支持此功能。</translation>
     </message>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="951"/>
         <source>Use native fullscreen for capture overlay</source>
-        <translation type="unfinished"></translation>
+        <translation>截图遮罩使用原生全屏模式</translation>
     </message>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="953"/>
         <source>Use macOS native fullscreen mode for the capture overlay. When disabled (default), the overlay avoids the fullscreen desktop animation.</source>
-        <translation type="unfinished"></translation>
+        <translation>截图遮罩使用 macOS 原生全屏模式。禁用时（默认），遮罩将避免触发全屏桌面动画。</translation>
     </message>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="974"/>
         <source>Use legacy X11 screenshot method</source>
-        <translation type="unfinished"></translation>
+        <translation>使用旧版 X11 截图方式</translation>
     </message>
     <message>
         <location filename="../../src/config/generalconf.cpp" line="976"/>
         <source>Bypass the freedesktop portal and use Qt&apos;s native X11 screen capture. Enable this if your window manager lacks xdg-desktop-portal (e.g. xmonad, i3). Only effective on X11; ignored on Wayland.</source>
-        <translation type="unfinished"></translation>
+        <translation>绕过 freedesktop 门户，使用 Qt 原生 X11 截图。如果窗口管理器缺少 xdg-desktop-portal（例如 xmonad、i3），可启用此选项。仅对 X11 有效，Wayland 会忽略此设置。</translation>
     </message>
 </context>
 <context>
@@ -2740,7 +2740,7 @@ Click to select</source>
     <message>
         <location filename="../../src/config/ocrconf.cpp" line="326"/>
         <source>Installed — %1 — running</source>
-        <translation type="unfinished"></translation>
+        <translation>已安装 — %1 — 正在运行</translation>
     </message>
     <message>
         <location filename="../../src/config/ocrconf.cpp" line="327"/>
@@ -2750,7 +2750,7 @@ Click to select</source>
     <message>
         <location filename="../../src/config/ocrconf.cpp" line="332"/>
         <source>Installed — %1 — service stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>已安装 — %1 — 服务已停止</translation>
     </message>
     <message>
         <location filename="../../src/config/ocrconf.cpp" line="334"/>
@@ -2788,7 +2788,7 @@ Click to select</source>
     <message>
         <location filename="../../src/config/ocrconf.cpp" line="609"/>
         <source>Testing AI endpoint...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在测试 AI 接口…</translation>
     </message>
     <message>
         <location filename="../../src/config/ocrconf.cpp" line="614"/>
@@ -5003,40 +5003,40 @@ If on X11 enable Legacy X11 method in the General Settings</source>
     <message>
         <location filename="../../src/config/shortcutswidget.cpp" line="268"/>
         <source>It seems, that Windows forces to open its screenshot tool when the &apos;Print Screen&apos; key is pressed. Would you like to disable this so that Flameshot can use the &apos;Print Screen&apos; key?</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows 似乎会在按下“Print Screen”键时强制打开系统截图工具。是否禁用该行为，以便 Flameshot 使用“Print Screen”键？</translation>
     </message>
     <message>
         <location filename="../../src/config/shortcutswidget.cpp" line="273"/>
         <source>Flameshot must be restarted for changes to take effect.</source>
-        <translation type="unfinished">火焰截图必须重新启动以使修改生效。</translation>
+        <translation>必须重新启动 Flameshot 才能使更改生效。</translation>
     </message>
     <message>
         <location filename="../../src/config/shortcutswidget.cpp" line="278"/>
         <source>No, don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>否，不再询问</translation>
     </message>
     <message>
         <location filename="../../src/config/shortcutswidget.cpp" line="286"/>
         <location filename="../../src/config/shortcutswidget.cpp" line="333"/>
         <location filename="../../src/config/shortcutswidget.cpp" line="343"/>
         <source>The registry could not be changed!</source>
-        <translation type="unfinished"></translation>
+        <translation>无法修改注册表！</translation>
     </message>
     <message>
         <location filename="../../src/config/shortcutswidget.cpp" line="317"/>
         <source>Register Flameshot as MS-SCREENCLIP application (administrator privileges required)</source>
-        <translation type="unfinished"></translation>
+        <translation>将 Flameshot 注册为 MS-SCREENCLIP 应用程序（需要管理员权限）</translation>
     </message>
     <message>
         <location filename="../../src/config/shortcutswidget.cpp" line="321"/>
         <source>After registering, you can select Flameshot as the default screenshot application in Windows Settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>注册后，可在 Windows 设置中将 Flameshot 选为默认截图应用程序。</translation>
     </message>
     <message>
         <location filename="../../src/config/shortcutswidget.cpp" line="334"/>
         <location filename="../../src/config/shortcutswidget.cpp" line="344"/>
         <source>You may start Flameshot as administrator ONCE and try again!</source>
-        <translation type="unfinished"></translation>
+        <translation>可以用管理员身份启动一次 Flameshot，然后重试！</translation>
     </message>
     <message>
         <source>Delete current tool</source>
@@ -5290,22 +5290,22 @@ If on X11 enable Legacy X11 method in the General Settings</source>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="112"/>
         <source>&amp;Take Screenshot</source>
-        <translation>进行截图(&amp;T)</translation>
+        <translation>进行截图</translation>
     </message>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="133"/>
         <source>&amp;Open Launcher</source>
-        <translation>打开启动器(&amp;O)</translation>
+        <translation>打开启动器</translation>
     </message>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="138"/>
         <source>&amp;Configuration</source>
-        <translation>配置(&amp;C)</translation>
+        <translation>配置</translation>
     </message>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="143"/>
         <source>&amp;About</source>
-        <translation>关于(&amp;A)</translation>
+        <translation>关于</translation>
     </message>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="150"/>
@@ -5316,17 +5316,17 @@ If on X11 enable Legacy X11 method in the General Settings</source>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="162"/>
         <source>Download version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>下载版本 %1</translation>
     </message>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="250"/>
         <source>Select Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>选择屏幕</translation>
     </message>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="266"/>
         <source>Monitor %1: %2 (%3x%4)</source>
-        <translation type="unfinished"></translation>
+        <translation>显示器 %1：%2（%3×%4）</translation>
     </message>
     <message>
         <source>New version %1 is available</source>
@@ -5335,17 +5335,17 @@ If on X11 enable Legacy X11 method in the General Settings</source>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="176"/>
         <source>&amp;Quit</source>
-        <translation>退出(&amp;Q)</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="181"/>
         <source>&amp;Latest Uploads</source>
-        <translation>最近的上传(&amp;L)</translation>
+        <translation>最近上传</translation>
     </message>
     <message>
         <location filename="../../src/widgets/trayicon.cpp" line="187"/>
         <source>&amp;Open Save Path</source>
-        <translation>打开保存路径(&amp;O)</translation>
+        <translation>打开保存路径</translation>
     </message>
 </context>
 <context>
@@ -5521,17 +5521,17 @@ If on X11 enable Legacy X11 method in the General Settings</source>
     <message>
         <location filename="../../src/config/visualseditor.cpp" line="101"/>
         <source>UI language</source>
-        <translation type="unfinished"></translation>
+        <translation>界面语言</translation>
     </message>
     <message>
         <location filename="../../src/config/visualseditor.cpp" line="141"/>
         <source>Configuration</source>
-        <translation type="unfinished">配置</translation>
+        <translation>配置</translation>
     </message>
     <message>
         <location filename="../../src/config/visualseditor.cpp" line="142"/>
         <source>Flameshot must be restarted to apply these changes!</source>
-        <translation type="unfinished"></translation>
+        <translation>必须重新启动 Flameshot 才能应用这些更改！</translation>
     </message>
 </context>
 <context>

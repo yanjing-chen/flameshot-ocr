@@ -26,12 +26,18 @@ CAPTURE_HEADER = (ROOT / "src/widgets/capture/capturewidget.h").read_text(
 )
 TRANSLATIONS = ROOT / "data/translations/Internationalization_zh_CN.ts"
 
-assert "set(FLAMESHOT_OCR_VERSION 2.8)" in CMAKE
-assert 'OCR_VERSION: "2.8"' in WORKFLOW
+assert any(
+    f"set(FLAMESHOT_OCR_VERSION {version})" in CMAKE
+    for version in ("2.8", "2.9")
+)
+assert any(
+    f'OCR_VERSION: "{version}"' in WORKFLOW
+    for version in ("2.8", "2.9")
+)
 assert "stage7c_contract.py" in WORKFLOW
 assert "ocr/ocrrequestcontroller.cpp" in SOURCE_CMAKE
 assert "ocr/ocrrequestcontroller.h" in SOURCE_CMAKE
-print("V2.8 DEVELOPMENT IDENTITY      PASS")
+print("V2.8+ DEVELOPMENT IDENTITY     PASS")
 
 for token in (
     'OPTION("ocrOutputFormat"',

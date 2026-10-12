@@ -1,5 +1,15 @@
 # Flameshot OCR changelog
 
+## v2.9 — Stage 7D-C localization development
+
+### Changed
+
+- Removed mnemonic-letter suffixes such as `(T)`, `(O)`, `(C)`, `(A)` and `(Q)` from active Simplified Chinese tray-menu translations.
+- Completed the Simplified Chinese translations for visible Linux general-settings items already present in v2.8.
+- Improved the Simplified Chinese wording of the insecure pixelation option.
+- This stage contains no windowed-editor implementation and no new Markdown prompt logic.
+- Local AI Runtime 0.8.0 and the existing OCR/model-management boundaries remain unchanged.
+
 ## v2.8 — Stage 7C development
 
 ### Added

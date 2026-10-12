@@ -16,14 +16,14 @@ TRANSLATIONS = ROOT / "data/translations/Internationalization_zh_CN.ts"
 
 assert any(
     f"set(FLAMESHOT_OCR_VERSION {version})" in CMAKE
-    for version in ("2.7", "2.8")
+    for version in ("2.7", "2.8", "2.9")
 )
-assert any(f'OCR_VERSION: "{version}"' in WORKFLOW for version in ("2.7", "2.8"))
+assert any(f'OCR_VERSION: "{version}"' in WORKFLOW for version in ("2.7", "2.8", "2.9"))
 assert "python3 tests/zh_cn_translation_contract.py" in WORKFLOW
 assert "stage7b_contract.py" in WORKFLOW
-assert any(f"Flameshot-OCR/{version}" in UI for version in ("2.7", "2.8"))
+assert any(f"Flameshot-OCR/{version}" in UI for version in ("2.7", "2.8", "2.9"))
 assert any(
-    f"Flameshot-OCR/{version}" in INSTALLER for version in ("2.7", "2.8")
+    f"Flameshot-OCR/{version}" in INSTALLER for version in ("2.7", "2.8", "2.9")
 )
 print("V2.7 DEVELOPMENT IDENTITY      PASS")
 

@@ -1465,7 +1465,7 @@ void OcrConf::sendModelRequest(const QString& method,
     request.setRawHeader(QByteArrayLiteral("Accept"),
                          QByteArrayLiteral("application/json"));
     request.setRawHeader(QByteArrayLiteral("User-Agent"),
-                         QByteArrayLiteral("Flameshot-OCR/2.8"));
+                         QByteArrayLiteral("Flameshot-OCR/2.9"));
     request.setAttribute(
       QNetworkRequest::RedirectPolicyAttribute,
       static_cast<int>(QNetworkRequest::NoLessSafeRedirectPolicy));

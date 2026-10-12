@@ -18,8 +18,8 @@ CMAKE = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 TRANSLATIONS = ROOT / "data/translations/Internationalization_zh_CN.ts"
 
 
-assert re.search(r"set\(FLAMESHOT_OCR_VERSION 2\.[678]\)", CMAKE)
-assert re.search(r'OCR_VERSION: "2\.[678]"', WORKFLOW)
+assert re.search(r"set\(FLAMESHOT_OCR_VERSION 2\.[6789]\)", CMAKE)
+assert re.search(r'OCR_VERSION: "2\.[6789]"', WORKFLOW)
 assert "stage7a_contract.py" in WORKFLOW
 print("V2.6+ RELEASE IDENTITY         PASS")
 
