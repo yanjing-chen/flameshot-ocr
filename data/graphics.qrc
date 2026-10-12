@@ -103,5 +103,51 @@
         <file>img/material/black/image.svg</file>
         <file>img/material/white/apps.svg</file>
         <file>img/material/white/image.svg</file>
-    </qresource>
+            <file>data/img/window-editor/dark/accept.svg</file>
+        <file>data/img/window-editor/dark/arrow.svg</file>
+        <file>data/img/window-editor/dark/circle.svg</file>
+        <file>data/img/window-editor/dark/copy.svg</file>
+        <file>data/img/window-editor/dark/count.svg</file>
+        <file>data/img/window-editor/dark/exit.svg</file>
+        <file>data/img/window-editor/dark/generic.svg</file>
+        <file>data/img/window-editor/dark/invert.svg</file>
+        <file>data/img/window-editor/dark/line.svg</file>
+        <file>data/img/window-editor/dark/marker.svg</file>
+        <file>data/img/window-editor/dark/minus.svg</file>
+        <file>data/img/window-editor/dark/move.svg</file>
+        <file>data/img/window-editor/dark/ocr.svg</file>
+        <file>data/img/window-editor/dark/pencil.svg</file>
+        <file>data/img/window-editor/dark/pin.svg</file>
+        <file>data/img/window-editor/dark/pixelate.svg</file>
+        <file>data/img/window-editor/dark/plus.svg</file>
+        <file>data/img/window-editor/dark/rectangle.svg</file>
+        <file>data/img/window-editor/dark/redo.svg</file>
+        <file>data/img/window-editor/dark/save.svg</file>
+        <file>data/img/window-editor/dark/selection.svg</file>
+        <file>data/img/window-editor/dark/text.svg</file>
+        <file>data/img/window-editor/dark/undo.svg</file>
+        <file>data/img/window-editor/accent/accept.svg</file>
+        <file>data/img/window-editor/accent/arrow.svg</file>
+        <file>data/img/window-editor/accent/circle.svg</file>
+        <file>data/img/window-editor/accent/copy.svg</file>
+        <file>data/img/window-editor/accent/count.svg</file>
+        <file>data/img/window-editor/accent/exit.svg</file>
+        <file>data/img/window-editor/accent/generic.svg</file>
+        <file>data/img/window-editor/accent/invert.svg</file>
+        <file>data/img/window-editor/accent/line.svg</file>
+        <file>data/img/window-editor/accent/marker.svg</file>
+        <file>data/img/window-editor/accent/minus.svg</file>
+        <file>data/img/window-editor/accent/move.svg</file>
+        <file>data/img/window-editor/accent/ocr.svg</file>
+        <file>data/img/window-editor/accent/pencil.svg</file>
+        <file>data/img/window-editor/accent/pin.svg</file>
+        <file>data/img/window-editor/accent/pixelate.svg</file>
+        <file>data/img/window-editor/accent/plus.svg</file>
+        <file>data/img/window-editor/accent/rectangle.svg</file>
+        <file>data/img/window-editor/accent/redo.svg</file>
+        <file>data/img/window-editor/accent/save.svg</file>
+        <file>data/img/window-editor/accent/selection.svg</file>
+        <file>data/img/window-editor/accent/text.svg</file>
+        <file>data/img/window-editor/accent/undo.svg</file>
+</qresource>
 </RCC>

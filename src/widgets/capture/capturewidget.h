@@ -136,6 +136,7 @@ private:
     void updateCursor();
     void updateSelectionState();
     void updateTool(CaptureTool* tool);
+    void syncWindowEditorToolbarState();
     void updateLayersPanel();
     bool promptQuit();
     void pushToolToStack();

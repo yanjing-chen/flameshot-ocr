@@ -24,7 +24,10 @@ checks = {
     "FULLSCREEN HANDOFF ONLY":
         "if (m_context.fullscreen &&" in CPP,
     "NO QLABEL PREVIEW":
-        "new QLabel" not in CPP,
+        "scrollArea->setWidget(canvas);" in CPP
+        and "previewLabel" not in CPP
+        and "scrollArea->setWidget(label" not in CPP
+        and "setPixmap(selected)" not in CPP,
 }
 
 for label, ok in checks.items():

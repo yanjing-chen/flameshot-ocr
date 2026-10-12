@@ -39,6 +39,9 @@
 #include <QGuiApplication>
 #include <QScrollArea>
 #include <QTimer>
+#include <QToolButton>
+#include <QLabel>
+#include <QFrame>
 #include <QVBoxLayout>
 #include <QCheckBox>
 #include <QClipboard>
@@ -528,43 +531,296 @@ void CaptureWidget::initButtons()
 
 QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
 {
-    auto* toolbarScroll = new QScrollArea(parent);
-    toolbarScroll->setObjectName(QStringLiteral("windowEditorToolbar"));
-    toolbarScroll->setWidgetResizable(true);
-    toolbarScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    toolbarScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    toolbarScroll->setFixedHeight(74);
+    // Stage 3.0-E.1:
+    // Keep the D.2 fixed-bottom structure and persisted ordering/alignment
+    // settings, but present tools through a new modern proxy toolbar.
+    auto* toolbarFrame = new QFrame(parent);
+    toolbarFrame->setObjectName(QStringLiteral("windowEditorToolbarFrame"));
+    toolbarFrame->setProperty("flameshotUiStage", "3.0-E.1");
+    toolbarFrame->setFixedHeight(88);
 
-    auto* toolbarContent = new QWidget(toolbarScroll);
-    auto* toolbarLayout = new QHBoxLayout(toolbarContent);
-    toolbarLayout->setContentsMargins(8, 6, 8, 6);
-    toolbarLayout->setSpacing(6);
-    toolbarLayout->setSizeConstraint(QLayout::SetMinimumSize);
+    auto* outer = new QHBoxLayout(toolbarFrame);
+    outer->setContentsMargins(12, 7, 12, 7);
+    outer->setSpacing(0);
 
-    const QString alignment =
-      m_config.windowEditorToolbarAlignment().trimmed().toLower();
+    auto* scroll = new QScrollArea(toolbarFrame);
+    scroll->setObjectName(QStringLiteral("windowEditorToolbarScroll"));
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scroll->setWidgetResizable(true);
+    scroll->setFixedHeight(74);
 
+    auto* content = new QWidget(scroll);
+    content->setObjectName(QStringLiteral("windowEditorToolbarContent"));
+
+    auto* row = new QHBoxLayout(content);
+    row->setContentsMargins(4, 2, 4, 2);
+    row->setSpacing(5);
+    row->setSizeConstraint(QLayout::SetMinimumSize);
+
+    const QString alignment = m_config.windowEditorToolbarAlignment();
     if (alignment == QStringLiteral("center") ||
         alignment == QStringLiteral("right")) {
-        toolbarLayout->addStretch(1);
+        row->addStretch(1);
     }
 
-    for (auto* button : m_windowEditorToolbarButtons) {
-        if (!button) {
+    QList<CaptureTool::Type> orderedTypes;
+    const auto allTypes = CaptureToolButton::getIterableButtonTypes();
+
+    const QString persistedOrder = m_config.windowEditorToolbarOrder();
+    for (const QString& part :
+         persistedOrder.split(QLatin1Char(','), Qt::SkipEmptyParts)) {
+        bool ok = false;
+        const int value = part.trimmed().toInt(&ok);
+        if (!ok) {
+            continue;
+        }
+        const auto type = static_cast<CaptureTool::Type>(value);
+        if (allTypes.contains(type) && !orderedTypes.contains(type)) {
+            orderedTypes.append(type);
+        }
+    }
+
+    for (CaptureTool::Type type : allTypes) {
+        if (!orderedTypes.contains(type)) {
+            orderedTypes.append(type);
+        }
+    }
+
+    auto visibleTypes = m_config.buttons();
+
+#ifdef ENABLE_IMGUR
+    visibleTypes.removeOne(CaptureTool::TYPE_IMAGEUPLOADER);
+#endif
+    visibleTypes.removeOne(CaptureTool::TYPE_OPEN_APP);
+    visibleTypes.removeOne(CaptureTool::TYPE_ACCEPT);
+
+    auto iconNameFor = [](CaptureToolButton* sourceButton) {
+        if (!sourceButton || !sourceButton->tool()) {
+            return QStringLiteral("generic");
+        }
+
+        const QString cls =
+          QString::fromLatin1(sourceButton->tool()->metaObject()->className());
+
+        if (cls.contains(QStringLiteral("CircleCount"), Qt::CaseInsensitive)) {
+            return QStringLiteral("count");
+        }
+        if (cls.contains(QStringLiteral("Pencil"), Qt::CaseInsensitive)) {
+            return QStringLiteral("pencil");
+        }
+        if (cls.contains(QStringLiteral("Drawer"), Qt::CaseInsensitive) ||
+            cls.contains(QStringLiteral("LineTool"), Qt::CaseInsensitive)) {
+            return QStringLiteral("line");
+        }
+        if (cls.contains(QStringLiteral("Arrow"), Qt::CaseInsensitive)) {
+            return QStringLiteral("arrow");
+        }
+        if (cls.contains(QStringLiteral("Selection"), Qt::CaseInsensitive)) {
+            return QStringLiteral("selection");
+        }
+        if (cls.contains(QStringLiteral("Rectangle"), Qt::CaseInsensitive)) {
+            return QStringLiteral("rectangle");
+        }
+        if (cls.contains(QStringLiteral("Circle"), Qt::CaseInsensitive)) {
+            return QStringLiteral("circle");
+        }
+        if (cls.contains(QStringLiteral("Marker"), Qt::CaseInsensitive)) {
+            return QStringLiteral("marker");
+        }
+        if (cls.contains(QStringLiteral("Text"), Qt::CaseInsensitive)) {
+            return QStringLiteral("text");
+        }
+        if (cls.contains(QStringLiteral("Pixel"), Qt::CaseInsensitive)) {
+            return QStringLiteral("pixelate");
+        }
+        if (cls.contains(QStringLiteral("Invert"), Qt::CaseInsensitive)) {
+            return QStringLiteral("invert");
+        }
+        if (cls.contains(QStringLiteral("Move"), Qt::CaseInsensitive)) {
+            return QStringLiteral("move");
+        }
+        if (cls.contains(QStringLiteral("Undo"), Qt::CaseInsensitive)) {
+            return QStringLiteral("undo");
+        }
+        if (cls.contains(QStringLiteral("Redo"), Qt::CaseInsensitive)) {
+            return QStringLiteral("redo");
+        }
+        if (cls.contains(QStringLiteral("Copy"), Qt::CaseInsensitive)) {
+            return QStringLiteral("copy");
+        }
+        if (cls.contains(QStringLiteral("Save"), Qt::CaseInsensitive)) {
+            return QStringLiteral("save");
+        }
+        if (cls.contains(QStringLiteral("Pin"), Qt::CaseInsensitive)) {
+            return QStringLiteral("pin");
+        }
+        if (cls.contains(QStringLiteral("OCR"), Qt::CaseInsensitive) ||
+            cls.contains(QStringLiteral("Ocr"), Qt::CaseInsensitive)) {
+            return QStringLiteral("ocr");
+        }
+        if (cls.contains(QStringLiteral("Exit"), Qt::CaseInsensitive)) {
+            return QStringLiteral("exit");
+        }
+        if (cls.contains(QStringLiteral("Accept"), Qt::CaseInsensitive)) {
+            return QStringLiteral("accept");
+        }
+        if (cls.contains(QStringLiteral("Increase"), Qt::CaseInsensitive)) {
+            return QStringLiteral("plus");
+        }
+        if (cls.contains(QStringLiteral("Decrease"), Qt::CaseInsensitive)) {
+            return QStringLiteral("minus");
+        }
+
+        return QStringLiteral("generic");
+    };
+
+    const auto candidates =
+      findChildren<CaptureToolButton*>(QString(),
+                                       Qt::FindDirectChildrenOnly);
+
+    for (CaptureTool::Type type : orderedTypes) {
+        if (!visibleTypes.contains(type) || !m_tools.contains(type)) {
             continue;
         }
 
-        button->setParent(toolbarContent);
-        toolbarLayout->addWidget(button, 0, Qt::AlignVCenter);
-        button->show();
+        CaptureTool* wantedTool = m_tools.value(type, nullptr);
+        CaptureToolButton* sourceButton = nullptr;
+
+        for (CaptureToolButton* candidate : candidates) {
+            if (candidate && candidate->tool() == wantedTool) {
+                sourceButton = candidate;
+                break;
+            }
+        }
+
+        if (!sourceButton) {
+            continue;
+        }
+
+        sourceButton->hide();
+
+        const QString iconName = iconNameFor(sourceButton);
+
+        auto* cell = new QFrame(content);
+        cell->setObjectName(QStringLiteral("windowEditorToolCell"));
+        cell->setFixedSize(58, 62);
+
+        auto* cellLayout = new QVBoxLayout(cell);
+        cellLayout->setContentsMargins(2, 2, 2, 1);
+        cellLayout->setSpacing(1);
+        cellLayout->setAlignment(Qt::AlignCenter);
+
+        auto* proxy = new QToolButton(cell);
+        proxy->setObjectName(QStringLiteral("windowEditorToolButton"));
+        proxy->setAutoRaise(true);
+        proxy->setFixedSize(40, 38);
+        proxy->setIconSize(QSize(22, 22));
+        proxy->setToolTip(sourceButton->toolTip());
+        proxy->setCheckable(sourceButton->tool()->isSelectable());
+        proxy->setProperty(
+          "sourceButton",
+          QVariant::fromValue<qulonglong>(
+            static_cast<qulonglong>(
+              reinterpret_cast<quintptr>(sourceButton))));
+        proxy->setProperty("modernIconName", iconName);
+        proxy->setProperty("primaryAction",
+                           iconName == QStringLiteral("ocr"));
+        proxy->setIcon(
+          QIcon(QStringLiteral(":/img/window-editor/dark/%1.svg")
+                  .arg(iconName)));
+
+        QString labelText = sourceButton->name();
+        labelText.replace(QStringLiteral(" Tool"), QString());
+
+        auto* label = new QLabel(labelText, cell);
+        label->setObjectName(QStringLiteral("windowEditorToolLabel"));
+        label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+        label->setFixedWidth(54);
+
+        cellLayout->addWidget(proxy, 0, Qt::AlignHCenter);
+        cellLayout->addWidget(label, 0, Qt::AlignHCenter);
+
+        connect(proxy, &QToolButton::clicked, this, [this, sourceButton]() {
+            handleButtonLeftClick(sourceButton);
+            syncWindowEditorToolbarState();
+        });
+
+        row->addWidget(cell);
     }
 
-    if (alignment != QStringLiteral("right")) {
-        toolbarLayout->addStretch(1);
+    if (alignment == QStringLiteral("center") ||
+        alignment == QStringLiteral("left")) {
+        row->addStretch(1);
     }
 
-    toolbarScroll->setWidget(toolbarContent);
-    return toolbarScroll;
+    scroll->setWidget(content);
+    outer->addWidget(scroll);
+
+    toolbarFrame->setStyleSheet(QStringLiteral(R"STYLE(
+QFrame#windowEditorToolbarFrame {
+    background: #fbfbfc;
+    border-top: 1px solid #d9dde4;
+}
+QScrollArea#windowEditorToolbarScroll {
+    background: transparent;
+    border: none;
+}
+QWidget#windowEditorToolbarContent {
+    background: transparent;
+}
+QFrame#windowEditorToolCell {
+    background: transparent;
+    border: none;
+}
+QToolButton#windowEditorToolButton {
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    padding: 6px;
+}
+QToolButton#windowEditorToolButton:hover {
+    background: #eef4ff;
+}
+QToolButton#windowEditorToolButton:pressed {
+    background: #dce9ff;
+}
+QToolButton#windowEditorToolButton:checked {
+    background: #dbeafe;
+}
+QToolButton#windowEditorToolButton[primaryAction="true"] {
+    background: #edf4ff;
+}
+QToolButton#windowEditorToolButton[primaryAction="true"]:hover {
+    background: #dfeaff;
+}
+QToolButton#windowEditorToolButton[primaryAction="true"]:checked {
+    background: #cfe1ff;
+}
+QLabel#windowEditorToolLabel {
+    color: #30343b;
+    background: transparent;
+    border: none;
+    font-size: 10px;
+}
+QScrollBar:horizontal {
+    height: 5px;
+    background: transparent;
+}
+QScrollBar::handle:horizontal {
+    min-width: 28px;
+    background: #c8cdd5;
+    border-radius: 2px;
+}
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+)STYLE"));
+
+    syncWindowEditorToolbarState();
+    return toolbarFrame;
 }
 
 void CaptureWidget::handleButtonRightClick(CaptureToolButton* b)
@@ -786,6 +1042,7 @@ void CaptureWidget::uncheckActiveTool()
     releaseActiveTool();
     updateSelectionState();
     updateCursor();
+    syncWindowEditorToolbarState();
 }
 
 void CaptureWidget::closeEvent(QCloseEvent* event)
@@ -1583,6 +1840,14 @@ void CaptureWidget::initSelection()
                     auto* scrollArea = new QScrollArea(editor);
                     scrollArea->setAlignment(Qt::AlignCenter);
                     scrollArea->setWidgetResizable(false);
+                    scrollArea->setObjectName(
+                      QStringLiteral("windowEditorWorkspace"));
+                    scrollArea->setFrameShape(QFrame::NoFrame);
+                    scrollArea->setStyleSheet(QStringLiteral(
+                      "QScrollArea#windowEditorWorkspace { "
+                      "background: #e9edf2; border: none; } "
+                      "QScrollArea#windowEditorWorkspace > QWidget > QWidget { "
+                      "background: #e9edf2; }"));
 
                     auto* canvas = new CaptureWidget(editorRequest,
                                                      false,
@@ -1659,6 +1924,8 @@ void CaptureWidget::initSelection()
                     editor->resize(desiredWindowSize);
                     editor->setProperty(
                       "flameshotWindowEditorStage", "3.0-D.2");
+                    editor->setProperty(
+                      "flameshotWindowEditorUiStage", "3.0-E.1");
 
                     setProperty("windowEditorPreviewDetached", true);
                     close();
@@ -1712,6 +1979,51 @@ void CaptureWidget::initSelection()
     }
 }
 
+void CaptureWidget::syncWindowEditorToolbarState()
+{
+    if (!m_windowEditorMode) {
+        return;
+    }
+
+    QWidget* editorShell = window();
+    if (!editorShell) {
+        return;
+    }
+
+    const auto proxies =
+      editorShell->findChildren<QToolButton*>(
+        QStringLiteral("windowEditorToolButton"));
+
+    for (QToolButton* proxy : proxies) {
+        if (!proxy) {
+            continue;
+        }
+
+        const qulonglong raw =
+          proxy->property("sourceButton").toULongLong();
+        auto* sourceButton =
+          reinterpret_cast<CaptureToolButton*>(
+            static_cast<quintptr>(raw));
+
+        const bool active =
+          sourceButton && m_activeButton &&
+          m_activeButton.data() == sourceButton;
+
+        if (proxy->isCheckable()) {
+            proxy->setChecked(active);
+        }
+
+        const QString iconName =
+          proxy->property("modernIconName").toString();
+        const QString variant =
+          active ? QStringLiteral("accent") : QStringLiteral("dark");
+
+        proxy->setIcon(
+          QIcon(QStringLiteral(":/img/window-editor/%1/%2.svg")
+                  .arg(variant, iconName)));
+    }
+}
+
 void CaptureWidget::setState(CaptureToolButton* b)
 {
     if (!b) {
@@ -1755,6 +2067,7 @@ void CaptureWidget::setState(CaptureToolButton* b)
         updateSelectionState();
         updateTool(b->tool());
     }
+    syncWindowEditorToolbarState();
 }
 
 void CaptureWidget::handleToolSignal(CaptureTool::Request r)

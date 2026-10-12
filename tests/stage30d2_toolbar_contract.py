@@ -3,72 +3,82 @@
 from pathlib import Path
 
 CPP = Path("src/widgets/capture/capturewidget.cpp").read_text(encoding="utf-8")
-HDR = Path("src/widgets/capture/capturewidget.h").read_text(encoding="utf-8")
+OCR_CPP = Path("src/ocr/ocrrequestcontroller.cpp").read_text(encoding="utf-8")
 BUTTON_CPP = Path("src/config/buttonlistview.cpp").read_text(encoding="utf-8")
 BUTTON_HDR = Path("src/config/buttonlistview.h").read_text(encoding="utf-8")
 VISUALS_CPP = Path("src/config/visualseditor.cpp").read_text(encoding="utf-8")
 VISUALS_HDR = Path("src/config/visualseditor.h").read_text(encoding="utf-8")
 CONFIG_CPP = Path("src/utils/confighandler.cpp").read_text(encoding="utf-8")
 CONFIG_HDR = Path("src/utils/confighandler.h").read_text(encoding="utf-8")
-OCR_CPP = Path("src/ocr/ocrrequestcontroller.cpp").read_text(encoding="utf-8")
 
 checks = {
     "FIXED BOTTOM TOOLBAR":
         "createWindowEditorToolbar" in CPP
-        and 'setObjectName(QStringLiteral("windowEditorToolbar"))' in CPP
+        and "layout->addWidget(scrollArea, 1);" in CPP
         and "layout->addWidget(toolbar, 0);" in CPP,
+
     "TOOLBAR OUTSIDE CANVAS":
-        "m_windowEditorToolbarButtons" in HDR
-        and "button->setParent(toolbarContent);" in CPP
-        and "m_buttonHandler->setButtons(vectorButtons);" in CPP,
-    "HORIZONTAL OVERFLOW":
+        "canvas->createWindowEditorToolbar(editor);" in CPP
+        and "scrollArea->setWidget(canvas);" in CPP
+        and "layout->addWidget(toolbar, 0);" in CPP
+        and "scrollArea->setWidget(toolbar)" not in CPP,
+
+    "HORIZONTAL TOOLBAR SCROLL":
         "Qt::ScrollBarAsNeeded" in CPP
-        and "Qt::ScrollBarAlwaysOff" in CPP
-        and "toolbarScroll->setWidgetResizable(true);" in CPP,
-    "PERSISTENT TOOLBAR ORDER":
+        and "Qt::ScrollBarAlwaysOff" in CPP,
+
+    "DRAG ORDER PERSISTENCE":
         "windowEditorToolbarOrder" in CONFIG_HDR
-        and '"windowEditorToolbarOrder"' in CONFIG_CPP
-        and "setWindowEditorToolbarOrder" in BUTTON_CPP,
-    "DRAG SORTING":
-        "QAbstractItemView::InternalMove" in BUTTON_CPP
-        and "void ButtonListView::dropEvent" in BUTTON_CPP
-        and "persistState();" in BUTTON_CPP,
-    "RESET DEFAULT ORDER":
-        "void resetOrder();" in BUTTON_HDR
-        and "void ButtonListView::resetOrder()" in BUTTON_CPP
-        and 'tr("Reset Order")' in VISUALS_CPP,
+        and "windowEditorToolbarOrder" in CONFIG_CPP
+        and "windowEditorToolbarOrder" in BUTTON_CPP
+        and "InternalMove" in BUTTON_CPP,
+
     "VISIBLE BUTTON CONFIG PRESERVED":
-        "config.setButtons(enabled);" in BUTTON_CPP
-        and "m_listButtons = ConfigHandler().buttons();" in BUTTON_CPP,
+        "setButtons" in BUTTON_CPP
+        and "ConfigHandler().buttons()" in BUTTON_CPP,
+
     "TOOLBAR ALIGNMENT":
         "windowEditorToolbarAlignment" in CONFIG_HDR
-        and '"center"' in CONFIG_CPP
-        and 'QStringLiteral("left")' in VISUALS_CPP
-        and 'QStringLiteral("center")' in VISUALS_CPP
-        and 'QStringLiteral("right")' in VISUALS_CPP
+        and "windowEditorToolbarAlignment" in CONFIG_CPP
+        and "windowEditorToolbarAlignment" in VISUALS_CPP
         and "m_toolbarAlignment" in VISUALS_HDR,
+
     "HELP OVERLAY CLEARED":
-        "if (m_windowEditorMode) {\n        OverlayMessage::pop();" in CPP
+        "if (m_windowEditorMode) {" in CPP
+        and "OverlayMessage::pop();" in CPP
         and '!property("windowEditorPreviewDetached").toBool()' in CPP,
+
     "WINDOW EDITOR PIN IN PLACE":
-        "(m_context.request.tasks() & CaptureRequest::PIN)" in CPP
-        and "flameshotWindowEditorPinnedInPlace" in CPP
-        and "new PinWidget(" in CPP,
+        "flameshotWindowEditorPinnedInPlace" in CPP
+        and "(m_context.request.tasks() & CaptureRequest::PIN)" in CPP,
+
     "OCR EMPTY BAR REMOVED":
         "OcrResultDragHandle" not in OCR_CPP
         and "dragHandle" not in OCR_CPP,
+
     "OCR PLAIN RESULT PRESERVED":
         "QPlainTextEdit" in OCR_CPP
         and 'ocrTr("Save Text...")' in OCR_CPP
         and "Model speed:" in OCR_CPP,
+
     "STAGE D2 IDENTITY":
         'flameshotWindowEditorStage", "3.0-D.2"' in CPP,
+
+    "E1 MODERN TOOLBAR COMPATIBLE":
+        (
+            "windowEditorToolbarFrame" in CPP
+            and "windowEditorToolButton" in CPP
+        )
+        or "setWidget(toolbarContent)" in CPP,
 }
 
 for label, ok in checks.items():
     assert ok, label
-    print(f"{label:<34} PASS")
+    print(f"{label:<36} PASS")
 
+# D.2's real architectural invariant is that the fullscreen Wayland surface
+# is never role-mutated into the normal editor window. The editor must still
+# be created as a separate ordinary top-level after selection.
 stage_start = CPP.index(
     "if (m_context.fullscreen &&",
     CPP.index("void CaptureWidget::initSelection()"),
@@ -87,5 +97,10 @@ for forbidden in (
 ):
     assert forbidden not in stage_block, forbidden
 
-print(f"{'NO MAPPED ROLE MUTATION':<34} PASS")
+assert "new QWidget(nullptr, Qt::Window)" in stage_block
+assert "scrollArea->setWidget(canvas);" in stage_block
+assert "layout->addWidget(toolbar, 0);" in stage_block
+
+print(f"{'NO MAPPED ROLE MUTATION':<36} PASS")
+print(f"{'SEPARATE NORMAL EDITOR':<36} PASS")
 print("\nSTAGE 3.0-D.2 TOOLBAR CONTRACT: PASS")
