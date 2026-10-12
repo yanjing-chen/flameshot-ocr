@@ -2153,24 +2153,32 @@ void CaptureWidget::continueInWindowedEditor()
     commitCurrentTool();
     m_windowedEditor = true;
 
-    // Recreate only the native surface. The CaptureWidget instance and all of
-    // its child objects remain alive, preserving layers, object coordinates,
-    // the active settings, and the complete QUndoStack.
-    setWindowFlags(Qt::Window | Qt::WindowTitleHint |
-                   Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint |
-                   Qt::WindowCloseButtonHint);
-    setWindowTitle(tr("Flameshot OCR — Screenshot Editor"));
-    showMaximized();
-    raise();
-    activateWindow();
+    // GNOME Wayland: do not change a mapped capture overlay directly into a
+    // normal managed top-level window. Unmap the native surface first, then
+    // change the window role on the next Qt event-loop turn. The same
+    // CaptureWidget remains alive, preserving annotations, coordinates,
+    // selection, tool settings, layers and the complete QUndoStack.
+    hide();
 
-    m_buttonHandler->updateScreenRegions(rect());
-    m_buttonHandler->updatePosition(m_selection->geometry());
-    m_buttonHandler->show();
-    if (m_panel) {
-        m_panel->setFixedHeight(height());
-    }
-    update();
+    QTimer::singleShot(0, this, [this]() {
+        setWindowFlags(Qt::Window | Qt::WindowTitleHint |
+                       Qt::WindowSystemMenuHint |
+                       Qt::WindowMinMaxButtonsHint |
+                       Qt::WindowCloseButtonHint);
+        setWindowTitle(tr("Flameshot OCR — Screenshot Editor"));
+
+        showMaximized();
+        raise();
+        activateWindow();
+
+        m_buttonHandler->updateScreenRegions(rect());
+        m_buttonHandler->updatePosition(m_selection->geometry());
+        m_buttonHandler->show();
+        if (m_panel) {
+            m_panel->setFixedHeight(height());
+        }
+        update();
+    });
 }
 
 void CaptureWidget::drawErrorMessage(const QString& msg, QPainter* painter)
