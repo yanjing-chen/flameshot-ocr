@@ -129,6 +129,7 @@ private:
     void initSelection();
     void initShortcuts();
     void initButtons();
+    QWidget* createWindowEditorToolbar(QWidget* parent);
     void initHelpMessage();
     void initQuitPrompt();
     void updateSizeIndicator();
@@ -206,6 +207,7 @@ private:
     QPointer<QMessageBox> m_quitPrompt;
 
     ButtonHandler* m_buttonHandler;
+    QVector<CaptureToolButton*> m_windowEditorToolbarButtons;
     UtilityPanel* m_panel;
     SidePanelWidget* m_sidePanel;
     ColorPicker* m_colorPicker;

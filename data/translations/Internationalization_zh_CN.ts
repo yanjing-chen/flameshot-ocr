@@ -5501,6 +5501,27 @@ If on X11 enable Legacy X11 method in the General Settings</source>
         <source>Flameshot must be restarted to apply these changes!</source>
         <translation>必须重新启动 Flameshot 才能应用这些更改！</translation>
     </message>
+
+    <message>
+        <source>Reset Order</source>
+        <translation>恢复默认顺序</translation>
+    </message>
+    <message>
+        <source>Toolbar alignment</source>
+        <translation>工具栏对齐</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>左对齐</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation>居中</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>右对齐</translation>
+    </message>
 </context>
 <context>
     <name>color_widgets::ColorDialog</name>

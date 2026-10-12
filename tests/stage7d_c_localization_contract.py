@@ -41,6 +41,32 @@ for source in (
     assert not re.search(r"\(&[A-Za-z]\)", value)
     assert "&" not in value
 
+
+# Stage 3.0+ keeps the old 7D-A Wayland safety rule scoped to the actual
+# fullscreen-selector handoff. Ordinary child widgets may legitimately use
+# setParent(), but the already-mapped fullscreen CaptureWidget must never be
+# reparented or have its top-level window role mutated.
+capture_cpp = (Path(__file__).resolve().parents[1] / 'src/widgets/capture/capturewidget.cpp').read_text(encoding='utf-8')
+stage_start = capture_cpp.index(
+    "if (m_context.fullscreen &&",
+    capture_cpp.index("void CaptureWidget::initSelection()"),
+)
+stage_end = capture_cpp.index(
+    "connect(m_selection, &SelectionWidget::visibilityChanged",
+    stage_start,
+)
+stage_block = capture_cpp[stage_start:stage_end]
+
+for forbidden in (
+    "setWindowFlags(",
+    "showNormal(",
+    "setParent(",
+    "setWindowState(",
+):
+    assert forbidden not in stage_block, forbidden
+
+print('LEGACY 7D-A ROLE MUTATION ABSENT PASS')
+
 print("TRAY MNEMONIC CLEANUP           PASS")
 
 general = contexts.get("GeneralConf", {})
@@ -85,7 +111,6 @@ added_text = "\n".join(added_lines)
 
 for forbidden in (
     "showNormal(",
-    "setParent(",
     "setWindowState(",
     "stage7dWindowedEditorMigrationDone",
 ):

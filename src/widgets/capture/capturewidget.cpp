@@ -10,6 +10,10 @@
 // <http://www.gnu.org/licenses/old-licenses/library.txt>
 
 #include "capturewidget.h"
+
+#include <QHBoxLayout>
+#include <QLayout>
+#include <QStringList>
 #include "config/cacheutils.h"
 #include "config/generalconf.h"
 #include "core/flameshot.h"
@@ -54,6 +58,38 @@
 #define MOUSE_DISTANCE_TO_START_MOVING 3
 
 auto const MOUSE_WHEEL_TRESHOLD = 60;
+
+static QList<CaptureTool::Type> windowEditorToolbarOrder()
+{
+    const auto defaults = CaptureToolButton::getIterableButtonTypes();
+    QList<CaptureTool::Type> result;
+
+    const QStringList values =
+      ConfigHandler()
+        .windowEditorToolbarOrder()
+        .split(QLatin1Char(','), Qt::SkipEmptyParts);
+
+    for (const QString& value : values) {
+        bool ok = false;
+        const int raw = value.trimmed().toInt(&ok);
+        if (!ok) {
+            continue;
+        }
+
+        const auto type = static_cast<CaptureTool::Type>(raw);
+        if (defaults.contains(type) && !result.contains(type)) {
+            result.append(type);
+        }
+    }
+
+    for (const auto type : defaults) {
+        if (!result.contains(type)) {
+            result.append(type);
+        }
+    }
+
+    return result;
+}
 
 // CaptureWidget is the main component used to capture the screen. It contains
 // an area of selection with its respective buttons.
@@ -321,6 +357,10 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
       m_context.fullscreen && !areas.isEmpty() ? areas.first() : rect();
     OverlayMessage::init(this, overlayArea);
 
+    if (m_windowEditorMode) {
+        OverlayMessage::pop();
+    }
+
     if (m_config.showHelp() && !m_windowEditorMode) {
         initHelpMessage();
         OverlayMessage::push(m_helpMessage);
@@ -411,6 +451,7 @@ void CaptureWidget::initButtons()
         }
     }
     QVector<CaptureToolButton*> vectorButtons;
+    QMap<CaptureTool::Type, CaptureToolButton*> editorVisibleButtons;
 
     // Add all buttons but hide those that were disabled in the Interface config
     // This will allow keyboard shortcuts for those buttons to work
@@ -463,10 +504,65 @@ void CaptureWidget::initButtons()
                         &CaptureWidget::handleButtonRightClick);
             }
 
-            vectorButtons << b;
+            if (m_windowEditorMode) {
+                editorVisibleButtons.insert(t, b);
+            } else {
+                vectorButtons << b;
+            }
         }
     }
-    m_buttonHandler->setButtons(vectorButtons);
+    if (m_windowEditorMode) {
+        m_windowEditorToolbarButtons.clear();
+        for (const auto type : windowEditorToolbarOrder()) {
+            if (editorVisibleButtons.contains(type)) {
+                m_windowEditorToolbarButtons.append(
+                  editorVisibleButtons.value(type));
+            }
+        }
+    } else {
+        m_buttonHandler->setButtons(vectorButtons);
+    }
+}
+
+QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
+{
+    auto* toolbarScroll = new QScrollArea(parent);
+    toolbarScroll->setObjectName(QStringLiteral("windowEditorToolbar"));
+    toolbarScroll->setWidgetResizable(true);
+    toolbarScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    toolbarScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    toolbarScroll->setFixedHeight(74);
+
+    auto* toolbarContent = new QWidget(toolbarScroll);
+    auto* toolbarLayout = new QHBoxLayout(toolbarContent);
+    toolbarLayout->setContentsMargins(8, 6, 8, 6);
+    toolbarLayout->setSpacing(6);
+    toolbarLayout->setSizeConstraint(QLayout::SetMinimumSize);
+
+    const QString alignment =
+      m_config.windowEditorToolbarAlignment().trimmed().toLower();
+
+    if (alignment == QStringLiteral("center") ||
+        alignment == QStringLiteral("right")) {
+        toolbarLayout->addStretch(1);
+    }
+
+    for (auto* button : m_windowEditorToolbarButtons) {
+        if (!button) {
+            continue;
+        }
+
+        button->setParent(toolbarContent);
+        toolbarLayout->addWidget(button, 0, Qt::AlignVCenter);
+        button->show();
+    }
+
+    if (alignment != QStringLiteral("right")) {
+        toolbarLayout->addStretch(1);
+    }
+
+    toolbarScroll->setWidget(toolbarContent);
+    return toolbarScroll;
 }
 
 void CaptureWidget::handleButtonRightClick(CaptureToolButton* b)
@@ -1445,9 +1541,19 @@ void CaptureWidget::initSelection()
                 const QPixmap selected = pixmap();
 
                 QRect windowEditorSourceGeometry(m_context.selection);
-                windowEditorSourceGeometry.setTopLeft(
-                  windowEditorSourceGeometry.topLeft() +
-                  m_context.widgetOffset);
+
+                QScreen* windowEditorSourceScreen = screen();
+                if (!windowEditorSourceScreen) {
+                    windowEditorSourceScreen =
+                      QGuiApplication::screenAt(QCursor::pos());
+                }
+
+                const QPoint windowEditorSourceOrigin =
+                  windowEditorSourceScreen
+                    ? windowEditorSourceScreen->geometry().topLeft()
+                    : m_context.widgetOffset;
+                windowEditorSourceGeometry.translate(
+                  windowEditorSourceOrigin);
 
                 QRect windowEditorLastRegion = m_selection->geometry();
                 const qreal windowEditorSourceScale =
@@ -1497,9 +1603,14 @@ void CaptureWidget::initSelection()
                                 }
                             });
 
+                    auto* toolbar =
+                      canvas->createWindowEditorToolbar(editor);
+
                     auto* layout = new QVBoxLayout(editor);
                     layout->setContentsMargins(0, 0, 0, 0);
-                    layout->addWidget(scrollArea);
+                    layout->setSpacing(0);
+                    layout->addWidget(scrollArea, 1);
+                    layout->addWidget(toolbar, 0);
 
                     const qreal dpr = selected.devicePixelRatio();
                     QSize logicalImageSize = selected.size();
@@ -1524,12 +1635,13 @@ void CaptureWidget::initSelection()
                                 qMax(320, available.height() * 85 / 100));
                     }
 
-                    const QSize editorMinimumWindowSize(760, 460);
+                    const int toolbarHeight = toolbar->height();
+                    const QSize editorMinimumWindowSize(760, 520);
                     QSize desiredWindowSize(
                       qMax(editorMinimumWindowSize.width(),
                            logicalImageSize.width() + 24),
                       qMax(editorMinimumWindowSize.height(),
-                           logicalImageSize.height() + 24));
+                           logicalImageSize.height() + toolbarHeight + 24));
 
                     desiredWindowSize.setWidth(
                       qMin(desiredWindowSize.width(),
@@ -1540,11 +1652,11 @@ void CaptureWidget::initSelection()
 
                     const QSize boundedMinimumWindowSize(
                       qMin(720, maximumWindowSize.width()),
-                      qMin(420, maximumWindowSize.height()));
+                      qMin(500, maximumWindowSize.height()));
                     editor->setMinimumSize(boundedMinimumWindowSize);
                     editor->resize(desiredWindowSize);
                     editor->setProperty(
-                      "flameshotWindowEditorStage", "3.0-D");
+                      "flameshotWindowEditorStage", "3.0-D.2");
 
                     setProperty("windowEditorPreviewDetached", true);
                     close();
@@ -1567,7 +1679,8 @@ void CaptureWidget::initSelection()
         }
     });
     connect(m_selection, &SelectionWidget::visibilityChanged, this, [this]() {
-        if (!m_selection->isVisible() && !m_helpMessage.isEmpty()) {
+        if (!m_windowEditorMode && !m_selection->isVisible() &&
+            !m_helpMessage.isEmpty()) {
             OverlayMessage::push(m_helpMessage);
         }
     });

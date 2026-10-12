@@ -34,6 +34,7 @@ private:
     QWidget* m_colorpickerEditorTab;
 
     ButtonListView* m_buttonList;
+    QComboBox* m_toolbarAlignment;
     ExtendedSlider* m_opacitySlider;
 
     QComboBox* m_selectTranslation;

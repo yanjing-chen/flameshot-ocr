@@ -39,25 +39,6 @@ QString ocrTr(const char* sourceText)
     return QCoreApplication::translate("CaptureWidget", sourceText);
 }
 
-class OcrResultDragHandle : public QLabel
-{
-public:
-    using QLabel::QLabel;
-
-protected:
-    void mousePressEvent(QMouseEvent* event) override
-    {
-        if (event->button() == Qt::LeftButton) {
-            QWidget* topLevel = window();
-            if (topLevel && topLevel->windowHandle() &&
-                topLevel->windowHandle()->startSystemMove()) {
-                event->accept();
-                return;
-            }
-        }
-        QLabel::mousePressEvent(event);
-    }
-};
 }
 
 OcrRequestController::OcrRequestController(const QPixmap& image,
@@ -271,16 +252,6 @@ void OcrRequestController::showResult(
     dialog->resize(760, 560);
 
     auto* layout = new QVBoxLayout(dialog);
-
-    auto* dragHandle = new OcrResultDragHandle(
-      QString(), dialog);
-    dragHandle->setCursor(Qt::SizeAllCursor);
-    dragHandle->setToolTip(
-      QString());
-    dragHandle->setStyleSheet(QStringLiteral(
-      "QLabel { font-weight: 600; padding: 6px; "
-      "border-radius: 4px; background: palette(alternate-base); }"));
-    layout->addWidget(dragHandle);
 
     auto* editor = new QPlainTextEdit(dialog);
     editor->setPlainText(text);

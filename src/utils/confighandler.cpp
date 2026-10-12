@@ -111,6 +111,8 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("contrastUiColor"             ,Color              ( {39, 0, 50}   )),
     OPTION("contrastOpacity"             ,BoundedInt         ( 0, 255, 190   )),
     OPTION("buttons"                     ,ButtonList         ( {}            )),
+    OPTION("windowEditorToolbarOrder"    ,String             ( ""            )),
+    OPTION("windowEditorToolbarAlignment",String             ( "center"      )),
     // Filename Editor tab
     OPTION("filenamePattern"             ,FilenamePattern    ( {}            )),
     // Others

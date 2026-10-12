@@ -13,13 +13,13 @@ checks = {
         "editorCanvasMinimumSize(720, 420)" in CPP
         and "editorCanvasSize(" in CPP,
     "MINIMUM EDITOR WINDOW":
-        "editorMinimumWindowSize(760, 460)" in CPP
+        "editorMinimumWindowSize(760, 520)" in CPP
         and "editor->setMinimumSize(boundedMinimumWindowSize);" in CPP,
     "SCROLLABLE LARGE IMAGE":
         "new QScrollArea(editor)" in CPP
         and "scrollArea->setWidgetResizable(false);" in CPP,
     "STAGE D IDENTITY":
-        'flameshotWindowEditorStage", "3.0-D"' in CPP,
+        'flameshotWindowEditorStage", "3.0-D.2"' in CPP,
     "CORE ACTIONS PRESERVED":
         "case CaptureTool::REQ_OCR:" in CPP
         and "saveToClipboardGnomeWorkaround(pixmap(), this);" in CPP

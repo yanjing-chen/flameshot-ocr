@@ -24,6 +24,15 @@ VisualsEditor::VisualsEditor(QWidget* parent)
 void VisualsEditor::updateComponents()
 {
     m_buttonList->updateComponents();
+
+    if (m_toolbarAlignment) {
+        const QString alignment =
+          ConfigHandler().windowEditorToolbarAlignment().trimmed().toLower();
+        const int index = m_toolbarAlignment->findData(
+          alignment.isEmpty() ? QStringLiteral("center") : alignment);
+        m_toolbarAlignment->setCurrentIndex(index >= 0 ? index : 1);
+    }
+
     m_colorEditor->updateComponents();
     int opacity = ConfigHandler().contrastOpacity();
     m_opacitySlider->setMapedValue(0, opacity, 255);
@@ -87,12 +96,55 @@ void VisualsEditor::initWidgets()
     m_layout->addWidget(boxButtons);
     listLayout->addWidget(m_buttonList);
 
+    auto* buttonActions = new QHBoxLayout();
+
     auto* setAllButtons = new QPushButton(tr("Select All"));
     connect(setAllButtons,
             &QPushButton::clicked,
             m_buttonList,
             &ButtonListView::selectAll);
-    listLayout->addWidget(setAllButtons);
+    buttonActions->addWidget(setAllButtons);
+
+    auto* resetButtonOrder = new QPushButton(tr("Reset Order"));
+    connect(resetButtonOrder,
+            &QPushButton::clicked,
+            m_buttonList,
+            &ButtonListView::resetOrder);
+    buttonActions->addWidget(resetButtonOrder);
+
+    listLayout->addLayout(buttonActions);
+
+    auto* toolbarAlignmentRow = new QHBoxLayout();
+    toolbarAlignmentRow->addWidget(new QLabel(tr("Toolbar alignment")));
+
+    m_toolbarAlignment = new QComboBox(this);
+    m_toolbarAlignment->addItem(tr("Left"), QStringLiteral("left"));
+    m_toolbarAlignment->addItem(tr("Center"), QStringLiteral("center"));
+    m_toolbarAlignment->addItem(tr("Right"), QStringLiteral("right"));
+
+    const QString toolbarAlignment =
+      ConfigHandler().windowEditorToolbarAlignment().trimmed().toLower();
+    const int toolbarAlignmentIndex =
+      m_toolbarAlignment->findData(
+        toolbarAlignment.isEmpty() ? QStringLiteral("center")
+                                   : toolbarAlignment);
+    m_toolbarAlignment->setCurrentIndex(
+      toolbarAlignmentIndex >= 0 ? toolbarAlignmentIndex : 1);
+
+    connect(
+      m_toolbarAlignment,
+      qOverload<int>(&QComboBox::currentIndexChanged),
+      this,
+      [this](int index) {
+          if (index >= 0) {
+              ConfigHandler().setWindowEditorToolbarAlignment(
+                m_toolbarAlignment->itemData(index).toString());
+          }
+      });
+
+    toolbarAlignmentRow->addWidget(m_toolbarAlignment);
+    toolbarAlignmentRow->addStretch(1);
+    listLayout->addLayout(toolbarAlignmentRow);
 }
 
 void VisualsEditor::initTranslations()

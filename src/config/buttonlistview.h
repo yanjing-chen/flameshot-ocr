@@ -6,24 +6,33 @@
 #include "widgets/capture/capturetoolbutton.h"
 #include <QListWidget>
 
+class QDropEvent;
+class QListWidgetItem;
+
 class ButtonListView : public QListWidget
 {
+    Q_OBJECT
+
 public:
     explicit ButtonListView(QWidget* parent = nullptr);
 
 public slots:
     void selectAll();
+    void resetOrder();
     void updateComponents();
 
-private slots:
-    void reverseItemCheck(QListWidgetItem*);
-
 protected:
+    void dropEvent(QDropEvent* event) override;
     void initButtonList();
+
+private slots:
+    void updateActiveButtons(QListWidgetItem* item);
 
 private:
     QList<CaptureTool::Type> m_listButtons;
-    QMap<QString, CaptureTool::Type> m_buttonTypeByName;
 
-    void updateActiveButtons(QListWidgetItem*);
+    QList<CaptureTool::Type> configuredOrder() const;
+    CaptureTool::Type typeForItem(const QListWidgetItem* item) const;
+    void persistState();
+    void reorderItems(const QList<CaptureTool::Type>& order);
 };

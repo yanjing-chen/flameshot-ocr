@@ -131,6 +131,12 @@ public:
                          QString)
     CONFIG_GETTER_SETTER(undoLimit, setUndoLimit, int)
     CONFIG_GETTER_SETTER(buttons, setButtons, QList<CaptureTool::Type>)
+    CONFIG_GETTER_SETTER(windowEditorToolbarOrder,
+                         setWindowEditorToolbarOrder,
+                         QString)
+    CONFIG_GETTER_SETTER(windowEditorToolbarAlignment,
+                         setWindowEditorToolbarAlignment,
+                         QString)
     CONFIG_GETTER_SETTER(showMagnifier, setShowMagnifier, bool)
     CONFIG_GETTER_SETTER(squareMagnifier, setSquareMagnifier, bool)
     CONFIG_GETTER_SETTER(copyOnDoubleClick, setCopyOnDoubleClick, bool)
