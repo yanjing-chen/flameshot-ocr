@@ -341,15 +341,30 @@ CaptureWidget::~CaptureWidget()
     }
 #endif
     if (m_captureDone) {
-        auto lastRegion = m_selection->geometry();
-        const qreal scale = m_context.screenshot.devicePixelRatio();
-        lastRegion.setTop(lastRegion.top() * scale);
-        lastRegion.setBottom(lastRegion.bottom() * scale);
-        lastRegion.setLeft(lastRegion.left() * scale);
-        lastRegion.setRight(lastRegion.right() * scale);
+        QRect lastRegion;
+        QRect geometry;
+
+        if (m_windowEditorMode && m_windowEditorSourceGeometryValid) {
+            // Stage 3.0-C:
+            // The editor is an ordinary movable window. Its current
+            // widgetOffset must never replace the original desktop capture
+            // position used by Pin/export and saved-last-region behaviour.
+            lastRegion = m_windowEditorLastRegion;
+            geometry = m_windowEditorSourceGeometry;
+        } else {
+            lastRegion = m_selection->geometry();
+            const qreal scale = m_context.screenshot.devicePixelRatio();
+            lastRegion.setTop(lastRegion.top() * scale);
+            lastRegion.setBottom(lastRegion.bottom() * scale);
+            lastRegion.setLeft(lastRegion.left() * scale);
+            lastRegion.setRight(lastRegion.right() * scale);
+
+            geometry = QRect(m_context.selection);
+            geometry.setTopLeft(geometry.topLeft() +
+                                m_context.widgetOffset);
+        }
+
         setLastRegion(lastRegion);
-        QRect geometry(m_context.selection);
-        geometry.setTopLeft(geometry.topLeft() + m_context.widgetOffset);
         Flameshot::instance()->exportCapture(
           pixmap(), geometry, m_context.request);
     } else if (!m_ocrDetached &&
@@ -364,17 +379,14 @@ void CaptureWidget::initButtons()
     auto visibleButtonTypes = m_config.buttons();
 
     if (m_windowEditorMode) {
-        // Stage 3.0-B exposes editing tools only.
-        // Save/copy/pin/OCR are connected in Stage 3.0-C.
+        // Stage 3.0-C restores the core post-edit actions in the ordinary
+        // editor window: Save, Copy, Pin and OCR. Keep unrelated external
+        // actions deferred while the v3 lifecycle is hardened.
         for (auto* buttonList : { &allButtonTypes, &visibleButtonTypes }) {
-            buttonList->removeOne(CaptureTool::TYPE_COPY);
-            buttonList->removeOne(CaptureTool::TYPE_SAVE);
 #ifdef ENABLE_IMGUR
             buttonList->removeOne(CaptureTool::TYPE_IMAGEUPLOADER);
 #endif
             buttonList->removeOne(CaptureTool::TYPE_OPEN_APP);
-            buttonList->removeOne(CaptureTool::TYPE_PIN);
-            buttonList->removeOne(CaptureTool::TYPE_OCR);
             buttonList->removeOne(CaptureTool::TYPE_ACCEPT);
         }
     }
@@ -540,6 +552,15 @@ void CaptureWidget::initHelpMessage()
 QPixmap CaptureWidget::pixmap()
 {
     return m_context.selectedScreenshotArea();
+}
+
+void CaptureWidget::setWindowEditorSourceGeometry(
+  const QRect& exportGeometry,
+  const QRect& lastRegion)
+{
+    m_windowEditorSourceGeometry = exportGeometry;
+    m_windowEditorLastRegion = lastRegion;
+    m_windowEditorSourceGeometryValid = exportGeometry.isValid();
 }
 
 // Finish whatever the current tool is doing, if there is a current active
@@ -1419,6 +1440,23 @@ void CaptureWidget::initSelection()
                 !property("windowEditorPreviewDetached").toBool()) {
                 const QPixmap selected = pixmap();
 
+                QRect windowEditorSourceGeometry(m_context.selection);
+                windowEditorSourceGeometry.setTopLeft(
+                  windowEditorSourceGeometry.topLeft() +
+                  m_context.widgetOffset);
+
+                QRect windowEditorLastRegion = m_selection->geometry();
+                const qreal windowEditorSourceScale =
+                  m_context.screenshot.devicePixelRatio();
+                windowEditorLastRegion.setTop(
+                  windowEditorLastRegion.top() * windowEditorSourceScale);
+                windowEditorLastRegion.setBottom(
+                  windowEditorLastRegion.bottom() * windowEditorSourceScale);
+                windowEditorLastRegion.setLeft(
+                  windowEditorLastRegion.left() * windowEditorSourceScale);
+                windowEditorLastRegion.setRight(
+                  windowEditorLastRegion.right() * windowEditorSourceScale);
+
                 if (!selected.isNull()) {
                     CaptureRequest editorRequest(
                       CaptureRequest::GRAPHICAL_MODE);
@@ -1441,6 +1479,9 @@ void CaptureWidget::initSelection()
                                                      true);
                     canvas->setProperty(
                       "windowEditorPreviewDetached", true);
+                    canvas->setWindowEditorSourceGeometry(
+                      windowEditorSourceGeometry,
+                      windowEditorLastRegion);
                     scrollArea->setWidget(canvas);
 
                     connect(canvas,
@@ -1492,7 +1533,7 @@ void CaptureWidget::initSelection()
 
                     editor->resize(desiredWindowSize);
                     editor->setProperty(
-                      "flameshotWindowEditorStage", "3.0-B");
+                      "flameshotWindowEditorStage", "3.0-C");
 
                     setProperty("windowEditorPreviewDetached", true);
                     close();

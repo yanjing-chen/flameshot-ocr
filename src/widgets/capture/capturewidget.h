@@ -55,6 +55,8 @@ public:
     ~CaptureWidget();
 
     QPixmap pixmap();
+    void setWindowEditorSourceGeometry(const QRect& exportGeometry,
+                                       const QRect& lastRegion);
     void setCaptureToolObjects(const CaptureToolObjects& captureToolObjects);
 #if !defined(DISABLE_UPDATE_CHECKER)
     void showAppUpdateNotification(const QString& appLatestVersion,
@@ -183,6 +185,9 @@ private:
     bool m_captureDone;
     bool m_ocrDetached;
     bool m_windowEditorMode;
+    QRect m_windowEditorSourceGeometry;
+    QRect m_windowEditorLastRegion;
+    bool m_windowEditorSourceGeometryValid{ false };
     bool m_previewEnabled;
     bool m_adjustmentButtonPressed;
     bool m_configError;

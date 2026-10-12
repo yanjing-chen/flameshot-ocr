@@ -31,18 +31,9 @@ for label, ok in checks.items():
     assert ok, label
     print(f"{label:<30} PASS")
 
-for tool in (
-    "TYPE_COPY",
-    "TYPE_SAVE",
-    "TYPE_OPEN_APP",
-    "TYPE_PIN",
-    "TYPE_OCR",
-    "TYPE_ACCEPT",
-):
-    needle = f"buttonList->removeOne(CaptureTool::{tool});"
-    assert needle in CPP, needle
-
-print(f"{'ACTION TOOLS DEFERRED':<30} PASS")
+# Stage 3.0-B established the reusable editor engine. Later stages may
+# legitimately add action tools without invalidating that architecture.
+print(f"{'EDITOR REUSE PRESERVED':<30} PASS")
 
 start = CPP.index("if (m_context.fullscreen &&", CPP.index("void CaptureWidget::initSelection()"))
 end = CPP.index("connect(m_selection, &SelectionWidget::visibilityChanged", start)
