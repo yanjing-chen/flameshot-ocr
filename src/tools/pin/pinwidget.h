@@ -17,7 +17,8 @@ class PinWidget : public QWidget
 public:
     explicit PinWidget(const QPixmap& pixmap,
                        const QRect& geometry,
-                       QWidget* parent = nullptr);
+                       QWidget* parent = nullptr,
+                       bool embedded = false);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent*) override;
@@ -54,6 +55,7 @@ private:
     unsigned int m_rotateFactor{ 0 };
     qreal m_currentStepScaleFactor{ 1 };
     bool m_sizeChanged{ false };
+    bool m_embedded{ false };
 
 private slots:
     void showContextMenu(const QPoint& pos);

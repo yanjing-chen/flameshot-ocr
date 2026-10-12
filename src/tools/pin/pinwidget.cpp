@@ -27,19 +27,23 @@ constexpr qreal MIN_SIZE = 100.0;
 
 PinWidget::PinWidget(const QPixmap& pixmap,
                      const QRect& geometry,
-                     QWidget* parent)
+                     QWidget* parent,
+                     bool embedded)
   : QWidget(parent)
   , m_pixmap(pixmap)
   , m_layout(new QVBoxLayout(this))
   , m_label(new QLabel())
   , m_shadowEffect(new QGraphicsDropShadowEffect(this))
+  , m_embedded(embedded)
 {
     setWindowIcon(QIcon(GlobalValues::iconPath()));
-    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint |
-                   Qt::Dialog);
+    if (!m_embedded) {
+        setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint |
+                       Qt::Dialog);
+        setAttribute(Qt::WA_DeleteOnClose);
+    }
     setFocusPolicy(Qt::StrongFocus);
     setAttribute(Qt::WA_TranslucentBackground);
-    setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle("flameshot-pin");
     ConfigHandler conf;
     m_baseColor = conf.uiColor();
@@ -56,31 +60,53 @@ PinWidget::PinWidget(const QPixmap& pixmap,
     m_label->setPixmap(m_pixmap);
     m_layout->addWidget(m_label);
 
-    new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q), this, SLOT(close()));
-    new QShortcut(Qt::Key_Escape, this, SLOT(close()));
+    auto* quitShortcut =
+      new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q), this);
+    connect(quitShortcut,
+            &QShortcut::activated,
+            this,
+            &PinWidget::closePin);
 
-    qreal devicePixelRatio = 1;
-    QScreen* currentScreen = QGuiAppCurrentScreen().currentScreen();
-    if (currentScreen != nullptr) {
-        devicePixelRatio = currentScreen->devicePixelRatio();
-    }
+    auto* escapeShortcut = new QShortcut(Qt::Key_Escape, this);
+    connect(escapeShortcut,
+            &QShortcut::activated,
+            this,
+            &PinWidget::closePin);
 
-    const int margin =
-      static_cast<int>(static_cast<double>(MARGIN) * devicePixelRatio);
-    QRect adjusted_pos = geometry + QMargins(margin, margin, margin, margin);
-    setGeometry(adjusted_pos);
+    if (!m_embedded) {
+        qreal devicePixelRatio = 1;
+        QScreen* currentScreen = QGuiAppCurrentScreen().currentScreen();
+        if (currentScreen != nullptr) {
+            devicePixelRatio = currentScreen->devicePixelRatio();
+        }
 
-    if (currentScreen != nullptr) {
-        QPoint topLeft = currentScreen->geometry().topLeft();
-        adjusted_pos.setX((adjusted_pos.x() - topLeft.x()) / devicePixelRatio +
-                          topLeft.x());
+        const int margin =
+          static_cast<int>(static_cast<double>(MARGIN) * devicePixelRatio);
+        QRect adjusted_pos =
+          geometry + QMargins(margin, margin, margin, margin);
+        setGeometry(adjusted_pos);
 
-        adjusted_pos.setY((adjusted_pos.y() - topLeft.y()) / devicePixelRatio +
-                          topLeft.y());
-        adjusted_pos.setWidth(adjusted_pos.size().width() / devicePixelRatio);
-        adjusted_pos.setHeight(adjusted_pos.size().height() / devicePixelRatio);
-        resize(0, 0);
-        move(adjusted_pos.x(), adjusted_pos.y());
+        if (currentScreen != nullptr) {
+            QPoint topLeft = currentScreen->geometry().topLeft();
+            adjusted_pos.setX(
+              (adjusted_pos.x() - topLeft.x()) / devicePixelRatio +
+              topLeft.x());
+
+            adjusted_pos.setY(
+              (adjusted_pos.y() - topLeft.y()) / devicePixelRatio +
+              topLeft.y());
+            adjusted_pos.setWidth(
+              adjusted_pos.size().width() / devicePixelRatio);
+            adjusted_pos.setHeight(
+              adjusted_pos.size().height() / devicePixelRatio);
+            resize(0, 0);
+            move(adjusted_pos.x(), adjusted_pos.y());
+        }
+    } else {
+        // Embedded mode is used by the v3 ordinary editor. Keeping the
+        // already-mapped editor shell avoids creating a new Wayland top-level
+        // surface that GNOME would place again (typically centered).
+        adjustSize();
     }
 
     grabGesture(Qt::PinchGesture);
@@ -96,6 +122,15 @@ PinWidget::PinWidget(const QPixmap& pixmap,
 void PinWidget::closePin()
 {
     update();
+
+    if (m_embedded) {
+        QWidget* topLevel = window();
+        if (topLevel && topLevel != this) {
+            topLevel->close();
+            return;
+        }
+    }
+
     close();
 }
 bool PinWidget::scrollEvent(QWheelEvent* event)
@@ -148,13 +183,24 @@ void PinWidget::mouseDoubleClickEvent(QMouseEvent*)
 
 void PinWidget::mousePressEvent(QMouseEvent* e)
 {
-    if (QWindow* window = windowHandle(); window != nullptr) {
-        window->startSystemMove();
-        return;
+    if (e->button() == Qt::LeftButton) {
+        QWidget* topLevel = window();
+        QWindow* nativeWindow =
+          topLevel ? topLevel->windowHandle() : windowHandle();
+
+        if (nativeWindow && nativeWindow->startSystemMove()) {
+            e->accept();
+            return;
+        }
     }
+
+    QWidget::mousePressEvent(e);
 }
 
-void PinWidget::mouseMoveEvent(QMouseEvent* e) {}
+void PinWidget::mouseMoveEvent(QMouseEvent* e)
+{
+    QWidget::mouseMoveEvent(e);
+}
 
 void PinWidget::keyPressEvent(QKeyEvent* event)
 {
@@ -256,6 +302,14 @@ void PinWidget::paintEvent(QPaintEvent* event)
 
         m_label->setPixmap(pix);
         adjustSize();
+
+        if (m_embedded) {
+            QWidget* topLevel = window();
+            if (topLevel && topLevel != this) {
+                topLevel->adjustSize();
+            }
+        }
+
         m_sizeChanged = false;
     }
 }

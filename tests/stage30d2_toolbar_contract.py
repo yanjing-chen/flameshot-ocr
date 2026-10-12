@@ -49,11 +49,11 @@ checks = {
         and "m_toolbarAlignment" in VISUALS_HDR,
     "HELP OVERLAY CLEARED":
         "if (m_windowEditorMode) {\n        OverlayMessage::pop();" in CPP
-        and "if (!m_windowEditorMode && !m_selection->isVisible()" in CPP,
-    "DUAL SCREEN PIN SOURCE":
-        "QScreen* windowEditorSourceScreen = screen();" in CPP
-        and "windowEditorSourceScreen->geometry().topLeft()" in CPP
-        and "windowEditorSourceGeometry.translate(" in CPP,
+        and '!property("windowEditorPreviewDetached").toBool()' in CPP,
+    "WINDOW EDITOR PIN IN PLACE":
+        "(m_context.request.tasks() & CaptureRequest::PIN)" in CPP
+        and "flameshotWindowEditorPinnedInPlace" in CPP
+        and "new PinWidget(" in CPP,
     "OCR EMPTY BAR REMOVED":
         "OcrResultDragHandle" not in OCR_CPP
         and "dragHandle" not in OCR_CPP,

@@ -79,6 +79,7 @@ jobs:
           python3 tests/stage30c_export_ocr_contract.py
           python3 tests/stage30d_ui_hardening_contract.py
           python3 tests/stage30d2_toolbar_contract.py
+          python3 tests/stage30d2_final_pin_help_contract.py
           python3 tests/package_identity_contract.py
 
       - name: Download linuxdeploy

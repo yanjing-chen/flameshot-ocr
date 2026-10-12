@@ -10,6 +10,7 @@
 // <http://www.gnu.org/licenses/old-licenses/library.txt>
 
 #include "capturewidget.h"
+#include "tools/pin/pinwidget.h"
 
 #include <QHBoxLayout>
 #include <QLayout>
@@ -1679,8 +1680,12 @@ void CaptureWidget::initSelection()
         }
     });
     connect(m_selection, &SelectionWidget::visibilityChanged, this, [this]() {
-        if (!m_windowEditorMode && !m_selection->isVisible() &&
-            !m_helpMessage.isEmpty()) {
+        // Stage 3.0-D.2 final: once the fullscreen selector has handed the
+        // capture to the ordinary editor, closing the old selector must not
+        // push its help overlay back into the new editor.
+        if (!m_windowEditorMode &&
+            !property("windowEditorPreviewDetached").toBool() &&
+            !m_selection->isVisible() && !m_helpMessage.isEmpty()) {
             OverlayMessage::push(m_helpMessage);
         }
     });
@@ -1755,6 +1760,66 @@ void CaptureWidget::handleToolSignal(CaptureTool::Request r)
 {
     switch (r) {
         case CaptureTool::REQ_CLOSE_GUI:
+            if (m_windowEditorMode &&
+                (m_context.request.tasks() & CaptureRequest::PIN)) {
+                const QPixmap pinnedPixmap = pixmap();
+                QWidget* editorShell = window();
+
+                // The v3 editor Pin action keeps the already-mapped ordinary
+                // editor top-level. On Wayland this preserves the placement
+                // chosen by the user instead of asking the compositor to
+                // place a brand-new PinWidget window again.
+                m_context.request.removeTask(CaptureRequest::PIN);
+                m_captureDone = false;
+                setProperty("windowEditorPreviewDetached", true);
+
+                if (editorShell && !pinnedPixmap.isNull()) {
+                    QTimer::singleShot(
+                      0,
+                      editorShell,
+                      [editorShell, pinnedPixmap]() {
+                          QLayout* shellLayout = editorShell->layout();
+                          if (!shellLayout) {
+                              editorShell->close();
+                              return;
+                          }
+
+                          const auto directChildren =
+                            editorShell->findChildren<QWidget*>(
+                              QString(), Qt::FindDirectChildrenOnly);
+                          for (QWidget* child : directChildren) {
+                              child->hide();
+                          }
+
+                          auto* pinWidget = new PinWidget(
+                            pinnedPixmap,
+                            QRect(),
+                            editorShell,
+                            true);
+
+                          shellLayout->setContentsMargins(0, 0, 0, 0);
+                          shellLayout->setSpacing(0);
+                          shellLayout->setSizeConstraint(QLayout::SetFixedSize);
+                          shellLayout->addWidget(pinWidget);
+
+                          editorShell->setMinimumSize(QSize(0, 0));
+                          editorShell->setMaximumSize(
+                            QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+                          editorShell->setWindowTitle(
+                            QStringLiteral("flameshot-pin"));
+                          editorShell->setProperty(
+                            "flameshotWindowEditorPinnedInPlace", true);
+
+                          pinWidget->show();
+                          pinWidget->setFocus();
+                          editorShell->adjustSize();
+                          editorShell->raise();
+                          editorShell->activateWindow();
+                      });
+                    break;
+                }
+            }
+
             close();
             break;
         case CaptureTool::REQ_HIDE_GUI:
