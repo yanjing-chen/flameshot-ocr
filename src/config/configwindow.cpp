@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
 
 #include "configwindow.h"
+#include "utils/gnomeaccent.h"
 #include "config/configresolver.h"
 #include "config/filenameeditor.h"
 #include "config/generalconf.h"
@@ -14,6 +15,7 @@
 #include "utils/pathinfo.h"
 
 #include <QApplication>
+#include <QCoreApplication>
 #include <QAbstractItemView>
 #include <QFont>
 #include <QFrame>
@@ -89,94 +91,104 @@ ConfigWindow::ConfigWindow(QWidget* parent)
     setMinimumSize(780, 540);
     resize(1050, 800);
 
-    const bool darkTheme =
-      ColorUtils::colorIsDark(palette().window().color());
-    const QString bg = darkTheme ? QStringLiteral("#202329")
-                                 : QStringLiteral("#f3f5f8");
-    const QString surface = darkTheme ? QStringLiteral("#2b3038")
-                                      : QStringLiteral("#ffffff");
-    const QString outline = darkTheme ? QStringLiteral("#464d58")
-                                      : QStringLiteral("#dce1e8");
-    const QString fg = darkTheme ? QStringLiteral("#ecf0f5")
-                                 : QStringLiteral("#253042");
-    const QString muted = darkTheme ? QStringLiteral("#b5beca")
-                                    : QStringLiteral("#687589");
-    const QString hover = darkTheme ? QStringLiteral("#3c4554")
-                                    : QStringLiteral("#edf2fa");
-    const QString selected = darkTheme ? QStringLiteral("#345373")
-                                       : QStringLiteral("#dfecff");
-    const QString formBg = darkTheme ? QStringLiteral("#303741")
-                                      : QStringLiteral("#ffffff");
+    auto applyGnomeAppearance = [this]() {
+        const QColor accent = GnomeAccent::current(palette());
+        const bool darkTheme =
+          ColorUtils::colorIsDark(palette().window().color());
+        const QString bg = darkTheme ? QStringLiteral("#202329")
+                                     : QStringLiteral("#f3f5f8");
+        const QString surface = darkTheme ? QStringLiteral("#2b3038")
+                                          : QStringLiteral("#ffffff");
+        const QString outline = darkTheme ? QStringLiteral("#464d58")
+                                          : QStringLiteral("#dce1e8");
+        const QString fg = darkTheme ? QStringLiteral("#ecf0f5")
+                                     : QStringLiteral("#253042");
+        const QString muted = darkTheme ? QStringLiteral("#b5beca")
+                                        : QStringLiteral("#687589");
+        const QString hover = GnomeAccent::blend(accent, QColor(surface), darkTheme ? 20 : 9).name();
+        const QString selected = GnomeAccent::blend(accent, QColor(surface), darkTheme ? 34 : 17).name();
+        const QString formBg = darkTheme ? QStringLiteral("#303741")
+                                          : QStringLiteral("#ffffff");
 
-    // QComboBox and QSpinBox intentionally retain native subcontrol painting:
-    // no custom borders, padding, arrows, or popup-item colors.
-    setStyleSheet(QStringLiteral(R"QSS(
-QWidget#flameshotConfigWindow { background: %1; }
-QFrame#configSidebar, QFrame#configContentCard {
+        // QComboBox and QSpinBox intentionally retain native subcontrol painting:
+        // no custom borders, padding, arrows, or popup-item colors.
+        setStyleSheet(QStringLiteral(R"QSS(
+    QWidget#flameshotConfigWindow { background: %1; }
+    QFrame#configSidebar, QFrame#configContentCard {
+        background: %2; border: 1px solid %3; border-radius: 12px;
+    }
+    QLabel#configSidebarTitle {
+        color: %4; font-size: 19px; font-weight: 700; padding: 4px 8px;
+    }
+    QLabel#configPageTitle {
+        color: %4; font-size: 20px; font-weight: 700; padding: 4px 2px 9px 2px;
+    }
+    QListWidget#configNavigation {
+        background: transparent; border: 0; outline: 0; color: %4;
+    }
+    QListWidget#configNavigation::item {
+        border-radius: 8px; padding: 11px 10px; margin: 2px 0;
+    }
+    QListWidget#configNavigation::item:hover { background: %6; }
+    QListWidget#configNavigation::item:selected {
+        background: %7; color: %4; font-weight: 600;
+    }
+    QTabWidget#configPageStack::pane { border: 0; background: transparent; }
+    QFrame#configSettingsGroupCard {
     background: %2; border: 1px solid %3; border-radius: 12px;
 }
-QLabel#configSidebarTitle {
-    color: %4; font-size: 19px; font-weight: 700; padding: 4px 8px;
-}
-QLabel#configPageTitle {
-    color: %4; font-size: 20px; font-weight: 700; padding: 4px 2px 9px 2px;
-}
-QListWidget#configNavigation {
-    background: transparent; border: 0; outline: 0; color: %4;
-}
-QListWidget#configNavigation::item {
-    border-radius: 8px; padding: 11px 10px; margin: 2px 0;
-}
-QListWidget#configNavigation::item:hover { background: %6; }
-QListWidget#configNavigation::item:selected {
-    background: %7; color: %4; font-weight: 600;
-}
-QTabWidget#configPageStack::pane { border: 0; background: transparent; }
+QWidget#configCategoryPage { background: transparent; }
 QLabel#configSectionHeading {
-    color: %5; font-size: 15px; font-weight: 700; padding: 8px 0 3px 0;
-}
-QWidget#configGeneralPage QGroupBox,
-QWidget#configOcrPage QGroupBox {
-    color: %4; font-weight: 600; border: 1px solid %3;
-    border-radius: 9px; margin-top: 16px; padding: 12px 9px 9px 9px;
-    background: %2;
-}
-QWidget#configGeneralPage QGroupBox::title,
-QWidget#configOcrPage QGroupBox::title {
-    subcontrol-origin: margin; subcontrol-position: top left;
-    left: 12px; padding: 0 6px; background: %2;
-}
-QPushButton {
-    color: %4; background: %8; border: 1px solid %3;
-    border-radius: 8px; min-height: 32px; padding: 4px 12px;
-}
-QPushButton:hover { background: %6; }
-QPushButton:disabled { color: %5; }
-QLineEdit, QPlainTextEdit, QTextEdit {
-    color: %4; background: %8; border: 1px solid %3;
-    border-radius: 7px; padding: 5px 8px;
-}
-QCheckBox { color: %4; spacing: 9px; min-height: 29px; }
-QComboBox, QSpinBox, QDoubleSpinBox { min-height: 32px; }
-QTableWidget, QListWidget#configButtonList {
-    background: %8; color: %4; border: 1px solid %3;
-    border-radius: 7px;
-}
-QTabBar::tab {
-    padding: 9px 13px; min-height: 26px;
-    color: %4; background: %2;
-    border: 1px solid %3; border-radius: 6px;
-}
-QTabBar::tab:selected { background: %7; font-weight: 600; }
-)QSS")
-                    .arg(bg)
-                    .arg(surface)
-                    .arg(outline)
-                    .arg(fg)
-                    .arg(muted)
-                    .arg(hover)
-                    .arg(selected)
-                    .arg(formBg));
+        color: %5; font-size: 15px; font-weight: 700; padding: 8px 0 3px 0;
+    }
+    QWidget#configGeneralPage QGroupBox,
+    QWidget#configOcrPage QGroupBox {
+        color: %4; font-weight: 600; border: 1px solid %3;
+        border-radius: 9px; margin-top: 16px; padding: 12px 9px 9px 9px;
+        background: %2;
+    }
+    QWidget#configGeneralPage QGroupBox::title,
+    QWidget#configOcrPage QGroupBox::title {
+        subcontrol-origin: margin; subcontrol-position: top left;
+        left: 12px; padding: 0 6px; background: %2;
+    }
+    QPushButton {
+        color: %4; background: %8; border: 1px solid %3;
+        border-radius: 8px; min-height: 32px; padding: 4px 12px;
+    }
+    QPushButton:hover { background: %6; }
+QPushButton:focus { border: 1px solid %9; }
+QPushButton:default { background: %7; border: 1px solid %9; }
+    QPushButton:disabled { color: %5; }
+    QLineEdit, QPlainTextEdit, QTextEdit {
+        color: %4; background: %8; border: 1px solid %3;
+        border-radius: 7px; padding: 5px 8px;
+    }
+    QCheckBox { color: %4; spacing: 9px; min-height: 29px; }
+    QComboBox, QSpinBox, QDoubleSpinBox { min-height: 32px; }
+    QTableWidget, QListWidget#configButtonList {
+        background: %8; color: %4; border: 1px solid %3;
+        border-radius: 7px;
+    }
+    QTabBar::tab {
+        padding: 9px 13px; min-height: 26px;
+        color: %4; background: %2;
+        border: 1px solid %3; border-radius: 6px;
+    }
+    QTabBar::tab:selected { background: %7; font-weight: 600; }
+    )QSS")
+                        .arg(bg)
+                        .arg(surface)
+                        .arg(outline)
+                        .arg(fg)
+                        .arg(muted)
+                        .arg(hover)
+                        .arg(selected)
+                        .arg(formBg)
+                    .arg(accent.name()));
+    };
+    applyGnomeAppearance();
+    GnomeAccent::watch(this, applyGnomeAppearance);
 
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowIcon(QIcon(GlobalValues::iconPath()));
@@ -239,35 +251,54 @@ QTabBar::tab:selected { background: %7; font-weight: 600; }
     m_tabWidget->addTab(
       m_shortcutsTab, QIcon(modifier + "shortcut.svg"), tr("Shortcuts"));
 
-    // Preserve the original page instances, order, settings, error banners,
-    // and update signals. The list is only an alternate navigation control.
-    for (int index = 0; index < m_tabWidget->count(); ++index) {
-        auto* item = new QListWidgetItem(m_tabWidget->tabIcon(index),
-                                         m_tabWidget->tabText(index));
-        navigation->addItem(item);
+    // G.2B: split the original GeneralConf into three visible categories.
+    // The underlying five QTabWidget pages, save callbacks and error banners
+    // remain unchanged. OCR is intentionally the last sidebar item.
+    struct NavigationEntry { QString text; QIcon icon; int originalTab; int category; };
+    const QList<NavigationEntry> entries {
+      { QCoreApplication::translate("GeneralConf", "Startup and notifications"), m_tabWidget->tabIcon(0), 0, 0 },
+      { QCoreApplication::translate("GeneralConf", "Screenshot behavior"), QIcon::fromTheme(QStringLiteral("camera-photo"), m_tabWidget->tabIcon(0)), 0, 1 },
+      { QCoreApplication::translate("GeneralConf", "Editing and display"), QIcon::fromTheme(QStringLiteral("document-edit"), m_tabWidget->tabIcon(0)), 0, 2 },
+      { m_tabWidget->tabText(2), m_tabWidget->tabIcon(2), 2, -1 },
+      { m_tabWidget->tabText(3), m_tabWidget->tabIcon(3), 3, -1 },
+      { m_tabWidget->tabText(4), m_tabWidget->tabIcon(4), 4, -1 },
+      { m_tabWidget->tabText(1), m_tabWidget->tabIcon(1), 1, -1 }
+    };
+    for (const auto& entry : entries) {
+        navigation->addItem(new QListWidgetItem(entry.icon, entry.text));
     }
     m_tabWidget->tabBar()->hide();
-    connect(navigation,
-            &QListWidget::currentRowChanged,
-            this,
-            [this](int index) {
-                if (index >= 0 && index < m_tabWidget->count()) {
-                    m_tabWidget->setCurrentIndex(index);
-                }
-            });
-    connect(m_tabWidget,
-            &QTabWidget::currentChanged,
-            this,
-            [this, navigation, pageTitle](int index) {
-                if (index >= 0 && index < m_tabWidget->count()) {
-                    if (navigation->currentRow() != index) {
-                        navigation->setCurrentRow(index);
-                    }
-                    pageTitle->setText(m_tabWidget->tabText(index));
-                }
-            });
+    connect(navigation, &QListWidget::currentRowChanged,
+            this, [this, navigation, pageTitle, entries](int row) {
+        if (row < 0 || row >= entries.size()) return;
+        const auto& target = entries.at(row);
+        if (target.originalTab == 0 && target.category >= 0) {
+            m_generalConfig->setSettingsCategory(target.category);
+        }
+        m_tabWidget->setCurrentIndex(target.originalTab);
+        pageTitle->setText(target.text);
+    });
+    connect(m_tabWidget, &QTabWidget::currentChanged,
+            this, [navigation, pageTitle, entries](int tab) {
+        int desired = -1;
+        if (tab == 0) {
+            // Keep the user's current general subcategory when possible.
+            if (navigation->currentRow() >= 0 &&
+                navigation->currentRow() < 3) {
+                desired = navigation->currentRow();
+            } else desired = 0;
+        } else {
+            for (int i = 0; i < entries.size(); ++i)
+                if (entries.at(i).originalTab == tab) { desired = i; break; }
+        }
+        if (desired >= 0) {
+            if (navigation->currentRow() != desired)
+                navigation->setCurrentRow(desired);
+            pageTitle->setText(entries.at(desired).text);
+        }
+    });
     navigation->setCurrentRow(0);
-    pageTitle->setText(m_tabWidget->tabText(0));
+    pageTitle->setText(entries.first().text);
 
     // connect update sigslots
     connect(this,

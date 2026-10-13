@@ -31,6 +31,7 @@ public:
 
 public slots:
     void updateComponents();
+    void setSettingsCategory(int index);
 
 private slots:
     void showHelpChanged(bool checked);
@@ -124,6 +125,7 @@ private:
     QVBoxLayout* m_layout;
     QVBoxLayout* m_scrollAreaLayout;
     QScrollArea* m_scrollArea;
+    QWidget* m_categoryPages[3] { nullptr, nullptr, nullptr };
     QCheckBox* m_sysNotifications;
     QCheckBox* m_abortNotifications;
     QCheckBox* m_showTray;

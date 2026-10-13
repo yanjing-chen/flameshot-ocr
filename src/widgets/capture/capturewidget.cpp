@@ -10,6 +10,7 @@
 // <http://www.gnu.org/licenses/old-licenses/library.txt>
 
 #include "capturewidget.h"
+#include "utils/gnomeaccent.h"
 #include "tools/pin/pinwidget.h"
 
 #include <QHBoxLayout>
@@ -537,7 +538,7 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
     auto* toolbarFrame = new QFrame(parent);
     toolbarFrame->setObjectName(QStringLiteral("windowEditorToolbarFrame"));
     toolbarFrame->setProperty("flameshotUiStage", "3.0-E.2-configurable-settings");
-    toolbarFrame->setFixedHeight(52);
+    toolbarFrame->setFixedHeight(62);
 
     auto* outer = new QHBoxLayout(toolbarFrame);
     outer->setContentsMargins(6, 4, 6, 4);
@@ -549,14 +550,14 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scroll->setWidgetResizable(true);
-    scroll->setFixedHeight(42);
+    scroll->setFixedHeight(52);
 
     auto* content = new QWidget(scroll);
     content->setObjectName(QStringLiteral("windowEditorToolbarContent"));
 
     auto* row = new QHBoxLayout(content);
     row->setContentsMargins(2, 0, 2, 0);
-    row->setSpacing(2);
+    row->setSpacing(3);
     row->setSizeConstraint(QLayout::SetMinimumSize);
 
     const QString alignment = m_config.windowEditorToolbarAlignment();
@@ -660,7 +661,7 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
     auto makeCell = [content]() {
         auto* cell = new QFrame(content);
         cell->setObjectName(QStringLiteral("windowEditorToolCell"));
-        cell->setFixedSize(36, 36);
+        cell->setFixedSize(44, 44);
         auto* cellLayout = new QVBoxLayout(cell);
         cellLayout->setContentsMargins(0, 0, 0, 0);
         cellLayout->setSpacing(0);
@@ -683,8 +684,8 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
               QStringLiteral("windowEditorSettingsButton"));
             settingsButton->setAutoRaise(true);
             settingsButton->setCheckable(true);
-            settingsButton->setFixedSize(32, 32);
-            settingsButton->setIconSize(QSize(20, 20));
+            settingsButton->setFixedSize(40, 40);
+            settingsButton->setIconSize(QSize(28, 28));
             settingsButton->setIcon(QIcon(QStringLiteral(
               ":/img/window-editor/dark/wrench.svg")));
             settingsButton->setToolTip(tr("Tool Settings"));
@@ -725,8 +726,8 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
         auto* proxy = new QToolButton(cell);
         proxy->setObjectName(QStringLiteral("windowEditorToolButton"));
         proxy->setAutoRaise(true);
-        proxy->setFixedSize(32, 32);
-        proxy->setIconSize(QSize(20, 20));
+        proxy->setFixedSize(40, 40);
+        proxy->setIconSize(QSize(28, 28));
         proxy->setCheckable(sourceButton->tool()->isSelectable());
         proxy->setProperty(
           "sourceButton",
@@ -819,6 +820,30 @@ QScrollBar::sub-line:horizontal {
     width: 0px;
 }
 )STYLE"));
+
+    // G.2B: GNOME accent applies to checked/primary toolbar buttons.
+    // The existing dark SVG icon resource, action semantics and horizontal
+    // scroll fallback remain untouched.
+    const QString baseToolbarStyle = toolbarFrame->styleSheet();
+    auto applyToolbarAccent = [toolbarFrame, baseToolbarStyle]() {
+        const QColor accent = GnomeAccent::current(toolbarFrame->palette());
+        const QColor base(QStringLiteral("#fbfbfc"));
+        const QString selected = GnomeAccent::blend(accent, base, 19).name();
+        const QString hover = GnomeAccent::blend(accent, base, 10).name();
+        const QString pressed = GnomeAccent::blend(accent, base, 26).name();
+        toolbarFrame->setStyleSheet(baseToolbarStyle + QStringLiteral(R"QSS(
+QToolButton#windowEditorToolButton:hover,
+QToolButton#windowEditorSettingsButton:hover { background: %1; }
+QToolButton#windowEditorToolButton:pressed,
+QToolButton#windowEditorSettingsButton:pressed { background: %2; }
+QToolButton#windowEditorToolButton:checked,
+QToolButton#windowEditorSettingsButton:checked,
+QToolButton#windowEditorToolButton[primaryAction="true"]:checked { background: %3; }
+QToolButton#windowEditorToolButton[primaryAction="true"]:hover { background: %1; }
+)QSS").arg(hover).arg(pressed).arg(selected));
+    };
+    applyToolbarAccent();
+    GnomeAccent::watch(toolbarFrame, applyToolbarAccent);
 
     syncWindowEditorToolbarState();
     return toolbarFrame;
@@ -2196,8 +2221,8 @@ void CaptureWidget::updateWindowEditorToolbarCompactMode()
         return;
     }
 
-    constexpr int regularCellWidth = 36;
-    constexpr int regularSpacing = 2;
+    constexpr int regularCellWidth = 44;
+    constexpr int regularSpacing = 3;
     constexpr int regularChrome = 18;
 
     const int regularRequiredWidth =
@@ -2218,12 +2243,12 @@ void CaptureWidget::updateWindowEditorToolbarCompactMode()
     auto* outer = qobject_cast<QHBoxLayout*>(toolbarFrame->layout());
     auto* row = qobject_cast<QHBoxLayout*>(toolbarContent->layout());
 
-    const QSize cellSize = compact ? QSize(30, 32) : QSize(36, 36);
-    const QSize buttonSize = compact ? QSize(28, 28) : QSize(32, 32);
-    const QSize iconSize = compact ? QSize(18, 18) : QSize(20, 20);
+    const QSize cellSize = compact ? QSize(34, 36) : QSize(44, 44);
+    const QSize buttonSize = compact ? QSize(32, 32) : QSize(40, 40);
+    const QSize iconSize = compact ? QSize(23, 23) : QSize(28, 28);
 
-    toolbarFrame->setFixedHeight(compact ? 46 : 52);
-    toolbarScroll->setFixedHeight(compact ? 38 : 42);
+    toolbarFrame->setFixedHeight(compact ? 52 : 62);
+    toolbarScroll->setFixedHeight(compact ? 44 : 52);
 
     if (outer) {
         outer->setContentsMargins(
@@ -2234,7 +2259,7 @@ void CaptureWidget::updateWindowEditorToolbarCompactMode()
     }
     if (row) {
         row->setContentsMargins(compact ? 0 : 2, 0, compact ? 0 : 2, 0);
-        row->setSpacing(compact ? 1 : 2);
+        row->setSpacing(compact ? 2 : 3);
     }
 
     for (QFrame* cell : cells) {

@@ -5,6 +5,9 @@
 #include "utils/confighandler.h"
 
 #include <QCheckBox>
+#include <QFrame>
+#include <QScrollBar>
+#include <QLayoutItem>
 #include <QComboBox>
 #include <QFile>
 #include <QFileDialog>
@@ -91,6 +94,79 @@ GeneralConf::GeneralConf(QWidget* parent)
     initReverseArrow();
     // this has to be at the end
     initConfigButtons();
+    // G.2B: all original settings widgets are retained; they are moved into
+    // three independent stacked-in-place categories, not cloned or rewired.
+    // Only the active category is laid out inside the original scroll area.
+    QWidget* scrollBody = m_scrollArea->widget();
+    QVBoxLayout* sectionLayouts[3] = { nullptr, nullptr, nullptr };
+    const QString sectionTitles[3] = {
+      tr("Startup and notifications"),
+      tr("Screenshot behavior"),
+      tr("Editing and display")
+    };
+    for (int i = 0; i < 3; ++i) {
+        auto* page = new QWidget(scrollBody);
+        page->setObjectName(QStringLiteral("configCategoryPage"));
+        auto* pageLayout = new QVBoxLayout(page);
+        pageLayout->setContentsMargins(8, 6, 8, 16);
+        pageLayout->setSpacing(12);
+        auto* card = new QFrame(page);
+        card->setObjectName(QStringLiteral("configSettingsGroupCard"));
+        auto* cardLayout = new QVBoxLayout(card);
+        cardLayout->setContentsMargins(20, 16, 20, 16);
+        cardLayout->setSpacing(12);
+        pageLayout->addWidget(card);
+        pageLayout->addStretch(1);
+        sectionLayouts[i] = cardLayout;
+        m_categoryPages[i] = page;
+    }
+    int currentSection = 0;
+    while (m_scrollAreaLayout->count() > 0) {
+        QLayoutItem* item = m_scrollAreaLayout->takeAt(0);
+        if (auto* widget = item->widget()) {
+            auto* heading = qobject_cast<QLabel*>(widget);
+            if (heading && heading->objectName() ==
+                             QStringLiteral("configSectionHeading")) {
+                const int index = [&]() {
+                    for (int i = 0; i < 3; ++i)
+                        if (heading->text() == sectionTitles[i]) return i;
+                    return currentSection;
+                }();
+                currentSection = index;
+                widget->deleteLater();
+            } else {
+                sectionLayouts[currentSection]->addWidget(widget);
+            }
+        } else if (auto* nested = item->layout()) {
+            sectionLayouts[currentSection]->addLayout(nested);
+            continue; // QLayout is the QLayoutItem, now owned by new layout.
+        }
+        delete item;
+    }
+
+    // GeneralConf used to pin several save/edit widgets below a small
+    // independent scroll box. Move all of them to the third category so
+    // the entire right-hand page now scrolls together.
+    while (m_layout->count() > 1) {
+        QLayoutItem* item = m_layout->takeAt(1);
+        if (auto* widget = item->widget()) {
+            sectionLayouts[2]->addWidget(widget);
+        } else if (auto* nested = item->layout()) {
+            sectionLayouts[2]->addLayout(nested);
+            continue; // Nested QLayout moved into the target category.
+        }
+        delete item;
+    }
+    for (int i = 0; i < 3; ++i) {
+        m_scrollAreaLayout->addWidget(m_categoryPages[i]);
+    }
+    m_scrollAreaLayout->addStretch(1);
+    m_scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_scrollAreaLayout->setContentsMargins(0, 0, 0, 0);
+    m_scrollAreaLayout->setSpacing(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    setSettingsCategory(0);
+
     updateComponents();
 }
 
@@ -146,6 +222,17 @@ void GeneralConf::_updateComponents(bool allowEmptySavePath)
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     m_useX11LegacyScreenshot->setChecked(config.useX11LegacyScreenshot());
 #endif
+}
+
+void GeneralConf::setSettingsCategory(int index)
+{
+    index = qBound(0, index, 2);
+    for (int i = 0; i < 3; ++i) {
+        if (m_categoryPages[i]) m_categoryPages[i]->setVisible(i == index);
+    }
+    if (m_scrollArea && m_scrollArea->verticalScrollBar()) {
+        m_scrollArea->verticalScrollBar()->setValue(0);
+    }
 }
 
 void GeneralConf::updateComponents()

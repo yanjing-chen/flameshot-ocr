@@ -16,10 +16,12 @@ checks = {
         and "sourceButton->tool()->name()" in CPP
         and "sourceButton->toolTip()" in CPP,
     "DEFAULT COMPACT":
-        "toolbarFrame->setFixedHeight(52);" in CPP
-        and "cell->setFixedSize(36, 36);" in CPP,
+        "toolbarFrame->setFixedHeight(62);" in CPP
+        and "cell->setFixedSize(44, 44);" in CPP
+        and "proxy->setIconSize(QSize(28, 28));" in CPP,
     "NARROW EXTRA COMPACT":
-        "QSize(30, 32)" in CPP
+        "compact ? QSize(34, 36) : QSize(44, 44)" in CPP
+        and "compact ? QSize(23, 23) : QSize(28, 28)" in CPP
         and "regularRequiredWidth" in CPP,
     "SETTINGS PSEUDO ITEM":
         "kWindowEditorSettingsToolbarItem = -1000" in BL
