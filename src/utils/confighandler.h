@@ -134,6 +134,7 @@ public:
     CONFIG_GETTER_SETTER(windowEditorToolbarOrder,
                          setWindowEditorToolbarOrder,
                          QString)
+    CONFIG_GETTER_SETTER(windowEditorSettingsButtonVisible, setWindowEditorSettingsButtonVisible, bool)
     CONFIG_GETTER_SETTER(windowEditorToolbarAlignment,
                          setWindowEditorToolbarAlignment,
                          QString)

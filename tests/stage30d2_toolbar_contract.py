@@ -14,7 +14,7 @@ CONFIG_HDR = Path("src/utils/confighandler.h").read_text(encoding="utf-8")
 checks = {
     "FIXED BOTTOM TOOLBAR":
         "createWindowEditorToolbar" in CPP
-        and "layout->addWidget(scrollArea, 1);" in CPP
+        and ("layout->addWidget(scrollArea, 1);" in CPP or "workspaceLayout->addWidget(scrollArea, 1);" in CPP)
         and "layout->addWidget(toolbar, 0);" in CPP,
 
     "TOOLBAR OUTSIDE CANVAS":
@@ -95,6 +95,12 @@ for forbidden in (
     "setParent(",
     "setWindowState(",
 ):
+    if forbidden == "setParent(":
+        allowed_child_reparent = "canvas->m_panel->setParent(settingsDock);"
+        if allowed_child_reparent in stage_block:
+            assert stage_block.count(allowed_child_reparent) == 1, "duplicate child reparent"
+            assert stage_block.count("setParent(") == 1, "unexpected reparent"
+            continue
     assert forbidden not in stage_block, forbidden
 
 assert "new QWidget(nullptr, Qt::Window)" in stage_block

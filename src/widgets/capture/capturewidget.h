@@ -139,6 +139,7 @@ private:
     void updateTool(CaptureTool* tool);
     void syncWindowEditorToolbarState();
     void updateWindowEditorToolbarCompactMode();
+    void setWindowEditorToolSettingsVisible(bool visible);
     void updateLayersPanel();
     bool promptQuit();
     void pushToolToStack();

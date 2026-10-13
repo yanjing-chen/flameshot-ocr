@@ -32,6 +32,15 @@ for forbidden in (
     "setParent(",
     "showNormal()",
 ):
+    if forbidden == "setParent(":
+        # Permit only the UtilityPanel child moved into the new editor dock.
+        assert stage_block.count(
+            "canvas->m_panel->setParent(settingsDock);"
+        ) == 1, "expected one approved child panel move"
+        assert stage_block.count("setParent(") == 1, (
+            "unexpected additional setParent() in fullscreen handoff"
+        )
+        continue
     assert forbidden not in stage_block, (
         f"Forbidden mapped-surface mutation in Stage 3.0-A: {forbidden}"
     )

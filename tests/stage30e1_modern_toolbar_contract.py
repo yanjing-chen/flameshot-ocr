@@ -20,14 +20,19 @@ checks = {
     "ACTIVE ACCENT ICON":
         'QStringLiteral("accent")' in CPP
         and "syncWindowEditorToolbarState" in CPP,
-    "TOOL LABELS":
-        'windowEditorToolLabel' in CPP
-        and "sourceButton->tool()->name()" in CPP,
+    "TOOL ACCESSIBILITY":
+        (
+            'windowEditorToolLabel' in CPP
+            or (
+                "sourceButton->tool()->name()" in CPP
+                and "sourceButton->toolTip()" in CPP
+            )
+        ),
     "NO UNDEFINED BUTTON NAME WRAPPER":
         "sourceButton->name()" not in CPP,
     "ORDER PERSISTENCE PRESERVED":
         "windowEditorToolbarOrder()" in CPP
-        and "orderedTypes" in CPP,
+        and ("orderedTypes" in CPP or "orderedItems" in CPP),
     "ALIGNMENT PRESERVED":
         "windowEditorToolbarAlignment()" in CPP,
     "HORIZONTAL SCROLL PRESERVED":

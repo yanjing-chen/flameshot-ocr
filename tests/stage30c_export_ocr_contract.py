@@ -71,6 +71,12 @@ for forbidden in (
     "setParent(",
     "setWindowState(",
 ):
+    if forbidden == "setParent(":
+        allowed_child_reparent = "canvas->m_panel->setParent(settingsDock);"
+        if allowed_child_reparent in stage_block:
+            assert stage_block.count(allowed_child_reparent) == 1, "duplicate child reparent"
+            assert stage_block.count("setParent(") == 1, "unexpected reparent"
+            continue
     assert forbidden not in stage_block, forbidden
 
 print(f"{'NO MAPPED ROLE MUTATION':<30} PASS")

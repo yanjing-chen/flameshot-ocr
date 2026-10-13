@@ -6,12 +6,21 @@
 #include "utils/confighandler.h"
 
 #include <QDropEvent>
+#include <QIcon>
 #include <QListWidgetItem>
 #include <QSignalBlocker>
 #include <QStringList>
 
 namespace
 {
+constexpr int kWindowEditorSettingsToolbarItem = -1000;
+
+CaptureTool::Type windowEditorSettingsToolbarType()
+{
+    return static_cast<CaptureTool::Type>(
+      kWindowEditorSettingsToolbarItem);
+}
+
 QString encodeButtonOrder(const QList<CaptureTool::Type>& order)
 {
     QStringList values;
@@ -46,7 +55,9 @@ ButtonListView::ButtonListView(QWidget* parent)
 
 QList<CaptureTool::Type> ButtonListView::configuredOrder() const
 {
-    const auto defaults = CaptureToolButton::getIterableButtonTypes();
+    auto defaults = CaptureToolButton::getIterableButtonTypes();
+    defaults.append(windowEditorSettingsToolbarType());
+
     QList<CaptureTool::Type> result;
 
     const QString encoded = ConfigHandler().windowEditorToolbarOrder();
@@ -87,26 +98,36 @@ void ButtonListView::initButtonList()
     ToolFactory factory;
 
     for (const CaptureTool::Type type : configuredOrder()) {
-        CaptureTool* tool = factory.CreateTool(type);
-        if (!tool) {
-            continue;
-        }
-
         auto* item = new QListWidgetItem(this);
-
-        QColor bgColor = palette().color(QWidget::backgroundRole());
-        item->setIcon(tool->icon(bgColor, false));
 
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable |
                        Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled |
                        Qt::ItemIsDropEnabled);
+        item->setData(Qt::UserRole, static_cast<int>(type));
+
+        if (type == windowEditorSettingsToolbarType()) {
+            item->setIcon(QIcon(QStringLiteral(
+              ":/img/window-editor/dark/wrench.svg")));
+            item->setText(tr("Tool Settings"));
+            item->setToolTip(
+              tr("Show or hide tool settings in the window editor"));
+            continue;
+        }
+
+        CaptureTool* tool = factory.CreateTool(type);
+        if (!tool) {
+            delete item;
+            continue;
+        }
+
+        QColor bgColor = palette().color(QWidget::backgroundRole());
+        item->setIcon(tool->icon(bgColor, false));
 
         QColor foregroundColor =
           palette().color(QWidget::foregroundRole());
         item->setForeground(foregroundColor);
         item->setText(tool->name());
         item->setToolTip(tool->description());
-        item->setData(Qt::UserRole, static_cast<int>(type));
 
         tool->deleteLater();
     }
@@ -116,11 +137,18 @@ void ButtonListView::persistState()
 {
     QList<CaptureTool::Type> order;
     QList<CaptureTool::Type> enabled;
+    bool settingsButtonVisible = false;
 
     for (int row = 0; row < count(); ++row) {
         auto* item = this->item(row);
         const auto type = typeForItem(item);
         order.append(type);
+
+        if (type == windowEditorSettingsToolbarType()) {
+            settingsButtonVisible =
+              item->checkState() == Qt::Checked;
+            continue;
+        }
 
         if (item->checkState() == Qt::Checked) {
             enabled.append(type);
@@ -132,6 +160,8 @@ void ButtonListView::persistState()
     ConfigHandler config;
     config.setWindowEditorToolbarOrder(encodeButtonOrder(order));
     config.setButtons(enabled);
+    config.setWindowEditorSettingsButtonVisible(
+      settingsButtonVisible);
 }
 
 void ButtonListView::reorderItems(
@@ -187,7 +217,7 @@ void ButtonListView::resetOrder()
 
     {
         const QSignalBlocker blocker(this);
-        reorderItems(CaptureToolButton::getIterableButtonTypes());
+        reorderItems(configuredOrder());
     }
 
     persistState();
@@ -202,8 +232,18 @@ void ButtonListView::updateComponents()
 
     for (int row = 0; row < count(); ++row) {
         auto* item = this->item(row);
+        const auto type = typeForItem(item);
+
+        if (type == windowEditorSettingsToolbarType()) {
+            item->setCheckState(
+              ConfigHandler().windowEditorSettingsButtonVisible()
+                ? Qt::Checked
+                : Qt::Unchecked);
+            continue;
+        }
+
         item->setCheckState(
-          m_listButtons.contains(typeForItem(item)) ? Qt::Checked
-                                                    : Qt::Unchecked);
+          m_listButtons.contains(type) ? Qt::Checked
+                                       : Qt::Unchecked);
     }
 }

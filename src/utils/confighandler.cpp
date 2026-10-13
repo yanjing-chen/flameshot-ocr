@@ -112,6 +112,7 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("contrastOpacity"             ,BoundedInt         ( 0, 255, 190   )),
     OPTION("buttons"                     ,ButtonList         ( {}            )),
     OPTION("windowEditorToolbarOrder"    ,String             ( ""            )),
+    OPTION("windowEditorSettingsButtonVisible", Bool               ( true          )),
     OPTION("windowEditorToolbarAlignment",String             ( "center"      )),
     // Filename Editor tab
     OPTION("filenamePattern"             ,FilenamePattern    ( {}            )),

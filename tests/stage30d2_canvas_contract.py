@@ -15,7 +15,15 @@ checks = {
     "LARGE IMAGE REMAINS SCROLLABLE":
         "scrollArea->setWidgetResizable(false);" in CPP,
     "FIXED BOTTOM TOOLBAR PRESERVED":
-        "layout->addWidget(scrollArea, 1);" in CPP
+        (
+            "layout->addWidget(scrollArea, 1);" in CPP
+            or (
+                "windowEditorWorkspaceHost" in CPP
+                and "workspaceLayout->addWidget(scrollArea, 1);" in CPP
+                and "layout->addWidget(workspace, 1);" in CPP
+                and "windowEditorSettingsDock" in CPP
+            )
+        )
         and "layout->addWidget(toolbar, 0);" in CPP,
     "D2 PIN-IN-PLACE PRESERVED":
         "flameshotWindowEditorPinnedInPlace" in CPP,

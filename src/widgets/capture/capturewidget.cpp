@@ -41,6 +41,7 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QLabel>
+#include <QAbstractScrollArea>
 #include <QFrame>
 #include <QVBoxLayout>
 #include <QCheckBox>
@@ -531,16 +532,15 @@ void CaptureWidget::initButtons()
 
 QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
 {
-    // Stage 3.0-E.1:
-    // Keep the D.2 fixed-bottom structure and persisted ordering/alignment
-    // settings, but present tools through a new modern proxy toolbar.
+    constexpr int kWindowEditorSettingsToolbarItem = -1000;
+
     auto* toolbarFrame = new QFrame(parent);
     toolbarFrame->setObjectName(QStringLiteral("windowEditorToolbarFrame"));
-    toolbarFrame->setProperty("flameshotUiStage", "3.0-E.2A");
-    toolbarFrame->setFixedHeight(70);
+    toolbarFrame->setProperty("flameshotUiStage", "3.0-E.2-configurable-settings");
+    toolbarFrame->setFixedHeight(52);
 
     auto* outer = new QHBoxLayout(toolbarFrame);
-    outer->setContentsMargins(8, 5, 8, 5);
+    outer->setContentsMargins(6, 4, 6, 4);
     outer->setSpacing(0);
 
     auto* scroll = new QScrollArea(toolbarFrame);
@@ -549,7 +549,7 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scroll->setWidgetResizable(true);
-    scroll->setFixedHeight(58);
+    scroll->setFixedHeight(42);
 
     auto* content = new QWidget(scroll);
     content->setObjectName(QStringLiteral("windowEditorToolbarContent"));
@@ -565,31 +565,36 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
         row->addStretch(1);
     }
 
-    QList<CaptureTool::Type> orderedTypes;
+    QList<int> orderedItems;
     const auto allTypes = CaptureToolButton::getIterableButtonTypes();
 
-    const QString persistedOrder = m_config.windowEditorToolbarOrder();
     for (const QString& part :
-         persistedOrder.split(QLatin1Char(','), Qt::SkipEmptyParts)) {
+         m_config.windowEditorToolbarOrder().split(
+           QLatin1Char(','), Qt::SkipEmptyParts)) {
         bool ok = false;
         const int value = part.trimmed().toInt(&ok);
-        if (!ok) {
+        if (!ok || orderedItems.contains(value)) {
             continue;
         }
-        const auto type = static_cast<CaptureTool::Type>(value);
-        if (allTypes.contains(type) && !orderedTypes.contains(type)) {
-            orderedTypes.append(type);
+
+        if (value == kWindowEditorSettingsToolbarItem ||
+            allTypes.contains(static_cast<CaptureTool::Type>(value))) {
+            orderedItems.append(value);
         }
     }
 
     for (CaptureTool::Type type : allTypes) {
-        if (!orderedTypes.contains(type)) {
-            orderedTypes.append(type);
+        const int value = static_cast<int>(type);
+        if (!orderedItems.contains(value)) {
+            orderedItems.append(value);
         }
     }
 
-    auto visibleTypes = m_config.buttons();
+    if (!orderedItems.contains(kWindowEditorSettingsToolbarItem)) {
+        orderedItems.append(kWindowEditorSettingsToolbarItem);
+    }
 
+    auto visibleTypes = m_config.buttons();
 #ifdef ENABLE_IMGUR
     visibleTypes.removeOne(CaptureTool::TYPE_IMAGEUPLOADER);
 #endif
@@ -601,155 +606,150 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
             return QStringLiteral("generic");
         }
 
-        const QString cls =
-          QString::fromLatin1(sourceButton->tool()->metaObject()->className());
+        const QString cls = QString::fromLatin1(
+          sourceButton->tool()->metaObject()->className());
 
-        if (cls.contains(QStringLiteral("CircleCount"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("CircleCount"), Qt::CaseInsensitive))
             return QStringLiteral("count");
-        }
-        if (cls.contains(QStringLiteral("Pencil"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Pencil"), Qt::CaseInsensitive))
             return QStringLiteral("pencil");
-        }
         if (cls.contains(QStringLiteral("Drawer"), Qt::CaseInsensitive) ||
-            cls.contains(QStringLiteral("LineTool"), Qt::CaseInsensitive)) {
+            cls.contains(QStringLiteral("LineTool"), Qt::CaseInsensitive))
             return QStringLiteral("line");
-        }
-        if (cls.contains(QStringLiteral("Arrow"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Arrow"), Qt::CaseInsensitive))
             return QStringLiteral("arrow");
-        }
-        if (cls.contains(QStringLiteral("Selection"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Selection"), Qt::CaseInsensitive))
             return QStringLiteral("selection");
-        }
-        if (cls.contains(QStringLiteral("Rectangle"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Rectangle"), Qt::CaseInsensitive))
             return QStringLiteral("rectangle");
-        }
-        if (cls.contains(QStringLiteral("Circle"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Circle"), Qt::CaseInsensitive))
             return QStringLiteral("circle");
-        }
-        if (cls.contains(QStringLiteral("Marker"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Marker"), Qt::CaseInsensitive))
             return QStringLiteral("marker");
-        }
-        if (cls.contains(QStringLiteral("Text"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Text"), Qt::CaseInsensitive))
             return QStringLiteral("text");
-        }
-        if (cls.contains(QStringLiteral("Pixel"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Pixel"), Qt::CaseInsensitive))
             return QStringLiteral("pixelate");
-        }
-        if (cls.contains(QStringLiteral("Invert"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Invert"), Qt::CaseInsensitive))
             return QStringLiteral("invert");
-        }
-        if (cls.contains(QStringLiteral("Move"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Move"), Qt::CaseInsensitive))
             return QStringLiteral("move");
-        }
-        if (cls.contains(QStringLiteral("Undo"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Undo"), Qt::CaseInsensitive))
             return QStringLiteral("undo");
-        }
-        if (cls.contains(QStringLiteral("Redo"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Redo"), Qt::CaseInsensitive))
             return QStringLiteral("redo");
-        }
-        if (cls.contains(QStringLiteral("Copy"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Copy"), Qt::CaseInsensitive))
             return QStringLiteral("copy");
-        }
-        if (cls.contains(QStringLiteral("Save"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Save"), Qt::CaseInsensitive))
             return QStringLiteral("save");
-        }
-        if (cls.contains(QStringLiteral("Pin"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Pin"), Qt::CaseInsensitive))
             return QStringLiteral("pin");
-        }
         if (cls.contains(QStringLiteral("OCR"), Qt::CaseInsensitive) ||
-            cls.contains(QStringLiteral("Ocr"), Qt::CaseInsensitive)) {
+            cls.contains(QStringLiteral("Ocr"), Qt::CaseInsensitive))
             return QStringLiteral("ocr");
-        }
-        if (cls.contains(QStringLiteral("Exit"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Exit"), Qt::CaseInsensitive))
             return QStringLiteral("exit");
-        }
-        if (cls.contains(QStringLiteral("Accept"), Qt::CaseInsensitive)) {
+        if (cls.contains(QStringLiteral("Accept"), Qt::CaseInsensitive))
             return QStringLiteral("accept");
-        }
-        if (cls.contains(QStringLiteral("Increase"), Qt::CaseInsensitive)) {
-            return QStringLiteral("plus");
-        }
-        if (cls.contains(QStringLiteral("Decrease"), Qt::CaseInsensitive)) {
-            return QStringLiteral("minus");
-        }
-
         return QStringLiteral("generic");
     };
 
-    const auto candidates =
-      findChildren<CaptureToolButton*>(QString(),
-                                       Qt::FindDirectChildrenOnly);
+    const auto candidates = findChildren<CaptureToolButton*>(
+      QString(), Qt::FindDirectChildrenOnly);
 
-    for (CaptureTool::Type type : orderedTypes) {
+    auto makeCell = [content]() {
+        auto* cell = new QFrame(content);
+        cell->setObjectName(QStringLiteral("windowEditorToolCell"));
+        cell->setFixedSize(36, 36);
+        auto* cellLayout = new QVBoxLayout(cell);
+        cellLayout->setContentsMargins(0, 0, 0, 0);
+        cellLayout->setSpacing(0);
+        cellLayout->setAlignment(Qt::AlignCenter);
+        return qMakePair(cell, cellLayout);
+    };
+
+    for (int itemId : orderedItems) {
+        if (itemId == kWindowEditorSettingsToolbarItem) {
+            if (!m_config.windowEditorSettingsButtonVisible()) {
+                continue;
+            }
+
+            const auto pair = makeCell();
+            QFrame* cell = pair.first;
+            QVBoxLayout* cellLayout = pair.second;
+
+            auto* settingsButton = new QToolButton(cell);
+            settingsButton->setObjectName(
+              QStringLiteral("windowEditorSettingsButton"));
+            settingsButton->setAutoRaise(true);
+            settingsButton->setCheckable(true);
+            settingsButton->setFixedSize(32, 32);
+            settingsButton->setIconSize(QSize(20, 20));
+            settingsButton->setIcon(QIcon(QStringLiteral(
+              ":/img/window-editor/dark/wrench.svg")));
+            settingsButton->setToolTip(tr("Tool Settings"));
+            connect(settingsButton,
+                    &QToolButton::clicked,
+                    this,
+                    [this]() { togglePanel(); });
+
+            cellLayout->addWidget(settingsButton, 0, Qt::AlignCenter);
+            row->addWidget(cell);
+            continue;
+        }
+
+        const auto type = static_cast<CaptureTool::Type>(itemId);
         if (!visibleTypes.contains(type) || !m_tools.contains(type)) {
             continue;
         }
 
         CaptureTool* wantedTool = m_tools.value(type, nullptr);
         CaptureToolButton* sourceButton = nullptr;
-
         for (CaptureToolButton* candidate : candidates) {
             if (candidate && candidate->tool() == wantedTool) {
                 sourceButton = candidate;
                 break;
             }
         }
-
         if (!sourceButton) {
             continue;
         }
 
         sourceButton->hide();
-
         const QString iconName = iconNameFor(sourceButton);
 
-        auto* cell = new QFrame(content);
-        cell->setObjectName(QStringLiteral("windowEditorToolCell"));
-        cell->setFixedSize(46, 50);
-
-        auto* cellLayout = new QVBoxLayout(cell);
-        cellLayout->setContentsMargins(2, 2, 2, 1);
-        cellLayout->setSpacing(1);
-        cellLayout->setAlignment(Qt::AlignCenter);
+        const auto pair = makeCell();
+        QFrame* cell = pair.first;
+        QVBoxLayout* cellLayout = pair.second;
 
         auto* proxy = new QToolButton(cell);
         proxy->setObjectName(QStringLiteral("windowEditorToolButton"));
         proxy->setAutoRaise(true);
-        proxy->setFixedSize(34, 32);
+        proxy->setFixedSize(32, 32);
         proxy->setIconSize(QSize(20, 20));
-        proxy->setToolTip(
-          QStringLiteral("%1 — %2")
-            .arg(sourceButton->tool()->name(),
-                 sourceButton->toolTip()));
         proxy->setCheckable(sourceButton->tool()->isSelectable());
         proxy->setProperty(
           "sourceButton",
-          QVariant::fromValue<qulonglong>(
-            static_cast<qulonglong>(
-              reinterpret_cast<quintptr>(sourceButton))));
+          QVariant::fromValue<qulonglong>(static_cast<qulonglong>(
+            reinterpret_cast<quintptr>(sourceButton))));
         proxy->setProperty("modernIconName", iconName);
         proxy->setProperty("primaryAction",
                            iconName == QStringLiteral("ocr"));
-        proxy->setIcon(
-          QIcon(QStringLiteral(":/img/window-editor/dark/%1.svg")
-                  .arg(iconName)));
+        proxy->setIcon(QIcon(QStringLiteral(
+          ":/img/window-editor/dark/%1.svg").arg(iconName)));
+        proxy->setToolTip(QStringLiteral("%1 — %2")
+                            .arg(sourceButton->tool()->name(),
+                                 sourceButton->toolTip()));
 
-        QString labelText = sourceButton->tool()->name();
-        labelText.replace(QStringLiteral(" Tool"), QString());
+        connect(proxy,
+                &QToolButton::clicked,
+                this,
+                [this, sourceButton]() {
+                    handleButtonLeftClick(sourceButton);
+                    syncWindowEditorToolbarState();
+                });
 
-        auto* label = new QLabel(labelText, cell);
-        label->setObjectName(QStringLiteral("windowEditorToolLabel"));
-        label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        label->setFixedWidth(44);
-
-        cellLayout->addWidget(proxy, 0, Qt::AlignHCenter);
-        cellLayout->addWidget(label, 0, Qt::AlignHCenter);
-
-        connect(proxy, &QToolButton::clicked, this, [this, sourceButton]() {
-            handleButtonLeftClick(sourceButton);
-            syncWindowEditorToolbarState();
-        });
-
+        cellLayout->addWidget(proxy, 0, Qt::AlignCenter);
         row->addWidget(cell);
     }
 
@@ -777,19 +777,23 @@ QFrame#windowEditorToolCell {
     background: transparent;
     border: none;
 }
-QToolButton#windowEditorToolButton {
+QToolButton#windowEditorToolButton,
+QToolButton#windowEditorSettingsButton {
     background: transparent;
     border: none;
     border-radius: 9px;
-    padding: 6px;
+    padding: 5px;
 }
-QToolButton#windowEditorToolButton:hover {
+QToolButton#windowEditorToolButton:hover,
+QToolButton#windowEditorSettingsButton:hover {
     background: #eef4ff;
 }
-QToolButton#windowEditorToolButton:pressed {
+QToolButton#windowEditorToolButton:pressed,
+QToolButton#windowEditorSettingsButton:pressed {
     background: #dce9ff;
 }
-QToolButton#windowEditorToolButton:checked {
+QToolButton#windowEditorToolButton:checked,
+QToolButton#windowEditorSettingsButton:checked {
     background: #dbeafe;
 }
 QToolButton#windowEditorToolButton[primaryAction="true"] {
@@ -800,12 +804,6 @@ QToolButton#windowEditorToolButton[primaryAction="true"]:hover {
 }
 QToolButton#windowEditorToolButton[primaryAction="true"]:checked {
     background: #cfe1ff;
-}
-QLabel#windowEditorToolLabel {
-    color: #30343b;
-    background: transparent;
-    border: none;
-    font-size: 9px;
 }
 QScrollBar:horizontal {
     height: 5px;
@@ -836,7 +834,9 @@ void CaptureWidget::handleButtonRightClick(CaptureToolButton* b)
     if (!m_activeButton || m_activeButton != b) {
         setState(b);
     }
-    if (!m_panel->isVisible()) {
+    if (m_windowEditorMode) {
+        setWindowEditorToolSettingsVisible(true);
+    } else if (!m_panel->isVisible()) {
         m_panel->show();
     }
 }
@@ -1601,7 +1601,9 @@ bool CaptureWidget::eventFilter(QObject* watched, QEvent* event)
     if (m_windowEditorMode && watched == window() &&
         event && event->type() == QEvent::Resize) {
         QTimer::singleShot(
-          0, this, [this]() { updateWindowEditorToolbarCompactMode(); });
+          0, this, [this]() {
+              updateWindowEditorToolbarCompactMode();
+          });
     }
 
     return QWidget::eventFilter(watched, event);
@@ -1612,7 +1614,9 @@ void CaptureWidget::resizeEvent(QResizeEvent* e)
     QWidget::resizeEvent(e);
     m_context.widgetOffset = mapToGlobal(QPoint(0, 0));
     if (!m_context.fullscreen) {
-        m_panel->setFixedHeight(height());
+        if (!m_windowEditorMode) {
+            m_panel->setFixedHeight(height());
+        }
         m_buttonHandler->updateScreenRegions(rect());
     }
 }
@@ -1652,7 +1656,7 @@ void CaptureWidget::initPanel()
     // coords
     QRect panelRect = rect();
 
-    if (ConfigHandler().showSidePanelButton()) {
+    if (!m_windowEditorMode && ConfigHandler().showSidePanelButton()) {
         auto* panelToggleButton =
           new OrientablePushButton(tr("Tool Settings"), this);
         makeChild(panelToggleButton);
@@ -1720,14 +1724,37 @@ void CaptureWidget::initPanel()
             &CaptureWidget::toolSizeChanged,
             m_sidePanel,
             &SidePanelWidget::onToolSizeChanged);
-    connect(m_sidePanel,
-            &SidePanelWidget::togglePanel,
-            m_panel,
-            &UtilityPanel::toggle);
-    connect(
-      m_sidePanel, &SidePanelWidget::showPanel, m_panel, &UtilityPanel::show);
-    connect(
-      m_sidePanel, &SidePanelWidget::hidePanel, m_panel, &UtilityPanel::hide);
+    if (m_windowEditorMode) {
+        connect(m_sidePanel,
+                &SidePanelWidget::togglePanel,
+                this,
+                &CaptureWidget::togglePanel);
+        connect(m_sidePanel,
+                &SidePanelWidget::showPanel,
+                this,
+                [this]() {
+                    setWindowEditorToolSettingsVisible(true);
+                });
+        connect(m_sidePanel,
+                &SidePanelWidget::hidePanel,
+                this,
+                [this]() {
+                    setWindowEditorToolSettingsVisible(false);
+                });
+    } else {
+        connect(m_sidePanel,
+                &SidePanelWidget::togglePanel,
+                m_panel,
+                &UtilityPanel::toggle);
+        connect(m_sidePanel,
+                &SidePanelWidget::showPanel,
+                m_panel,
+                &UtilityPanel::show);
+        connect(m_sidePanel,
+                &SidePanelWidget::hidePanel,
+                m_panel,
+                &UtilityPanel::hide);
+    }
     connect(m_sidePanel,
             &SidePanelWidget::displayGridChanged,
             this,
@@ -1888,10 +1915,53 @@ void CaptureWidget::initSelection()
                       canvas->createWindowEditorToolbar(editor);
                     editor->installEventFilter(canvas);
 
+                    auto* workspace = new QWidget(editor);
+                    workspace->setObjectName(
+                      QStringLiteral("windowEditorWorkspaceHost"));
+                    auto* workspaceLayout =
+                      new QHBoxLayout(workspace);
+                    workspaceLayout->setContentsMargins(0, 0, 0, 0);
+                    workspaceLayout->setSpacing(0);
+                    workspaceLayout->addWidget(scrollArea, 1);
+
+                    auto* settingsDock = new QFrame(workspace);
+                    settingsDock->setObjectName(
+                      QStringLiteral("windowEditorSettingsDock"));
+                    settingsDock->setFixedWidth(340);
+                    settingsDock->setVisible(false);
+                    settingsDock->setStyleSheet(QStringLiteral(
+                      "QFrame#windowEditorSettingsDock { "
+                      "background: #fbfbfc; "
+                      "border-left: 1px solid #d9dde4; }"));
+
+                    auto* settingsLayout =
+                      new QVBoxLayout(settingsDock);
+                    settingsLayout->setContentsMargins(8, 8, 8, 8);
+                    settingsLayout->setSpacing(0);
+
+                    canvas->m_panel->setParent(settingsDock);
+                    canvas->m_panel->setMinimumSize(0, 0);
+                    canvas->m_panel->setMaximumSize(
+                      QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+
+                    const auto settingsScrollAreas =
+                      canvas->m_panel
+                        ->findChildren<QAbstractScrollArea*>();
+                    for (QAbstractScrollArea* area :
+                         settingsScrollAreas) {
+                        if (area) {
+                            area->setHorizontalScrollBarPolicy(
+                              Qt::ScrollBarAlwaysOff);
+                        }
+                    }
+
+                    settingsLayout->addWidget(canvas->m_panel);
+                    workspaceLayout->addWidget(settingsDock, 0);
+
                     auto* layout = new QVBoxLayout(editor);
                     layout->setContentsMargins(0, 0, 0, 0);
                     layout->setSpacing(0);
-                    layout->addWidget(scrollArea, 1);
+                    layout->addWidget(workspace, 1);
                     layout->addWidget(toolbar, 0);
 
                     const qreal dpr = selected.devicePixelRatio();
@@ -2051,37 +2121,29 @@ void CaptureWidget::updateWindowEditorToolbarCompactMode()
         return;
     }
 
-    auto* toolbarFrame =
-      editorShell->findChild<QFrame*>(
-        QStringLiteral("windowEditorToolbarFrame"));
-    auto* toolbarScroll =
-      editorShell->findChild<QScrollArea*>(
-        QStringLiteral("windowEditorToolbarScroll"));
-    auto* toolbarContent =
-      editorShell->findChild<QWidget*>(
-        QStringLiteral("windowEditorToolbarContent"));
+    auto* toolbarFrame = editorShell->findChild<QFrame*>(
+      QStringLiteral("windowEditorToolbarFrame"));
+    auto* toolbarScroll = editorShell->findChild<QScrollArea*>(
+      QStringLiteral("windowEditorToolbarScroll"));
+    auto* toolbarContent = editorShell->findChild<QWidget*>(
+      QStringLiteral("windowEditorToolbarContent"));
 
     if (!toolbarFrame || !toolbarScroll || !toolbarContent) {
         return;
     }
 
-    const auto cells =
-      toolbarContent->findChildren<QFrame*>(
-        QStringLiteral("windowEditorToolCell"),
-        Qt::FindDirectChildrenOnly);
+    const auto cells = toolbarContent->findChildren<QFrame*>(
+      QStringLiteral("windowEditorToolCell"),
+      Qt::FindDirectChildrenOnly);
 
     const int toolCount = cells.size();
     if (toolCount <= 0) {
         return;
     }
 
-    // Regular mode is already deliberately compact. Compact mode is only
-    // entered when the visible tool set would otherwise require horizontal
-    // scrolling. This calculation automatically adapts to user hide/show
-    // choices because it uses the actual number of visible toolbar cells.
-    constexpr int regularCellWidth = 46;
+    constexpr int regularCellWidth = 36;
     constexpr int regularSpacing = 2;
-    constexpr int regularChrome = 24;
+    constexpr int regularChrome = 18;
 
     const int regularRequiredWidth =
       toolCount * regularCellWidth +
@@ -2101,79 +2163,78 @@ void CaptureWidget::updateWindowEditorToolbarCompactMode()
     auto* outer = qobject_cast<QHBoxLayout*>(toolbarFrame->layout());
     auto* row = qobject_cast<QHBoxLayout*>(toolbarContent->layout());
 
-    if (compact) {
-        toolbarFrame->setFixedHeight(48);
-        toolbarScroll->setFixedHeight(40);
+    const QSize cellSize = compact ? QSize(30, 32) : QSize(36, 36);
+    const QSize buttonSize = compact ? QSize(28, 28) : QSize(32, 32);
+    const QSize iconSize = compact ? QSize(18, 18) : QSize(20, 20);
 
-        if (outer) {
-            outer->setContentsMargins(6, 3, 6, 3);
-        }
-        if (row) {
-            row->setContentsMargins(1, 0, 1, 0);
-            row->setSpacing(1);
-        }
+    toolbarFrame->setFixedHeight(compact ? 46 : 52);
+    toolbarScroll->setFixedHeight(compact ? 38 : 42);
 
-        for (QFrame* cell : cells) {
-            if (!cell) {
+    if (outer) {
+        outer->setContentsMargins(
+          compact ? 4 : 6,
+          compact ? 3 : 4,
+          compact ? 4 : 6,
+          compact ? 3 : 4);
+    }
+    if (row) {
+        row->setContentsMargins(compact ? 0 : 2, 0, compact ? 0 : 2, 0);
+        row->setSpacing(compact ? 1 : 2);
+    }
+
+    for (QFrame* cell : cells) {
+        if (!cell) {
+            continue;
+        }
+        cell->setFixedSize(cellSize);
+        for (QToolButton* button : cell->findChildren<QToolButton*>()) {
+            if (!button) {
                 continue;
             }
-
-            cell->setFixedSize(32, 34);
-
-            auto* proxy =
-              cell->findChild<QToolButton*>(
-                QStringLiteral("windowEditorToolButton"));
-            auto* label =
-              cell->findChild<QLabel*>(
-                QStringLiteral("windowEditorToolLabel"));
-
-            if (proxy) {
-                proxy->setFixedSize(30, 30);
-                proxy->setIconSize(QSize(18, 18));
-            }
-            if (label) {
-                label->hide();
-            }
-        }
-    } else {
-        toolbarFrame->setFixedHeight(70);
-        toolbarScroll->setFixedHeight(58);
-
-        if (outer) {
-            outer->setContentsMargins(8, 5, 8, 5);
-        }
-        if (row) {
-            row->setContentsMargins(2, 0, 2, 0);
-            row->setSpacing(2);
-        }
-
-        for (QFrame* cell : cells) {
-            if (!cell) {
-                continue;
-            }
-
-            cell->setFixedSize(46, 50);
-
-            auto* proxy =
-              cell->findChild<QToolButton*>(
-                QStringLiteral("windowEditorToolButton"));
-            auto* label =
-              cell->findChild<QLabel*>(
-                QStringLiteral("windowEditorToolLabel"));
-
-            if (proxy) {
-                proxy->setFixedSize(34, 32);
-                proxy->setIconSize(QSize(20, 20));
-            }
-            if (label) {
-                label->setFixedWidth(44);
-                label->show();
-            }
+            button->setFixedSize(buttonSize);
+            button->setIconSize(iconSize);
         }
     }
 
     toolbarFrame->updateGeometry();
     toolbarContent->updateGeometry();
+}
+
+void CaptureWidget::setWindowEditorToolSettingsVisible(bool visible)
+{
+    if (!m_windowEditorMode) {
+        if (m_panel) {
+            m_panel->setVisible(visible);
+        }
+        return;
+    }
+
+    QWidget* editorShell = window();
+    if (!editorShell) {
+        return;
+    }
+
+    auto* dock = editorShell->findChild<QFrame*>(
+      QStringLiteral("windowEditorSettingsDock"));
+    auto* settingsButton = editorShell->findChild<QToolButton*>(
+      QStringLiteral("windowEditorSettingsButton"));
+
+    if (!dock) {
+        return;
+    }
+
+    dock->setVisible(visible);
+    if (m_panel) {
+        m_panel->setVisible(visible);
+    }
+
+    if (settingsButton) {
+        settingsButton->setChecked(visible);
+        settingsButton->setIcon(QIcon(
+          visible
+            ? QStringLiteral(":/img/window-editor/accent/wrench.svg")
+            : QStringLiteral(":/img/window-editor/dark/wrench.svg")));
+    }
 }
 
 
@@ -2818,6 +2879,18 @@ QList<QShortcut*> CaptureWidget::newShortcut(const QKeySequence& key,
 
 void CaptureWidget::togglePanel()
 {
+    if (m_windowEditorMode) {
+        QWidget* editorShell = window();
+        auto* dock =
+          editorShell
+            ? editorShell->findChild<QFrame*>(
+                QStringLiteral("windowEditorSettingsDock"))
+            : nullptr;
+        const bool show = dock && !dock->isVisible();
+        setWindowEditorToolSettingsVisible(show);
+        return;
+    }
+
     m_panel->toggle();
 }
 

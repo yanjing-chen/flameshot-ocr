@@ -149,5 +149,7 @@
         <file>img/window-editor/accent/selection.svg</file>
         <file>img/window-editor/accent/text.svg</file>
         <file>img/window-editor/accent/undo.svg</file>
+        <file>img/window-editor/dark/wrench.svg</file>
+        <file>img/window-editor/accent/wrench.svg</file>
 </qresource>
 </RCC>
