@@ -5,6 +5,7 @@
 #include "utils/gnomeaccent.h"
 #include "config/configresolver.h"
 #include "config/filenameeditor.h"
+#include "config/gnomecontrols.h"
 #include "config/generalconf.h"
 #include "config/ocrconf.h"
 #include "config/shortcutswidget.h"
@@ -21,6 +22,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QListWidget>
+#include <QScrollArea>
 #include <QScreen>
 #include <QCloseEvent>
 #include <QDialogButtonBox>
@@ -284,7 +286,13 @@ QPushButton:default { background: %7; border: 1px solid %9; }
     m_visualsTab = new QWidget();
     auto* visualsLayout = new QVBoxLayout(m_visualsTab);
     m_visualsTab->setLayout(visualsLayout);
-    visualsLayout->addWidget(m_visuals);
+    auto* visualsScroll = new QScrollArea(m_visualsTab);
+    visualsScroll->setObjectName(QStringLiteral("g2d3VisualsScroll"));
+    visualsScroll->setFrameShape(QFrame::NoFrame);
+    visualsScroll->setWidgetResizable(true);
+    visualsScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    visualsScroll->setWidget(m_visuals);
+    visualsLayout->addWidget(visualsScroll);
     m_tabWidget->addTab(
       m_visualsTab, QIcon(modifier + "graphics.svg"), tr("Interface"));
 
@@ -425,6 +433,10 @@ QPushButton:default { background: %7; border: 1px solid %9; }
     initErrorIndicator(m_filenameEditorTab, m_filenameEditor);
     initErrorIndicator(m_generalConfigTab, m_generalConfig);
     initErrorIndicator(m_ocrConfigTab, m_ocrConfig);
+    // G.2D-3: GNOME controls with original widgets and callbacks intact.
+    GnomeControls::attachNumericSliders(m_generalConfig);
+    GnomeControls::apply(this);
+    GnomeAccent::watch(this, [this]() { GnomeControls::apply(this); });
     initErrorIndicator(m_shortcutsTab, m_shortcuts);
 }
 

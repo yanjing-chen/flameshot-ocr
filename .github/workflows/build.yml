@@ -94,6 +94,7 @@ jobs:
           python3 tests/stage30g2c_gnome_preferences_font_contract.py
           python3 tests/stage30g2d1_editor_responsive_contract.py
           python3 tests/stage30g2d2_ocr_shortcuts_hidpi_contract.py
+          python3 tests/stage30g2d3_control_polish_contract.py
           python3 tests/package_identity_contract.py
 
       - name: Download linuxdeploy

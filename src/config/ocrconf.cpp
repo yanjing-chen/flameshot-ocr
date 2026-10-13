@@ -39,6 +39,7 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QSizePolicy>
 #include <QScrollArea>
 #include <QSignalBlocker>
 #include <QSpinBox>
@@ -801,8 +802,18 @@ OcrConf::OcrConf(QWidget* parent)
 
     m_backendStatus = new QLabel(tr("Checking acceleration backends..."),
                                  accelerationBox);
+    // G.2D-3 backend status: allow complete status text and dynamic height.
+    m_backendStatus->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_backendStatus->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    m_backendStatus->setMinimumHeight(46);
     m_backendStatus->setWordWrap(true);
-    accelerationForm->addRow(tr("Backend status:"), m_backendStatus);
+    // A spanning row gives variable-length backend descriptions real width.
+    auto* backendStatusRow = new QVBoxLayout();
+    auto* backendStatusTitle = new QLabel(tr("Backend status:"), accelerationBox);
+    backendStatusRow->setSpacing(5);
+    backendStatusRow->addWidget(backendStatusTitle);
+    backendStatusRow->addWidget(m_backendStatus);
+    accelerationForm->addRow(backendStatusRow);
 
     m_cudaBackendStatus =
       new QLabel(tr("Checking optional CUDA runtime..."), accelerationBox);

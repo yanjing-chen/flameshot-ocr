@@ -760,8 +760,6 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
           QVariant::fromValue<qulonglong>(static_cast<qulonglong>(
             reinterpret_cast<quintptr>(sourceButton))));
         proxy->setProperty("modernIconName", iconName);
-        proxy->setProperty("primaryAction",
-                           iconName == QStringLiteral("ocr"));
         proxy->setIcon(g2d2CrispIcon(QStringLiteral(
           ":/img/window-editor/dark/%1.svg").arg(iconName)));
         proxy->setToolTip(QStringLiteral("%1 — %2")
@@ -823,15 +821,6 @@ QToolButton#windowEditorToolButton:checked,
 QToolButton#windowEditorSettingsButton:checked {
     background: #dbeafe;
 }
-QToolButton#windowEditorToolButton[primaryAction="true"] {
-    background: #edf4ff;
-}
-QToolButton#windowEditorToolButton[primaryAction="true"]:hover {
-    background: #dfeaff;
-}
-QToolButton#windowEditorToolButton[primaryAction="true"]:checked {
-    background: #cfe1ff;
-}
 QScrollBar:horizontal {
     height: 5px;
     background: transparent;
@@ -863,9 +852,7 @@ QToolButton#windowEditorSettingsButton:hover { background: %1; }
 QToolButton#windowEditorToolButton:pressed,
 QToolButton#windowEditorSettingsButton:pressed { background: %2; }
 QToolButton#windowEditorToolButton:checked,
-QToolButton#windowEditorSettingsButton:checked,
-QToolButton#windowEditorToolButton[primaryAction="true"]:checked { background: %3; }
-QToolButton#windowEditorToolButton[primaryAction="true"]:hover { background: %1; }
+QToolButton#windowEditorSettingsButton:checked { background: %3; }
 )QSS").arg(hover).arg(pressed).arg(selected));
     };
     applyToolbarAccent();

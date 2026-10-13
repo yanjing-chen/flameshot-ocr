@@ -11,6 +11,7 @@
 #include <QDirIterator>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QSizePolicy>
 #include <QMessageBox>
 
 VisualsEditor::VisualsEditor(QWidget* parent)
@@ -93,6 +94,12 @@ void VisualsEditor::initWidgets()
     boxButtons->setTitle(tr("Button Selection"));
     auto* listLayout = new QVBoxLayout(boxButtons);
     m_buttonList = new ButtonListView();
+    // G.2D-3: a drag-sort list must show several items without scrolling.
+    // It remains the original ButtonListView and persists the same order.
+    m_buttonList->setMinimumHeight(330);
+    m_buttonList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_buttonList->setSpacing(3);
+    m_buttonList->setUniformItemSizes(true);
     m_layout->addWidget(boxButtons);
     listLayout->addWidget(m_buttonList);
 
