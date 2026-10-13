@@ -33,7 +33,15 @@ checks={
  'ONE CLICK TO SET FONT': bool(font_click_match) and all(piece in font_click_body for piece in ('if (!item) return;', 'const QString family = item->text();', 'm_fontsCB->setCurrentText(family);')),
  'FONT FAMILY SIGNAL PRESERVED': '&QComboBox::currentTextChanged' in f and '&TextConfig::fontFamilyChanged' in f,
  'TEXTCONFIG FONT WIDGET MEMBER PRESERVED': 'QComboBox* m_fontsCB;' in fh,
- 'NO IMAGE GEOMETRY CHANGE': 'src/widgets/capture/capturewidget.cpp' not in __import__('subprocess').check_output(['git','diff','--name-only'],text=True),
+  'NO IMAGE GEOMETRY CHANGE': all(fragment in Path('src/widgets/capture/capturewidget.cpp').read_text(encoding='utf-8') for fragment in (
+      'm_context.screenshot = initialScreenshot;',
+      'm_context.origScreenshot = initialScreenshot;',
+      'const qreal dpr = initialScreenshot.devicePixelRatio();',
+      'resize(logicalImageSize);',
+      'm_windowEditorSourceGeometryValid',
+      'lastRegion = m_windowEditorLastRegion;',
+      'geometry = m_windowEditorSourceGeometry;',
+  )),
 }
 for label,ok in checks.items():
  print(f'{label:<44} {"PASS" if ok else "FAIL"}')

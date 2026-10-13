@@ -3,6 +3,9 @@
 #pragma once
 
 #include <QColor>
+#include <QFileInfo>
+#include <QProcessEnvironment>
+#include <QDebug>
 #include <QObject>
 #include <QPalette>
 #include <QProcess>
@@ -11,6 +14,23 @@
 #include <functional>
 
 namespace GnomeAccent {
+// Avoid accidentally using the AppImage-bundled gsettings or GLib schema paths.
+inline QString hostGsettings()
+{
+    return QFileInfo::exists(QStringLiteral("/usr/bin/gsettings"))
+      ? QStringLiteral("/usr/bin/gsettings") : QStringLiteral("gsettings");
+}
+inline QProcessEnvironment hostGsettingsEnv()
+{
+    auto env = QProcessEnvironment::systemEnvironment();
+    for (const char* key : { "GSETTINGS_SCHEMA_DIR", "GIO_MODULE_DIR",
+                             "GI_TYPELIB_PATH", "LD_LIBRARY_PATH",
+                             "LD_PRELOAD", "GDK_PIXBUF_MODULEDIR" }) {
+        env.remove(QString::fromLatin1(key));
+    }
+    return env;
+}
+
 
 inline QColor blend(const QColor& accent, const QColor& surface, int percent)
 {
@@ -26,12 +46,17 @@ inline QColor current(const QPalette& palette)
     // GNOME 47+ exposes this enum through GSettings. Fall back cleanly for
     // missing gsettings, other desktops and unknown future accent names.
     QProcess process;
-    process.start(QStringLiteral("gsettings"),
+    process.setProcessEnvironment(hostGsettingsEnv());
+    process.start(hostGsettings(),
                   {QStringLiteral("get"),
                    QStringLiteral("org.gnome.desktop.interface"),
                    QStringLiteral("accent-color")});
     if (!process.waitForStarted(300) || !process.waitForFinished(900) ||
         process.exitCode() != 0) {
+        qWarning() << "GNOME accent: host gsettings query failed; using a fallback";
+        if (qEnvironmentVariable("XDG_CURRENT_DESKTOP").contains(
+              QStringLiteral("GNOME"), Qt::CaseInsensitive))
+            return QColor(QStringLiteral("#3584e4"));
         return palette.color(QPalette::Highlight);
     }
     QString name = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
@@ -68,7 +93,8 @@ inline void watch(QObject* owner, const std::function<void()>& update)
                      [monitor, update]() {
         if (!monitor->readAllStandardOutput().trimmed().isEmpty()) update();
     });
-    monitor->start(QStringLiteral("gsettings"),
+    monitor->setProcessEnvironment(hostGsettingsEnv());
+    monitor->start(hostGsettings(),
                    {QStringLiteral("monitor"),
                     QStringLiteral("org.gnome.desktop.interface"),
                     QStringLiteral("accent-color")});

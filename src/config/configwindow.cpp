@@ -152,14 +152,12 @@ QWidget#configCategoryPage { background: transparent; }
 QLabel#configSectionHeading {
         color: %5; font-size: 15px; font-weight: 700; padding: 8px 0 3px 0;
     }
-    QWidget#configGeneralPage QGroupBox,
-    QWidget#configOcrPage QGroupBox {
+    QTabWidget#configPageStack QGroupBox {
         color: %4; font-weight: 600; border: 1px solid %3;
         border-radius: 9px; margin-top: 16px; padding: 12px 9px 9px 9px;
         background: %2;
     }
-    QWidget#configGeneralPage QGroupBox::title,
-    QWidget#configOcrPage QGroupBox::title {
+    QTabWidget#configPageStack QGroupBox::title {
         subcontrol-origin: margin; subcontrol-position: top left;
         left: 12px; padding: 0 6px; background: %2;
     }
@@ -181,6 +179,22 @@ QPushButton:default { background: %7; border: 1px solid %9; }
         background: %8; color: %4; border: 1px solid %3;
         border-radius: 7px;
     }
+    QTabWidget#configPageStack QScrollArea { border: 0; background: transparent; }
+    QTabWidget#configPageStack QScrollArea QWidget#qt_scrollarea_viewport { background: transparent; }
+    QTabWidget#configPageStack QTableWidget, QTabWidget#configPageStack QTreeWidget {
+        background: %2; color: %4; border: 1px solid %3;
+        border-radius: 10px; outline: 0; alternate-background-color: %8;
+    }
+    QTabWidget#configPageStack QHeaderView::section {
+        background: %8; color: %4; font-weight: 600;
+        border: 0; border-bottom: 1px solid %3; padding: 9px;
+    }
+    QTabWidget#configPageStack QComboBox QAbstractItemView {
+        background: %2; color: %4; border: 1px solid %3;
+        border-radius: 10px; outline: none;
+        selection-background-color: %7; selection-color: %4;
+    }
+    QTabWidget#configPageStack QComboBox QAbstractItemView::item { min-height: 30px; padding: 5px 10px; }
     QTabBar::tab {
         padding: 9px 13px; min-height: 26px;
         color: %4; background: %2;
@@ -268,7 +282,8 @@ QPushButton:default { background: %7; border: 1px solid %9; }
     struct NavigationEntry { QString text; QIcon icon; int originalTab; int category; };
     // G.2C: self-contained 48px vector icons, not dependent on host GNOME icon theme.
     auto categoryIcon = [this](int category) -> QIcon {
-        QPixmap pixmap(48, 48);
+        QPixmap pixmap(96, 96);
+        pixmap.setDevicePixelRatio(2.0);
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
         painter.setRenderHint(QPainter::Antialiasing);

@@ -11,6 +11,7 @@
 
 #include "capturewidget.h"
 #include "utils/gnomeaccent.h"
+#include "utils/colorutils.h"
 #include "tools/pin/pinwidget.h"
 
 #include <QHBoxLayout>
@@ -2011,6 +2012,51 @@ void CaptureWidget::initSelection()
                       "spacing: 8px; }"
                       "QFrame#windowEditorSettingsDock QScrollArea { "
                       "border: none; background: transparent; }"));
+                    // G.2D-1: bind the existing editor dock theme to GNOME.
+                    const QString baseDockStyle = settingsDock->styleSheet();
+                    auto applyEditorDockAppearance = [settingsDock, baseDockStyle]() {
+                        const QColor accent = GnomeAccent::current(settingsDock->palette());
+                        const bool dark = ColorUtils::colorIsDark(
+                          settingsDock->palette().window().color());
+                        const QString surface = dark ? QStringLiteral("#2b3038")
+                                                     : QStringLiteral("#f7f8fa");
+                        const QString field = dark ? QStringLiteral("#343a44")
+                                                   : QStringLiteral("#ffffff");
+                        const QString outline = dark ? QStringLiteral("#505969")
+                                                     : QStringLiteral("#d9dde4");
+                        const QString fg = dark ? QStringLiteral("#edf0f4")
+                                                : QStringLiteral("#2d333b");
+                        const QString hover = dark ? QStringLiteral("#404754")
+                                                   : QStringLiteral("#f0f3f7");
+                        const QString muted = dark ? QStringLiteral("#abb5c4")
+                                                   : QStringLiteral("#9aa3ad");
+                        QString style = baseDockStyle;
+                        style.replace(QStringLiteral("#f7f8fa"), surface);
+                        style.replace(QStringLiteral("#ffffff"), field);
+                        style.replace(QStringLiteral("#2d333b"), fg);
+                        style.replace(QStringLiteral("#1b1f23"), fg);
+                        style.replace(QStringLiteral("#d9dde4"), outline);
+                        style.replace(QStringLiteral("#cfd5dd"), outline);
+                        style.replace(QStringLiteral("#d7dce3"), outline);
+                        style.replace(QStringLiteral("#f0f3f7"), hover);
+                        style.replace(QStringLiteral("#f0f2f5"), hover);
+                        style.replace(QStringLiteral("#9aa3ad"), muted);
+                        style.replace(QStringLiteral("#dcecff"),
+                                      GnomeAccent::blend(accent, QColor(surface), 24).name());
+                        style += QStringLiteral(
+                          " QFrame#windowEditorSettingsDock QComboBox QAbstractItemView {"
+                          " border: 1px solid %1; border-radius: 10px;"
+                          " background: %2; color: %3;"
+                          " selection-background-color: %4;"
+                          " selection-color: %3; outline: none; }"
+                          " QFrame#windowEditorSettingsDock QPushButton:focus {"
+                          " border-color: %4; }")
+                                   .arg(outline, field, fg, accent.name());
+                        settingsDock->setStyleSheet(style);
+                    };
+                    applyEditorDockAppearance();
+                    GnomeAccent::watch(settingsDock, applyEditorDockAppearance);
+
 
                     auto* settingsLayout =
                       new QVBoxLayout(settingsDock);

@@ -11,6 +11,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QTimer>
+#include <QSizePolicy>
 #include <QVBoxLayout>
 
 UtilityPanel::UtilityPanel(CaptureWidget* captureWidget)
@@ -81,6 +82,11 @@ void UtilityPanel::clearToolWidget()
 void UtilityPanel::pushWidget(QWidget* widget)
 {
     m_layout->insertWidget(m_layout->count() - 1, widget);
+    if (m_windowEditorDockMode && widget) {
+        if (auto* wheel = widget->findChild<QWidget*>(
+              QStringLiteral("windowEditorColorWheel")))
+            wheel->setMinimumSize(112, 112);
+    }
 }
 
 void UtilityPanel::enableWindowEditorDockMode()
@@ -120,6 +126,16 @@ void UtilityPanel::enableWindowEditorDockMode()
                                    QSizePolicy::Expanding);
     m_internalPanel->setFrameShape(QFrame::NoFrame);
     m_internalPanel->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_internalPanel->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_layout->setSizeConstraint(QLayout::SetMinimumSize);
+    // Do not let the layer view consume the height needed for the color wheel.
+    m_captureTools->setMinimumHeight(105);
+    m_captureTools->setMaximumHeight(190);
+    m_captureTools->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    // The color wheel has a stable object name assigned in SidePanelWidget.
+    // Reserve its real size; QScrollArea handles smaller editor windows.
+    if (auto* wheel = findChild<QWidget*>(QStringLiteral("windowEditorColorWheel")))
+        wheel->setMinimumSize(112, 112);
     m_internalPanel->hide();
     QWidget::hide();
 }
