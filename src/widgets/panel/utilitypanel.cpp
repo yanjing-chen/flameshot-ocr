@@ -240,12 +240,22 @@ void UtilityPanel::initInternalPanel()
     m_bottomLayout->addWidget(closeButton);
 }
 
+void UtilityPanel::setEmptyLayerRowHidden(bool hidden)
+{
+    m_emptyLayerRowHidden = hidden;
+    if (m_captureTools && m_captureTools->count() > 0) {
+        m_captureTools->setRowHidden(0, hidden);
+    }
+}
+
 void UtilityPanel::fillCaptureTools(
   const QList<QPointer<CaptureTool>>& captureToolObjects)
 {
     int currentSelection = m_captureTools->currentRow();
     m_captureTools->clear();
     m_captureTools->addItem(tr("<Empty>"));
+    // Row 0 remains addressable as the internal "no selection" layer.
+    m_captureTools->setRowHidden(0, m_emptyLayerRowHidden);
 
     for (auto toolItem : captureToolObjects) {
         auto* item = new QListWidgetItem(

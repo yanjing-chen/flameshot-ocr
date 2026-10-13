@@ -1941,6 +1941,7 @@ void CaptureWidget::initSelection()
 
                     canvas->m_panel->setParent(settingsDock);
                     canvas->m_panel->enableWindowEditorDockMode();
+                    canvas->m_panel->setEmptyLayerRowHidden(true);
                     canvas->m_panel->setMinimumSize(0, 0);
                     canvas->m_panel->setMaximumSize(
                       QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);

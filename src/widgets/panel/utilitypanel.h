@@ -26,6 +26,8 @@ public:
     void setToolWidget(QWidget* weight);
     void clearToolWidget();
     void pushWidget(QWidget* widget);
+    // Hide only the visual sentinel. Row 0 stays in the data model.
+    void setEmptyLayerRowHidden(bool hidden);
     // In the Window Editor the panel occupies a real dock layout, not a
     // fullscreen animated overlay. Keep the old fullscreen behavior intact.
     void enableWindowEditorDockMode();
@@ -53,6 +55,7 @@ private slots:
 
 private:
     void initInternalPanel();
+    bool m_emptyLayerRowHidden{ false };
     bool m_windowEditorDockMode{ false };
 
     QPointer<QWidget> m_toolWidget;
