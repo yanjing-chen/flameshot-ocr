@@ -49,7 +49,10 @@ checks = {
         and "windowEditorWorkspaceHost" in CPP
         and "workspaceLayout->addWidget(scrollArea, 1);" in CPP,
     "SETTINGS WIDTH INDEPENDENT":
-        "settingsDock->setFixedWidth(340);" in CPP,
+        # E.2 ensures a fixed-width sibling dock, not a specific pixel size.
+        # G.0+G.1 separately checks the 380px design requirement.
+        "settingsDock->setFixedWidth(" in CPP
+        and "workspaceLayout->addWidget(settingsDock, 0);" in CPP,
     "WRENCH TOGGLE":
         "windowEditorSettingsButton" in CPP
         and "setWindowEditorToolSettingsVisible" in CPP,

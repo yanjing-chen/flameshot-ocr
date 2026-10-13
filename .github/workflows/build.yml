@@ -87,6 +87,7 @@ jobs:
           python3 tests/stage30e2b_docked_panel_content_contract.py
           python3 tests/stage30e2c_hide_empty_only_contract.py
           python3 tests/stage30e2d_wayland_color_portal_contract.py
+          python3 tests/stage30g01_editor_panel_polish_contract.py
           python3 tests/package_identity_contract.py
 
       - name: Download linuxdeploy

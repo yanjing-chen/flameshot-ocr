@@ -45,8 +45,12 @@ SidePanelWidget::SidePanelWidget(QPixmap* p, QWidget* parent)
     // Create Active Tool Size
     auto* toolSizeHBox = new QHBoxLayout();
     auto* activeToolSizeText = new QLabel(tr("Active tool size: "));
+    activeToolSizeText->setObjectName(
+      QStringLiteral("windowEditorFieldLabel"));
 
     m_toolSizeSpin = new QSpinBox(this);
+    m_toolSizeSpin->setObjectName(
+      QStringLiteral("windowEditorToolSizeSpin"));
     m_toolSizeSpin->setRange(1, maxToolSize);
     m_toolSizeSpin->setSingleStep(1);
     m_toolSizeSpin->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -55,6 +59,8 @@ SidePanelWidget::SidePanelWidget(QPixmap* p, QWidget* parent)
     toolSizeHBox->addWidget(m_toolSizeSpin);
 
     m_toolSizeSlider = new QSlider(Qt::Horizontal);
+    m_toolSizeSlider->setObjectName(
+      QStringLiteral("windowEditorToolSizeSlider"));
     m_toolSizeSlider->setRange(1, maxToolSize);
     m_toolSizeSlider->setValue(m_toolSize);
     m_toolSizeSlider->setMinimumWidth(minSliderWidth);
@@ -65,8 +71,12 @@ SidePanelWidget::SidePanelWidget(QPixmap* p, QWidget* parent)
     // Create Active Color
     auto* colorHBox = new QHBoxLayout();
     auto* colorText = new QLabel(tr("Active Color: "));
+    colorText->setObjectName(
+      QStringLiteral("windowEditorFieldLabel"));
 
     m_colorLabel = new QLabel();
+    m_colorLabel->setObjectName(
+      QStringLiteral("windowEditorColorPreview"));
     m_colorLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     colorHBox->addWidget(colorText);
@@ -76,8 +86,12 @@ SidePanelWidget::SidePanelWidget(QPixmap* p, QWidget* parent)
     m_layout->addLayout(colorLayout);
 
     m_colorWheel = new color_widgets::ColorWheel(this);
+    m_colorWheel->setObjectName(
+      QStringLiteral("windowEditorColorWheel"));
     m_colorWheel->setColor(m_color);
     m_colorHex = new QLineEdit(this);
+    m_colorHex->setObjectName(
+      QStringLiteral("windowEditorColorHex"));
     m_colorHex->setAlignment(Qt::AlignCenter);
 
     QColor background = this->palette().window().color();
@@ -86,6 +100,8 @@ SidePanelWidget::SidePanelWidget(QPixmap* p, QWidget* parent)
       isDark ? PathInfo::whiteIconPath() : PathInfo::blackIconPath();
     QIcon grabIcon(modifier + "colorize.svg");
     m_colorGrabButton = new QPushButton(grabIcon, tr("Grab Color"));
+    m_colorGrabButton->setObjectName(
+      QStringLiteral("windowEditorGrabColorButton"));
 
     m_layout->addWidget(m_colorGrabButton);
     m_layout->addWidget(m_colorWheel);
@@ -93,7 +109,11 @@ SidePanelWidget::SidePanelWidget(QPixmap* p, QWidget* parent)
 
     QHBoxLayout* gridHBoxLayout = new QHBoxLayout();
     m_gridCheck = new QCheckBox(tr("Display grid"), this);
+    m_gridCheck->setObjectName(
+      QStringLiteral("windowEditorGridCheck"));
     m_gridSizeSpin = new QSpinBox(this);
+    m_gridSizeSpin->setObjectName(
+      QStringLiteral("windowEditorGridSizeSpin"));
     m_gridSizeSpin->setRange(5, 50);
     m_gridSizeSpin->setSingleStep(5);
     m_gridSizeSpin->setValue(10);

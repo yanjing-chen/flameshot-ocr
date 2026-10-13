@@ -96,17 +96,17 @@
         <message>
             <location filename="../../src/tools/arrow/arrowtool.cpp" line="209" />
             <source>Arrow style:</source>
-            <translation type="unfinished" />
+            <translation>箭头样式：</translation>
         </message>
         <message>
             <location filename="../../src/tools/arrow/arrowtool.cpp" line="212" />
             <source>Default</source>
-            <translation type="unfinished" />
+            <translation>默认</translation>
         </message>
         <message>
             <location filename="../../src/tools/arrow/arrowtool.cpp" line="213" />
             <source>Curved</source>
-            <translation type="unfinished" />
+            <translation>弯曲</translation>
         </message>
     </context>
     <context>
@@ -5042,12 +5042,12 @@ If on X11 enable Legacy X11 method in the General Settings</source>
         <message>
             <location filename="../../src/widgets/panel/sidepanelwidget.cpp" line="37" />
             <source>Active tool size: </source>
-            <translation>当前工具大小: </translation>
+            <translation>当前工具大小：</translation>
         </message>
         <message>
             <location filename="../../src/widgets/panel/sidepanelwidget.cpp" line="57" />
             <source>Active Color: </source>
-            <translation>当前颜色: </translation>
+            <translation>当前颜色：</translation>
         </message>
         <message>
             <location filename="../../src/widgets/panel/sidepanelwidget.cpp" line="78" />

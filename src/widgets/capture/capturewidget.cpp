@@ -1930,17 +1930,67 @@ void CaptureWidget::initSelection()
                     auto* settingsDock = new QFrame(workspace);
                     settingsDock->setObjectName(
                       QStringLiteral("windowEditorSettingsDock"));
-                    settingsDock->setFixedWidth(340);
+                    settingsDock->setFixedWidth(380);
                     settingsDock->setVisible(false);
                     settingsDock->setStyleSheet(QStringLiteral(
                       "QFrame#windowEditorSettingsDock { "
-                      "background: #fbfbfc; "
-                      "border-left: 1px solid #d9dde4; }"));
+                      "background: #f7f8fa; "
+                      "border-left: 1px solid #d9dde4; }"
+                      "QFrame#windowEditorSettingsDock QWidget { "
+                      "font-size: 14px; }"
+                      "QFrame#windowEditorSettingsDock QLabel"
+                      "#windowEditorFieldLabel { "
+                      "font-weight: 600; color: #2d333b; }"
+                      "QFrame#windowEditorSettingsDock QPushButton, "
+                      "QFrame#windowEditorSettingsDock QLineEdit, "
+                      "QFrame#windowEditorSettingsDock QSpinBox, "
+                      "QFrame#windowEditorSettingsDock QComboBox { "
+                      "min-height: 34px; "
+                      "border: 1px solid #cfd5dd; "
+                      "border-radius: 8px; "
+                      "background: #ffffff; "
+                      "padding: 2px 10px; }"
+                      "QFrame#windowEditorSettingsDock QPushButton:hover { "
+                      "background: #f0f3f7; border-color: #b8c0ca; }"
+                      "QFrame#windowEditorSettingsDock QPushButton:pressed { "
+                      "background: #e6eaf0; }"
+                      "QFrame#windowEditorSettingsDock QPushButton:disabled, "
+                      "QFrame#windowEditorSettingsDock QSpinBox:disabled { "
+                      "color: #9aa3ad; background: #f0f2f5; }"
+                      "QFrame#windowEditorSettingsDock "
+                      "QLabel#windowEditorColorPreview { "
+                      "min-height: 28px; border-radius: 7px; "
+                      "border: 1px solid #cfd5dd; }"
+                      "QFrame#windowEditorSettingsDock "
+                      "QLineEdit#windowEditorColorHex { "
+                      "font-family: monospace; }"
+                      "QFrame#windowEditorSettingsDock QListWidget"
+                      "#windowEditorLayersList { "
+                      "background: #ffffff; border: 1px solid #d7dce3; "
+                      "border-radius: 9px; outline: none; padding: 4px; }"
+                      "QFrame#windowEditorSettingsDock QListWidget"
+                      "#windowEditorLayersList::item { "
+                      "min-height: 28px; padding: 5px 8px; "
+                      "border-radius: 6px; }"
+                      "QFrame#windowEditorSettingsDock QListWidget"
+                      "#windowEditorLayersList::item:selected { "
+                      "background: #dcecff; color: #1b1f23; }"
+                      "QFrame#windowEditorSettingsDock QPushButton"
+                      "#windowEditorLayerActionButton { "
+                      "min-width: 36px; max-width: 36px; "
+                      "padding: 0; }"
+                      "QFrame#windowEditorSettingsDock QPushButton"
+                      "#windowEditorPanelCloseButton { "
+                      "font-weight: 600; }"
+                      "QFrame#windowEditorSettingsDock QCheckBox { "
+                      "spacing: 8px; }"
+                      "QFrame#windowEditorSettingsDock QScrollArea { "
+                      "border: none; background: transparent; }"));
 
                     auto* settingsLayout =
                       new QVBoxLayout(settingsDock);
-                    settingsLayout->setContentsMargins(8, 8, 8, 8);
-                    settingsLayout->setSpacing(0);
+                    settingsLayout->setContentsMargins(14, 14, 14, 14);
+                    settingsLayout->setSpacing(10);
 
                     canvas->m_panel->setParent(settingsDock);
                     canvas->m_panel->enableWindowEditorDockMode();
