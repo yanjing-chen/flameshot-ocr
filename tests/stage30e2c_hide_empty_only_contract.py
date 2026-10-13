@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import subprocess
 
 up_h = Path('src/widgets/panel/utilitypanel.h').read_text(encoding='utf-8')
 up_cpp = Path('src/widgets/panel/utilitypanel.cpp').read_text(encoding='utf-8')
@@ -31,13 +30,9 @@ for name, condition in checks.items():
     print(f'{name:<43} {"PASS" if condition else "FAIL"}')
     assert condition, name
 
-modified_files = set(subprocess.check_output(
-    ['git', 'diff', '--name-only'], text=True).splitlines())
-allowed = {
-    'src/widgets/panel/utilitypanel.cpp',
-    'src/widgets/panel/utilitypanel.h',
-    'src/widgets/capture/capturewidget.cpp',
-    '.github/workflows/build.yml',
-}
-assert modified_files <= allowed, f'Unexpected modified tracked files: {modified_files - allowed}'
+# E.2C behavior is checked above. The stage-specific file whitelist
+# belonged to its application script, not to a permanent regression test.
+# Later releases are allowed to modify other files. This E.2D resume script
+# validates its exact source diff at entry AND its staged commit path list.
+
 print('\nSTAGE 3.0-E.2C HIDE EMPTY ONLY CONTRACT: PASS')

@@ -5059,7 +5059,15 @@ If on X11 enable Legacy X11 method in the General Settings</source>
             <source>Display grid</source>
             <translation>显示网格</translation>
         </message>
-    </context>
+        <message>
+        <source>Pick Color</source>
+        <translation>屏幕取色</translation>
+    </message>
+    <message>
+        <source>System-wide color picking is unavailable. Please check xdg-desktop-portal.</source>
+        <translation>无法进行全桌面取色，请检查 xdg-desktop-portal 服务。</translation>
+    </message>
+</context>
     <context>
         <name>SizeDecreaseTool</name>
         <message>

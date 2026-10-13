@@ -8,6 +8,16 @@
 #include "widgets/panel/utilitypanel.h"
 
 #include <QApplication>
+#include <QGuiApplication>
+#include <QMessageBox>
+#if defined(Q_OS_LINUX)
+#include <QDBusArgument>
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusObjectPath>
+#include <QDBusPendingCallWatcher>
+#include <QDBusPendingReply>
+#endif
 #include <QCheckBox>
 #include <QKeyEvent>
 #include <QLabel>
@@ -156,6 +166,19 @@ void SidePanelWidget::onToolSizeChanged(int t)
 
 void SidePanelWidget::startColorGrab()
 {
+#if defined(Q_OS_LINUX)
+    // Wayland does not allow a normal application to inspect arbitrary
+    // windows. Ask the compositor via xdg-desktop-portal's PickColor API.
+    // Keep the old picker for fullscreen capture and for non-Wayland desktops.
+    const bool onWayland =
+      QGuiApplication::platformName().startsWith(QLatin1String("wayland")) ||
+      !qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY");
+    if (onWayland &&
+        property("flameshotDesktopWideColorPicker").toBool()) {
+        startPortalColorGrab();
+        return;
+    }
+#endif
     m_revertColor = m_color;
     m_colorGrabber = new ColorGrabWidget(m_pixmap);
     connect(m_colorGrabber,
@@ -174,6 +197,122 @@ void SidePanelWidget::startColorGrab()
     emit hidePanel();
     m_colorGrabber->startGrabbing();
 }
+
+#if defined(Q_OS_LINUX)
+void SidePanelWidget::startPortalColorGrab()
+{
+    if (m_portalColorGrabPending) {
+        return;
+    }
+
+    const QDBusConnection bus = QDBusConnection::sessionBus();
+    if (!bus.isConnected()) {
+        QMessageBox::warning(
+          this, tr("Pick Color"),
+          tr("System-wide color picking is unavailable. Please check xdg-desktop-portal."));
+        return;
+    }
+
+    m_revertColor = m_color;
+    m_portalColorGrabPending = true;
+    emit hidePanel();
+
+    QDBusMessage call = QDBusMessage::createMethodCall(
+      QStringLiteral("org.freedesktop.portal.Desktop"),
+      QStringLiteral("/org/freedesktop/portal/desktop"),
+      QStringLiteral("org.freedesktop.portal.Screenshot"),
+      QStringLiteral("PickColor"));
+    // An empty parent_window is permitted by the portal protocol; the
+    // compositor controls the picker, including all screens and windows.
+    call << QString() << QVariantMap();
+
+    auto* watcher =
+      new QDBusPendingCallWatcher(bus.asyncCall(call), this);
+    connect(watcher,
+            &QDBusPendingCallWatcher::finished,
+            this,
+            [this](QDBusPendingCallWatcher* finished) {
+                const QDBusPendingReply<QDBusObjectPath> reply = *finished;
+                finished->deleteLater();
+
+                if (reply.isError() ||
+                    reply.value().path().isEmpty()) {
+                    finishPortalColorGrab(true);
+                    return;
+                }
+
+                m_portalColorRequestPath = reply.value().path();
+                const bool connected =
+                  QDBusConnection::sessionBus().connect(
+                    QStringLiteral("org.freedesktop.portal.Desktop"),
+                    m_portalColorRequestPath,
+                    QStringLiteral("org.freedesktop.portal.Request"),
+                    QStringLiteral("Response"),
+                    this,
+                    SLOT(onPortalColorResponse(uint,QVariantMap)));
+
+                if (!connected) {
+                    finishPortalColorGrab(true);
+                }
+            });
+}
+
+void SidePanelWidget::onPortalColorResponse(
+  uint response, const QVariantMap& results)
+{
+    // Portal response 0=success, 1=user cancelled, 2=error.
+    if (response == 0) {
+        const QVariant result = results.value(QStringLiteral("color"));
+        if (result.canConvert<QDBusArgument>()) {
+            const QDBusArgument data = result.value<QDBusArgument>();
+            if (data.currentType() == QDBusArgument::StructureType) {
+                double r = 0.0;
+                double g = 0.0;
+                double b = 0.0;
+                data.beginStructure();
+                data >> r >> g >> b;
+                data.endStructure();
+                const QColor picked = QColor::fromRgbF(
+                  qBound(0.0, r, 1.0),
+                  qBound(0.0, g, 1.0),
+                  qBound(0.0, b, 1.0));
+                if (picked.isValid()) {
+                    emit colorChanged(picked);
+                    finishPortalColorGrab(false);
+                    return;
+                }
+            }
+        }
+        finishPortalColorGrab(true);
+        return;
+    }
+
+    // Cancellation must preserve the previous color without an error popup.
+    finishPortalColorGrab(response != 1);
+}
+
+void SidePanelWidget::finishPortalColorGrab(bool showError)
+{
+    if (!m_portalColorRequestPath.isEmpty()) {
+        QDBusConnection::sessionBus().disconnect(
+          QStringLiteral("org.freedesktop.portal.Desktop"),
+          m_portalColorRequestPath,
+          QStringLiteral("org.freedesktop.portal.Request"),
+          QStringLiteral("Response"),
+          this,
+          SLOT(onPortalColorResponse(uint,QVariantMap)));
+        m_portalColorRequestPath.clear();
+    }
+    m_portalColorGrabPending = false;
+    emit showPanel();
+
+    if (showError) {
+        QMessageBox::warning(
+          this, tr("Pick Color"),
+          tr("System-wide color picking is unavailable. Please check xdg-desktop-portal."));
+    }
+}
+#endif
 
 void SidePanelWidget::onColorGrabFinished()
 {

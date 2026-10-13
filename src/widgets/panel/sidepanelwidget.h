@@ -6,6 +6,8 @@
 #include "QtColorWidgets/color_wheel.hpp"
 #include <QSpinBox>
 #include <QWidget>
+#include <QString>
+#include <QVariant>
 
 class QVBoxLayout;
 class QPushButton;
@@ -44,10 +46,19 @@ public slots:
 
 private slots:
     void onColorGrabFinished();
+#if defined(Q_OS_LINUX)
+    void onPortalColorResponse(uint response, const QVariantMap& results);
+#endif
     void onColorGrabAborted();
     void onTemporaryColorUpdated(const QColor& color);
 
 private:
+#if defined(Q_OS_LINUX)
+    void startPortalColorGrab();
+    void finishPortalColorGrab(bool showError);
+    bool m_portalColorGrabPending{ false };
+    QString m_portalColorRequestPath;
+#endif
     void finalizeGrab();
     void updateColorNoWheel(const QColor& color);
 

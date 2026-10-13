@@ -1708,6 +1708,9 @@ void CaptureWidget::initPanel()
             &CaptureWidget::onMoveCaptureToolDown);
 
     m_sidePanel = new SidePanelWidget(&m_context.screenshot, this);
+    // E.2D: only the normal window editor may pick from other Wayland windows.
+    m_sidePanel->setProperty("flameshotDesktopWideColorPicker",
+                             m_windowEditorMode);
     connect(m_sidePanel,
             &SidePanelWidget::colorChanged,
             this,
