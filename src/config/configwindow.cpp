@@ -14,6 +14,12 @@
 #include "utils/pathinfo.h"
 
 #include <QApplication>
+#include <QAbstractItemView>
+#include <QFont>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QListWidget>
+#include <QScreen>
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 #include <QFileSystemWatcher>
@@ -31,16 +37,146 @@
 ConfigWindow::ConfigWindow(QWidget* parent)
   : QWidget(parent)
 {
-    // We wrap QTabWidget in a QWidget because of a Qt bug
-    auto* layout = new QVBoxLayout(this);
-    m_tabWidget = new QTabWidget(this);
+    // G.2: keep the original QTabWidget and all five pages/signals,
+    // but replace its visual tab strip with a GNOME-style sidebar.
+    setObjectName(QStringLiteral("flameshotConfigWindow"));
+    auto* layout = new QHBoxLayout(this);
+    layout->setContentsMargins(14, 14, 14, 14);
+    layout->setSpacing(14);
+
+    auto* sidebar = new QFrame(this);
+    sidebar->setObjectName(QStringLiteral("configSidebar"));
+    sidebar->setFixedWidth(202);
+    auto* sidebarLayout = new QVBoxLayout(sidebar);
+    sidebarLayout->setContentsMargins(12, 18, 12, 12);
+    sidebarLayout->setSpacing(14);
+    auto* sidebarTitle = new QLabel(tr("Configuration"), sidebar);
+    sidebarTitle->setObjectName(QStringLiteral("configSidebarTitle"));
+    sidebarLayout->addWidget(sidebarTitle);
+
+    auto* navigation = new QListWidget(sidebar);
+    navigation->setObjectName(QStringLiteral("configNavigation"));
+    navigation->setSelectionMode(QAbstractItemView::SingleSelection);
+    navigation->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    navigation->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    navigation->setSpacing(4);
+    navigation->setIconSize(QSize(20, 20));
+    sidebarLayout->addWidget(navigation, 1);
+    layout->addWidget(sidebar);
+
+    auto* contentCard = new QFrame(this);
+    contentCard->setObjectName(QStringLiteral("configContentCard"));
+    auto* contentLayout = new QVBoxLayout(contentCard);
+    contentLayout->setContentsMargins(20, 18, 20, 18);
+    contentLayout->setSpacing(14);
+    auto* pageTitle = new QLabel(contentCard);
+    pageTitle->setObjectName(QStringLiteral("configPageTitle"));
+    contentLayout->addWidget(pageTitle);
+
+    m_tabWidget = new QTabWidget(contentCard);
+    m_tabWidget->setObjectName(QStringLiteral("configPageStack"));
     m_tabWidget->tabBar()->setUsesScrollButtons(false);
-#if defined(Q_OS_MACOS)
-    // Fix Qt6 macOS bug where tab pane content renders behind the tab bar
-    m_tabWidget->setStyleSheet(
-      "QTabWidget::pane { border-top: 2px solid palette(mid); }");
-#endif
-    layout->addWidget(m_tabWidget);
+    contentLayout->addWidget(m_tabWidget, 1);
+    layout->addWidget(contentCard, 1);
+
+    QFont readableFont = font();
+    if (readableFont.pointSize() > 0) {
+        readableFont.setPointSize(qMax(11, readableFont.pointSize()));
+    } else {
+        readableFont.setPixelSize(qMax(15, readableFont.pixelSize()));
+    }
+    setFont(readableFont);
+    setMinimumSize(780, 540);
+    resize(1050, 800);
+
+    const bool darkTheme =
+      ColorUtils::colorIsDark(palette().window().color());
+    const QString bg = darkTheme ? QStringLiteral("#202329")
+                                 : QStringLiteral("#f3f5f8");
+    const QString surface = darkTheme ? QStringLiteral("#2b3038")
+                                      : QStringLiteral("#ffffff");
+    const QString outline = darkTheme ? QStringLiteral("#464d58")
+                                      : QStringLiteral("#dce1e8");
+    const QString fg = darkTheme ? QStringLiteral("#ecf0f5")
+                                 : QStringLiteral("#253042");
+    const QString muted = darkTheme ? QStringLiteral("#b5beca")
+                                    : QStringLiteral("#687589");
+    const QString hover = darkTheme ? QStringLiteral("#3c4554")
+                                    : QStringLiteral("#edf2fa");
+    const QString selected = darkTheme ? QStringLiteral("#345373")
+                                       : QStringLiteral("#dfecff");
+    const QString formBg = darkTheme ? QStringLiteral("#303741")
+                                      : QStringLiteral("#ffffff");
+
+    // QComboBox and QSpinBox intentionally retain native subcontrol painting:
+    // no custom borders, padding, arrows, or popup-item colors.
+    setStyleSheet(QStringLiteral(R"QSS(
+QWidget#flameshotConfigWindow { background: %1; }
+QFrame#configSidebar, QFrame#configContentCard {
+    background: %2; border: 1px solid %3; border-radius: 12px;
+}
+QLabel#configSidebarTitle {
+    color: %4; font-size: 19px; font-weight: 700; padding: 4px 8px;
+}
+QLabel#configPageTitle {
+    color: %4; font-size: 20px; font-weight: 700; padding: 4px 2px 9px 2px;
+}
+QListWidget#configNavigation {
+    background: transparent; border: 0; outline: 0; color: %4;
+}
+QListWidget#configNavigation::item {
+    border-radius: 8px; padding: 11px 10px; margin: 2px 0;
+}
+QListWidget#configNavigation::item:hover { background: %6; }
+QListWidget#configNavigation::item:selected {
+    background: %7; color: %4; font-weight: 600;
+}
+QTabWidget#configPageStack::pane { border: 0; background: transparent; }
+QLabel#configSectionHeading {
+    color: %5; font-size: 15px; font-weight: 700; padding: 8px 0 3px 0;
+}
+QWidget#configGeneralPage QGroupBox,
+QWidget#configOcrPage QGroupBox {
+    color: %4; font-weight: 600; border: 1px solid %3;
+    border-radius: 9px; margin-top: 16px; padding: 12px 9px 9px 9px;
+    background: %2;
+}
+QWidget#configGeneralPage QGroupBox::title,
+QWidget#configOcrPage QGroupBox::title {
+    subcontrol-origin: margin; subcontrol-position: top left;
+    left: 12px; padding: 0 6px; background: %2;
+}
+QPushButton {
+    color: %4; background: %8; border: 1px solid %3;
+    border-radius: 8px; min-height: 32px; padding: 4px 12px;
+}
+QPushButton:hover { background: %6; }
+QPushButton:disabled { color: %5; }
+QLineEdit, QPlainTextEdit, QTextEdit {
+    color: %4; background: %8; border: 1px solid %3;
+    border-radius: 7px; padding: 5px 8px;
+}
+QCheckBox { color: %4; spacing: 9px; min-height: 29px; }
+QComboBox, QSpinBox, QDoubleSpinBox { min-height: 32px; }
+QTableWidget, QListWidget#configButtonList {
+    background: %8; color: %4; border: 1px solid %3;
+    border-radius: 7px;
+}
+QTabBar::tab {
+    padding: 9px 13px; min-height: 26px;
+    color: %4; background: %2;
+    border: 1px solid %3; border-radius: 6px;
+}
+QTabBar::tab:selected { background: %7; font-weight: 600; }
+)QSS")
+                    .arg(bg)
+                    .arg(surface)
+                    .arg(outline)
+                    .arg(fg)
+                    .arg(muted)
+                    .arg(hover)
+                    .arg(selected)
+                    .arg(formBg));
 
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowIcon(QIcon(GlobalValues::iconPath()));
@@ -59,6 +195,7 @@ ConfigWindow::ConfigWindow(QWidget* parent)
     // general
     m_generalConfig = new GeneralConf();
     m_generalConfigTab = new QWidget();
+    m_generalConfigTab->setObjectName(QStringLiteral("configGeneralPage"));
     auto* generalConfigLayout = new QVBoxLayout(m_generalConfigTab);
     m_generalConfigTab->setLayout(generalConfigLayout);
     generalConfigLayout->addWidget(m_generalConfig);
@@ -67,6 +204,7 @@ ConfigWindow::ConfigWindow(QWidget* parent)
     // OCR
     m_ocrConfig = new OcrConf();
     m_ocrConfigTab = new QWidget();
+    m_ocrConfigTab->setObjectName(QStringLiteral("configOcrPage"));
     auto* ocrConfigLayout = new QVBoxLayout(m_ocrConfigTab);
     m_ocrConfigTab->setLayout(ocrConfigLayout);
     ocrConfigLayout->addWidget(m_ocrConfig);
@@ -100,6 +238,36 @@ ConfigWindow::ConfigWindow(QWidget* parent)
     shortcutsLayout->addWidget(m_shortcuts);
     m_tabWidget->addTab(
       m_shortcutsTab, QIcon(modifier + "shortcut.svg"), tr("Shortcuts"));
+
+    // Preserve the original page instances, order, settings, error banners,
+    // and update signals. The list is only an alternate navigation control.
+    for (int index = 0; index < m_tabWidget->count(); ++index) {
+        auto* item = new QListWidgetItem(m_tabWidget->tabIcon(index),
+                                         m_tabWidget->tabText(index));
+        navigation->addItem(item);
+    }
+    m_tabWidget->tabBar()->hide();
+    connect(navigation,
+            &QListWidget::currentRowChanged,
+            this,
+            [this](int index) {
+                if (index >= 0 && index < m_tabWidget->count()) {
+                    m_tabWidget->setCurrentIndex(index);
+                }
+            });
+    connect(m_tabWidget,
+            &QTabWidget::currentChanged,
+            this,
+            [this, navigation, pageTitle](int index) {
+                if (index >= 0 && index < m_tabWidget->count()) {
+                    if (navigation->currentRow() != index) {
+                        navigation->setCurrentRow(index);
+                    }
+                    pageTitle->setText(m_tabWidget->tabText(index));
+                }
+            });
+    navigation->setCurrentRow(0);
+    pageTitle->setText(m_tabWidget->tabText(0));
 
     // connect update sigslots
     connect(this,

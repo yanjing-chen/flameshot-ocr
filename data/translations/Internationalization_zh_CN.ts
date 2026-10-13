@@ -1584,7 +1584,19 @@ Please solve them manually in the configuration file.</source>
             <source>Bypass the freedesktop portal and use Qt's native X11 screen capture. Enable this if your window manager lacks xdg-desktop-portal (e.g. xmonad, i3). Only effective on X11; ignored on Wayland.</source>
             <translation>绕过 freedesktop 门户，使用 Qt 原生 X11 截图。如果窗口管理器缺少 xdg-desktop-portal（例如 xmonad、i3），可启用此选项。仅对 X11 有效，Wayland 会忽略此设置。</translation>
         </message>
-    </context>
+
+        <message>
+            <source>Startup and notifications</source>
+            <translation>启动与通知</translation>
+        </message>
+        <message>
+            <source>Screenshot behavior</source>
+            <translation>截图行为</translation>
+        </message>
+        <message>
+            <source>Editing and display</source>
+            <translation>编辑与显示</translation>
+        </message></context>
     <context>
         <name>HistoryWidget</name>
         <message>

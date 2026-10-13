@@ -33,6 +33,14 @@ GeneralConf::GeneralConf(QWidget* parent)
     // It must be initialized before the checkboxes.
     initScrollArea();
 
+    // G.2: visual group headings do not change checkbox wiring or order.
+    auto addSettingsHeading = [this](const QString& text) {
+        m_scrollAreaLayout->addSpacing(10);
+        auto* heading = new QLabel(text, this);
+        heading->setObjectName(QStringLiteral("configSectionHeading"));
+        m_scrollAreaLayout->addWidget(heading);
+    };
+    addSettingsHeading(tr("Startup and notifications"));
     initAutostart();
     initAutoCloseIdleDaemon();
     initShowTrayIcon();
@@ -44,6 +52,7 @@ GeneralConf::GeneralConf(QWidget* parent)
     initShowStartupLaunchMessage();
     initShowQuitPrompt();
     initAllowMultipleGuiInstances();
+    addSettingsHeading(tr("Screenshot behavior"));
     initSaveLastRegion();
     initShowHelp();
     initShowSidePanelButton();
@@ -70,6 +79,7 @@ GeneralConf::GeneralConf(QWidget* parent)
     initUploadHistoryMax();
     initUploadClientSecret();
 #endif
+    addSettingsHeading(tr("Editing and display"));
     initPredefinedColorPaletteLarge();
     initShowSelectionGeometry();
 
@@ -268,7 +278,8 @@ void GeneralConf::initScrollArea()
     m_scrollArea->setStyleSheet(
       "#content, #scrollArea { background: transparent; border: 0px; }");
     m_scrollAreaLayout = new QVBoxLayout(content);
-    m_scrollAreaLayout->setContentsMargins(0, 0, 20, 0);
+    m_scrollAreaLayout->setContentsMargins(12, 10, 12, 18);
+    m_scrollAreaLayout->setSpacing(10);
 }
 
 void GeneralConf::initShowHelp()
