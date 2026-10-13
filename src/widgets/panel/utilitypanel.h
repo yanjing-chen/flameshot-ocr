@@ -26,6 +26,9 @@ public:
     void setToolWidget(QWidget* weight);
     void clearToolWidget();
     void pushWidget(QWidget* widget);
+    // In the Window Editor the panel occupies a real dock layout, not a
+    // fullscreen animated overlay. Keep the old fullscreen behavior intact.
+    void enableWindowEditorDockMode();
     void fillCaptureTools(
       const QList<QPointer<CaptureTool>>& captureToolObjectsHistory);
     void setActiveLayer(int index);
@@ -50,6 +53,7 @@ private slots:
 
 private:
     void initInternalPanel();
+    bool m_windowEditorDockMode{ false };
 
     QPointer<QWidget> m_toolWidget;
     QScrollArea* m_internalPanel;

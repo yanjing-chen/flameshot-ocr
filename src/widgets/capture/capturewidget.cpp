@@ -1940,6 +1940,7 @@ void CaptureWidget::initSelection()
                     settingsLayout->setSpacing(0);
 
                     canvas->m_panel->setParent(settingsDock);
+                    canvas->m_panel->enableWindowEditorDockMode();
                     canvas->m_panel->setMinimumSize(0, 0);
                     canvas->m_panel->setMaximumSize(
                       QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
@@ -2223,9 +2224,16 @@ void CaptureWidget::setWindowEditorToolSettingsVisible(bool visible)
         return;
     }
 
+    // QWidget::setVisible() bypasses UtilityPanel::show()/hide().
+    // Those functions control the *inner* QScrollArea; calling setVisible()
+    // previously exposed an empty white dock without the real settings UI.
     dock->setVisible(visible);
     if (m_panel) {
-        m_panel->setVisible(visible);
+        if (visible) {
+            m_panel->show();
+        } else {
+            m_panel->hide();
+        }
     }
 
     if (settingsButton) {

@@ -4,12 +4,14 @@
 #include "utilitypanel.h"
 #include "widgets/capture/capturewidget.h"
 
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QListWidget>
 #include <QPropertyAnimation>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QTimer>
+#include <QVBoxLayout>
 
 UtilityPanel::UtilityPanel(CaptureWidget* captureWidget)
   : QWidget(captureWidget)
@@ -81,8 +83,40 @@ void UtilityPanel::pushWidget(QWidget* widget)
     m_layout->insertWidget(m_layout->count() - 1, widget);
 }
 
+void UtilityPanel::enableWindowEditorDockMode()
+{
+    if (m_windowEditorDockMode) {
+        return;
+    }
+
+    m_windowEditorDockMode = true;
+    m_showAnimation->stop();
+    m_hideAnimation->stop();
+
+    // The fullscreen panel positions its scroll area by animating geometry.
+    // The editor dock must instead size it with a layout, including resizes.
+    auto* dockLayout = new QVBoxLayout(this);
+    dockLayout->setContentsMargins(0, 0, 0, 0);
+    dockLayout->setSpacing(0);
+    dockLayout->addWidget(m_internalPanel);
+    m_internalPanel->setSizePolicy(QSizePolicy::Expanding,
+                                   QSizePolicy::Expanding);
+    m_internalPanel->setFrameShape(QFrame::NoFrame);
+    m_internalPanel->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_internalPanel->hide();
+    QWidget::hide();
+}
+
 void UtilityPanel::show()
 {
+    if (m_windowEditorDockMode) {
+        m_showAnimation->stop();
+        m_hideAnimation->stop();
+        setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        m_internalPanel->show();
+        QWidget::show();
+        return;
+    }
     if (!m_internalPanel->isHidden()) {
         return;
     }
@@ -99,6 +133,13 @@ void UtilityPanel::show()
 
 void UtilityPanel::hide()
 {
+    if (m_windowEditorDockMode) {
+        m_showAnimation->stop();
+        m_hideAnimation->stop();
+        m_internalPanel->hide();
+        QWidget::hide();
+        return;
+    }
     if (m_internalPanel->isHidden()) {
         return;
     }
