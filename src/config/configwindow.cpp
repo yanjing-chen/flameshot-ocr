@@ -137,6 +137,37 @@ ConfigWindow::ConfigWindow(QWidget* parent)
         background: %7; color: %4; font-weight: 600;
     }
     QTabWidget#configPageStack::pane { border: 0; background: transparent; }
+    /* G.2D-2: real preference cards for OCR and individually clickable shortcuts. */
+    QWidget#configOcrPage, QWidget#configOcrPage QWidget#ocrSettingsContent,
+    QScrollArea#ocrSettingsScroll,
+    QScrollArea#ocrSettingsScroll > QWidget#qt_scrollarea_viewport,
+    QScrollArea#shortcutPreferencesScroll,
+    QWidget#shortcutPreferencesBody {
+        background: transparent; border: none;
+    }
+    QFrame#ocrSettingsCard, QFrame#shortcutPreferencesCard {
+        background: %2; border: 1px solid %3; border-radius: 14px;
+    }
+    QLabel#ocrSettingsCardTitle, QLabel#shortcutSectionTitle {
+        color: %4; font-size: 16px; font-weight: 700;
+    }
+    QFrame#ocrSwitchRow, QFrame#shortcutPreferenceRow {
+        background: transparent; border: none;
+    }
+    QLabel#ocrSwitchTitle, QLabel#shortcutPreferenceName {
+        color: %4; font-size: 14px; font-weight: 500;
+    }
+    QLabel#shortcutFixedKey {
+        color: %5; background: %8; border: 1px solid %3;
+        padding: 7px 11px; border-radius: 7px;
+    }
+    QPushButton#shortcutKeyButton {
+        color: %4; background: %8; border: 1px solid %3;
+        border-radius: 7px; padding: 7px 11px; font-weight: 600;
+    }
+    QPushButton#shortcutKeyButton:hover { background: %6; }
+    QLineEdit#shortcutSearchField { min-height: 36px; }
+    QTableWidget#ocrModelTable { background: %2; }
     QFrame#configPreferenceCard {
         background: %2; border: 1px solid %3; border-radius: 12px;
     }

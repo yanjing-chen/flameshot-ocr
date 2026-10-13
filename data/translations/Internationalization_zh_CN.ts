@@ -5073,7 +5073,28 @@ If on X11 enable Legacy X11 method in the General Settings</source>
             <source>Screenshot history</source>
             <translation>屏幕截图历史</translation>
         </message>
-    </context>
+
+        <message>
+            <source>Search shortcuts...</source>
+            <translation>搜索快捷键……</translation>
+        </message>
+        <message>
+            <source>Capture tools</source>
+            <translation>截图工具</translation>
+        </message>
+        <message>
+            <source>Other shortcuts</source>
+            <translation>其他快捷键</translation>
+        </message>
+        <message>
+            <source>Not assigned</source>
+            <translation>未设置</translation>
+        </message>
+        <message>
+            <source>Click to change shortcut</source>
+            <translation>点击修改快捷键</translation>
+        </message>
+</context>
     <context>
         <name>SidePanelWidget</name>
         <message>

@@ -2,12 +2,17 @@
 // SPDX-FileCopyrightText: 2026 Flameshot OCR Contributors
 
 #include "ocrconf.h"
+#include "config/gnomeswitch.h"
+#include "utils/gnomeaccent.h"
 
 #include "ocr/localairuntimeinstaller.h"
 #include "ocr/ocrmanager.h"
 #include "utils/confighandler.h"
 
 #include <QAbstractItemView>
+#include <QFrame>
+#include <QEvent>
+#include <QPalette>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
@@ -46,6 +51,27 @@
 
 namespace
 {
+// Keep the original checkbox wired to the Runtime; mirror async enable updates.
+class OcrSwitchObserver final : public QObject
+{
+public:
+    OcrSwitchObserver(QCheckBox* original, GnomeSettingsSwitch* button,
+                      QObject* parent)
+      : QObject(parent), m_original(original), m_button(button)
+    {
+        original->installEventFilter(this);
+    }
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (watched == m_original && event->type() == QEvent::EnabledChange)
+            m_button->setEnabled(m_original->isEnabled());
+        return QObject::eventFilter(watched, event);
+    }
+private:
+    QCheckBox* m_original;
+    GnomeSettingsSwitch* m_button;
+};
 QString dialogTr(const char* source)
 {
     return QCoreApplication::translate("CustomModelDialog", source);
@@ -640,19 +666,77 @@ OcrConf::OcrConf(QWidget* parent)
     m_modelNetwork = new QNetworkAccessManager(this);
 
     auto* outer = new QVBoxLayout(this);
+    outer->setContentsMargins(0, 0, 0, 0);
     auto* scroll = new QScrollArea(this);
+    scroll->setObjectName(QStringLiteral("ocrSettingsScroll"));
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setAutoFillBackground(false);
+    scroll->viewport()->setAutoFillBackground(false);
     scroll->setWidgetResizable(true);
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     outer->addWidget(scroll);
 
     auto* content = new QWidget(scroll);
+    content->setObjectName(QStringLiteral("ocrSettingsContent"));
+    content->setAutoFillBackground(false);
     scroll->setWidget(content);
 
     auto* layout = new QVBoxLayout(content);
+    layout->setContentsMargins(14, 12, 14, 24);
+    layout->setSpacing(16);
     layout->setAlignment(Qt::AlignTop);
+    // Four genuine card widgets with existing form widgets/signals kept in place.
+    auto makeFormCard = [content](const QString& heading) {
+        auto* card = new QFrame(content);
+        card->setObjectName(QStringLiteral("ocrSettingsCard"));
+        auto* stack = new QVBoxLayout(card);
+        stack->setContentsMargins(22, 18, 22, 20);
+        stack->setSpacing(13);
+        auto* title = new QLabel(heading, card);
+        title->setObjectName(QStringLiteral("ocrSettingsCardTitle"));
+        stack->addWidget(title);
+        auto* form = new QFormLayout();
+        form->setContentsMargins(0, 0, 0, 0);
+        form->setHorizontalSpacing(18);
+        form->setVerticalSpacing(13);
+        form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        form->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+        form->setRowWrapPolicy(QFormLayout::WrapLongRows);
+        stack->addLayout(form);
+        return qMakePair(card, form);
+    };
+    auto makeSwitch = [this](QCheckBox* original, QWidget* parent) {
+        auto* row = new QFrame(parent);
+        row->setObjectName(QStringLiteral("ocrSwitchRow"));
+        auto* line = new QHBoxLayout(row);
+        line->setContentsMargins(0, 3, 0, 3);
+        line->setSpacing(14);
+        auto* text = new QLabel(original->text(), row);
+        text->setObjectName(QStringLiteral("ocrSwitchTitle"));
+        text->setWordWrap(true);
+        line->addWidget(text, 1);
+        auto* button = new GnomeSettingsSwitch(row);
+        button->setAccentColor(GnomeAccent::current(palette()));
+        button->setAccessibleName(original->text());
+        button->setObjectName(original == m_preloadOcrModel
+                                ? QStringLiteral("ocrPreloadSwitch")
+                                : QStringLiteral("ocrCatalogSwitch"));
+        button->setChecked(original->isChecked());
+        button->setEnabled(original->isEnabled());
+        line->addWidget(button, 0, Qt::AlignVCenter);
+        original->setParent(row);
+        original->hide();
+        connect(button, &QAbstractButton::clicked, original,
+                [original](bool) { original->click(); });
+        connect(original, &QCheckBox::toggled, button,
+                &QAbstractButton::setChecked);
+        new OcrSwitchObserver(original, button, row);
+        return row;
+    };
 
-    auto* sharedBox = new QGroupBox(tr("Local AI Runtime"), content);
-    auto* sharedForm = new QFormLayout(sharedBox);
+    auto sharedCard = makeFormCard(tr("Local AI Runtime"));
+    auto* sharedBox = sharedCard.first;
+    auto* sharedForm = sharedCard.second;
 
     m_sharedAppStatus = new QLabel(tr("Checking..."), sharedBox);
     m_sharedAppStatus->setWordWrap(true);
@@ -702,9 +786,9 @@ OcrConf::OcrConf(QWidget* parent)
 
     layout->addWidget(sharedBox);
 
-    auto* accelerationBox =
-      new QGroupBox(tr("Inference acceleration"), content);
-    auto* accelerationForm = new QFormLayout(accelerationBox);
+    auto accelerationCard = makeFormCard(tr("Inference acceleration"));
+    auto* accelerationBox = accelerationCard.first;
+    auto* accelerationForm = accelerationCard.second;
 
     m_backendPreference = new QComboBox(accelerationBox);
     m_backendPreference->addItem(tr("Automatic (recommended)"),
@@ -752,8 +836,9 @@ OcrConf::OcrConf(QWidget* parent)
     accelerationForm->addRow(QString(), accelerationNote);
     layout->addWidget(accelerationBox);
 
-    auto* connectionBox = new QGroupBox(tr("OCR connection"), content);
-    auto* connectionForm = new QFormLayout(connectionBox);
+    auto connectionCard = makeFormCard(tr("OCR connection"));
+    auto* connectionBox = connectionCard.first;
+    auto* connectionForm = connectionCard.second;
 
     m_serverUrl = new QLineEdit(connectionBox);
     m_serverUrl->setPlaceholderText(QStringLiteral("http://127.0.0.1:8111"));
@@ -765,7 +850,8 @@ OcrConf::OcrConf(QWidget* parent)
     m_preloadOcrModel = new QCheckBox(
       tr("Load this OCR model when Local AI Runtime starts"), connectionBox);
     m_preloadOcrModel->setEnabled(false);
-    connectionForm->addRow(tr("Startup loading:"), m_preloadOcrModel);
+    connectionForm->addRow(tr("Startup loading:"),
+                           makeSwitch(m_preloadOcrModel, connectionBox));
 
     m_preloadStatus = new QLabel(
       tr("Connect to Local AI Runtime 0.7.0 or later to configure startup "
@@ -798,16 +884,23 @@ OcrConf::OcrConf(QWidget* parent)
 
     layout->addWidget(connectionBox);
 
-    auto* modelsBox = new QGroupBox(tr("Runtime model management"), content);
+    auto* modelsBox = new QFrame(content);
+    modelsBox->setObjectName(QStringLiteral("ocrSettingsCard"));
     auto* modelsLayout = new QVBoxLayout(modelsBox);
+    modelsLayout->setContentsMargins(22, 18, 22, 20);
+    modelsLayout->setSpacing(13);
+    auto* modelsHeading = new QLabel(tr("Runtime model management"), modelsBox);
+    modelsHeading->setObjectName(QStringLiteral("ocrSettingsCardTitle"));
+    modelsLayout->addWidget(modelsHeading);
 
     m_showUnavailableModels = new QCheckBox(
       tr("Show catalog models whose files are not installed"), modelsBox);
     m_showUnavailableModels->setChecked(
       ConfigHandler().ocrShowUnavailableCatalogModels());
-    modelsLayout->addWidget(m_showUnavailableModels);
+    modelsLayout->addWidget(makeSwitch(m_showUnavailableModels, modelsBox));
 
     m_modelTable = new QTableWidget(modelsBox);
+    m_modelTable->setObjectName(QStringLiteral("ocrModelTable"));
     m_modelTable->setColumnCount(8);
     m_modelTable->setHorizontalHeaderLabels(
       { tr("Name"),
@@ -864,6 +957,11 @@ OcrConf::OcrConf(QWidget* parent)
 
     layout->addWidget(modelsBox);
     layout->addStretch();
+    GnomeAccent::watch(this, [this]() {
+        const QColor accent = GnomeAccent::current(palette());
+        for (auto* button : findChildren<GnomeSettingsSwitch*>())
+            button->setAccentColor(accent);
+    });
 
     auto* sharedInstaller = LocalAiRuntimeInstaller::instance();
 
@@ -1364,6 +1462,8 @@ void OcrConf::refreshPreloadPreference()
           if (!ok) {
               const QSignalBlocker blocker(m_preloadOcrModel);
               m_preloadOcrModel->setChecked(false);
+               if (auto* view = findChild<GnomeSettingsSwitch*>(
+                     QStringLiteral("ocrPreloadSwitch"))) view->setChecked(false);
               m_preloadOcrModel->setEnabled(false);
               m_preloadStatus->setText(
                 tr("Startup loading requires Local AI Runtime 0.7.0 or "
@@ -1381,6 +1481,9 @@ void OcrConf::refreshPreloadPreference()
           {
               const QSignalBlocker blocker(m_preloadOcrModel);
               m_preloadOcrModel->setChecked(selectedIsPreloaded);
+               if (auto* view = findChild<GnomeSettingsSwitch*>(
+                     QStringLiteral("ocrPreloadSwitch")))
+                   view->setChecked(selectedIsPreloaded);
           }
           m_preloadOcrModel->setEnabled(true);
 
@@ -1888,6 +1991,9 @@ void OcrConf::updateComponents()
         const QSignalBlocker blocker(m_showUnavailableModels);
         m_showUnavailableModels->setChecked(
           config.ocrShowUnavailableCatalogModels());
+        if (auto* view = findChild<GnomeSettingsSwitch*>(
+              QStringLiteral("ocrCatalogSwitch")))
+            view->setChecked(m_showUnavailableModels->isChecked());
     }
 
     refreshRuntimeStatus();

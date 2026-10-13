@@ -12,6 +12,8 @@
 class SetShortcutDialog;
 class QCheckBox;
 class QTableWidget;
+class QScrollArea;
+class QLineEdit;
 class QVBoxLayout;
 
 class ShortcutsWidget : public QWidget
@@ -22,6 +24,7 @@ public:
 
 private:
     void initInfoTable();
+    void rebuildPreferenceRows();
 #if (defined(Q_OS_MACOS))
     const QString& nativeOSHotKeyText(const QString& text);
 #endif
@@ -36,6 +39,9 @@ private:
 #endif
     ConfigHandler m_config;
     QTableWidget* m_table;
+    QLineEdit* m_search { nullptr };
+    QScrollArea* m_rowsScroll { nullptr };
+    QVBoxLayout* m_rowsLayout { nullptr };
     QVBoxLayout* m_layout;
     QList<QStringList> m_shortcuts;
 

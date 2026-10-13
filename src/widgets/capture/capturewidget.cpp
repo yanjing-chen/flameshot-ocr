@@ -54,6 +54,9 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QSvgRenderer>
+#include <QPixmap>
+#include <QtMath>
 #include <QPushButton>
 #include <QScreen>
 #include <QShortcut>
@@ -65,6 +68,28 @@
 #define MOUSE_DISTANCE_TO_START_MOVING 3
 
 auto const MOUSE_WHEEL_TRESHOLD = 60;
+
+// G.2D-2: QtSvg render at physical pixel densities, reuse on every icon update.
+// Keep drawing/selection geometry and tool callbacks unmodified.
+static QIcon g2d2CrispIcon(const QString& resource)
+{
+    QSvgRenderer renderer(resource);
+    if (!renderer.isValid()) return QIcon(resource);
+    QIcon result;
+    const QList<qreal> densities { 1.0, 1.25, 4.0 / 3.0, 1.5, 2.0, 3.0 };
+    for (qreal dpr : densities) {
+        const int physical = qCeil(28.0 * dpr);
+        QPixmap pixmap(physical, physical);
+        pixmap.fill(Qt::transparent);
+        pixmap.setDevicePixelRatio(dpr);
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);
+        renderer.render(&painter, QRectF(0, 0, physical / dpr, physical / dpr));
+        painter.end();
+        result.addPixmap(pixmap);
+    }
+    return result;
+}
 
 static QList<CaptureTool::Type> windowEditorToolbarOrder()
 {
@@ -687,7 +712,7 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
             settingsButton->setCheckable(true);
             settingsButton->setFixedSize(40, 40);
             settingsButton->setIconSize(QSize(28, 28));
-            settingsButton->setIcon(QIcon(QStringLiteral(
+            settingsButton->setIcon(g2d2CrispIcon(QStringLiteral(
               ":/img/window-editor/dark/wrench.svg")));
             settingsButton->setToolTip(tr("Tool Settings"));
             connect(settingsButton,
@@ -737,7 +762,7 @@ QWidget* CaptureWidget::createWindowEditorToolbar(QWidget* parent)
         proxy->setProperty("modernIconName", iconName);
         proxy->setProperty("primaryAction",
                            iconName == QStringLiteral("ocr"));
-        proxy->setIcon(QIcon(QStringLiteral(
+        proxy->setIcon(g2d2CrispIcon(QStringLiteral(
           ":/img/window-editor/dark/%1.svg").arg(iconName)));
         proxy->setToolTip(QStringLiteral("%1 — %2")
                             .arg(sourceButton->tool()->name(),
@@ -784,7 +809,7 @@ QToolButton#windowEditorSettingsButton {
     background: transparent;
     border: none;
     border-radius: 9px;
-    padding: 5px;
+    padding: 0px;
 }
 QToolButton#windowEditorToolButton:hover,
 QToolButton#windowEditorSettingsButton:hover {
@@ -2231,8 +2256,8 @@ void CaptureWidget::syncWindowEditorToolbarState()
           active ? QStringLiteral("accent") : QStringLiteral("dark");
 
         proxy->setIcon(
-          QIcon(QStringLiteral(":/img/window-editor/%1/%2.svg")
-                  .arg(variant, iconName)));
+          g2d2CrispIcon(QStringLiteral(":/img/window-editor/%1/%2.svg")
+                          .arg(variant, iconName)));
     }
 }
 
@@ -2363,7 +2388,7 @@ void CaptureWidget::setWindowEditorToolSettingsVisible(bool visible)
 
     if (settingsButton) {
         settingsButton->setChecked(visible);
-        settingsButton->setIcon(QIcon(
+        settingsButton->setIcon(g2d2CrispIcon(
           visible
             ? QStringLiteral(":/img/window-editor/accent/wrench.svg")
             : QStringLiteral(":/img/window-editor/dark/wrench.svg")));

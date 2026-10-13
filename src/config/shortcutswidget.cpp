@@ -9,6 +9,11 @@
 #include "utils/globalvalues.h"
 
 #include <QCheckBox>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QScrollArea>
 #include <QCursor>
 #include <QDir>
 #include <QHeaderView>
@@ -36,7 +41,9 @@ ShortcutsWidget::ShortcutsWidget(QWidget* parent)
     move(position.topLeft());
 
     m_layout = new QVBoxLayout(this);
-    m_layout->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    m_layout->setAlignment(Qt::AlignTop);
+    m_layout->setContentsMargins(10, 10, 10, 10);
+    m_layout->setSpacing(12);
 
 #if defined(Q_OS_WIN)
     checkPrintScreenForcesSnipping();
@@ -60,7 +67,28 @@ void ShortcutsWidget::initInfoTable()
     m_table = new QTableWidget(this);
     m_table->setToolTip(tr("Available shortcuts in the screen capture mode."));
 
+    // Retain the original table as the configuration/backing model only.
+    // The visible interface below uses individually interactive preference rows.
     m_layout->addWidget(m_table);
+    m_table->hide();
+    m_search = new QLineEdit(this);
+    m_search->setObjectName(QStringLiteral("shortcutSearchField"));
+    m_search->setPlaceholderText(tr("Search shortcuts..."));
+    m_search->setClearButtonEnabled(true);
+    m_layout->addWidget(m_search);
+    m_rowsScroll = new QScrollArea(this);
+    m_rowsScroll->setObjectName(QStringLiteral("shortcutPreferencesScroll"));
+    m_rowsScroll->setFrameShape(QFrame::NoFrame);
+    m_rowsScroll->setWidgetResizable(true);
+    auto* body = new QWidget(m_rowsScroll);
+    body->setObjectName(QStringLiteral("shortcutPreferencesBody"));
+    m_rowsLayout = new QVBoxLayout(body);
+    m_rowsLayout->setContentsMargins(3, 4, 3, 12);
+    m_rowsLayout->setSpacing(12);
+    m_rowsScroll->setWidget(body);
+    m_layout->addWidget(m_rowsScroll, 1);
+    connect(m_search, &QLineEdit::textChanged,
+            this, [this](const QString&) { rebuildPreferenceRows(); });
 
     m_table->setColumnCount(2);
     m_table->setSelectionMode(QAbstractItemView::NoSelection);
@@ -125,7 +153,79 @@ void ShortcutsWidget::populateInfoTable()
             item->setFlags(item->flags() ^ Qt::ItemIsEditable);
         }
     }
+    if (m_rowsLayout) rebuildPreferenceRows();
 }
+
+void ShortcutsWidget::rebuildPreferenceRows()
+{
+    if (!m_rowsLayout || !m_search) return;
+    while (auto* item = m_rowsLayout->takeAt(0)) {
+        if (auto* w = item->widget()) w->deleteLater();
+        delete item;
+    }
+    const QString filter = m_search->text().trimmed();
+    int extraStart = m_shortcuts.size();
+    for (int i = 0; i < m_shortcuts.size(); ++i) {
+        if (m_shortcuts.at(i).at(0) == QStringLiteral("TYPE_TOGGLE_PANEL")) {
+            extraStart = i;
+            break;
+        }
+    }
+    QVBoxLayout* activeGroup = nullptr;
+    int activeSection = -1;
+    for (int i = 0; i < m_shortcuts.size(); ++i) {
+        const auto& entry = m_shortcuts.at(i);
+        const QString description = entry.at(1);
+        const QString key = entry.at(2);
+        if (!filter.isEmpty() &&
+            !description.contains(filter, Qt::CaseInsensitive) &&
+            !key.contains(filter, Qt::CaseInsensitive)) continue;
+        const int section = i < extraStart ? 0 : 1;
+        if (section != activeSection) {
+            activeSection = section;
+            auto* card = new QFrame(m_rowsScroll->widget());
+            card->setObjectName(QStringLiteral("shortcutPreferencesCard"));
+            auto* column = new QVBoxLayout(card);
+            column->setContentsMargins(18, 16, 18, 16);
+            column->setSpacing(7);
+            auto* title = new QLabel(
+              section == 0 ? tr("Capture tools") : tr("Other shortcuts"), card);
+            title->setObjectName(QStringLiteral("shortcutSectionTitle"));
+            column->addWidget(title);
+            m_rowsLayout->addWidget(card);
+            activeGroup = column;
+        }
+        auto* row = new QFrame(m_rowsScroll->widget());
+        row->setObjectName(QStringLiteral("shortcutPreferenceRow"));
+        auto* line = new QHBoxLayout(row);
+        line->setContentsMargins(4, 7, 4, 7);
+        line->setSpacing(14);
+        auto* name = new QLabel(description, row);
+        name->setObjectName(QStringLiteral("shortcutPreferenceName"));
+        name->setWordWrap(true);
+        line->addWidget(name, 1);
+        const bool editable = !entry.at(0).isEmpty() &&
+          m_table->item(i, 1) &&
+          (m_table->item(i, 1)->flags() & Qt::ItemIsEnabled);
+        if (editable) {
+            auto* edit = new QPushButton(
+              key.isEmpty() ? tr("Not assigned") : key, row);
+            edit->setObjectName(QStringLiteral("shortcutKeyButton"));
+            edit->setToolTip(tr("Click to change shortcut"));
+            edit->setMinimumWidth(110);
+            connect(edit, &QPushButton::clicked, this,
+                    [this, i]() { onShortcutCellClicked(i, 1); });
+            line->addWidget(edit, 0, Qt::AlignVCenter);
+        } else {
+            auto* fixed = new QLabel(key, row);
+            fixed->setObjectName(QStringLiteral("shortcutFixedKey"));
+            line->addWidget(fixed, 0, Qt::AlignVCenter);
+        }
+        activeGroup->addWidget(row);
+    }
+    m_rowsLayout->addStretch(1);
+}
+
 
 void ShortcutsWidget::onShortcutCellClicked(int row, int col)
 {
