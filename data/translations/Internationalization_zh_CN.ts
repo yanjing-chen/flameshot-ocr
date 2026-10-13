@@ -1596,7 +1596,44 @@ Please solve them manually in the configuration file.</source>
         <message>
             <source>Editing and display</source>
             <translation>编辑与显示</translation>
-        </message></context>
+        </message>
+        <message>
+            <source>Startup and background</source>
+            <translation>启动与后台</translation>
+        </message>
+        <message>
+            <source>Notifications</source>
+            <translation>通知提醒</translation>
+        </message>
+        <message>
+            <source>Other startup options</source>
+            <translation>其他启动选项</translation>
+        </message>
+        <message>
+            <source>Screenshot interaction</source>
+            <translation>截图交互</translation>
+        </message>
+        <message>
+            <source>Copy and save</source>
+            <translation>复制与保存</translation>
+        </message>
+        <message>
+            <source>Compatibility</source>
+            <translation>兼容性</translation>
+        </message>
+        <message>
+            <source>Editing assistance</source>
+            <translation>编辑辅助</translation>
+        </message>
+        <message>
+            <source>Files and output</source>
+            <translation>文件与输出</translation>
+        </message>
+        <message>
+            <source>Other preferences</source>
+            <translation>其他选项</translation>
+        </message>
+    </context>
     <context>
         <name>HistoryWidget</name>
         <message>
@@ -5261,6 +5298,15 @@ If on X11 enable Legacy X11 method in the General Settings</source>
             <location filename="../../src/tools/text/textconfig.cpp" line="100" />
             <source>Right Align</source>
             <translation>右对齐</translation>
+        </message>
+
+        <message>
+            <source>Select font (click to expand list)</source>
+            <translation>选择字体（单击展开列表）</translation>
+        </message>
+        <message>
+            <source>Search fonts...</source>
+            <translation>搜索字体……</translation>
         </message>
     </context>
     <context>

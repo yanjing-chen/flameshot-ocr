@@ -26,6 +26,9 @@
 #include <QDialogButtonBox>
 #include <QFileSystemWatcher>
 #include <QIcon>
+#include <QPainter>
+#include <QPainterPath>
+#include <QPixmap>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMessageBox>
@@ -134,6 +137,14 @@ ConfigWindow::ConfigWindow(QWidget* parent)
         background: %7; color: %4; font-weight: 600;
     }
     QTabWidget#configPageStack::pane { border: 0; background: transparent; }
+    QFrame#configPreferenceCard {
+        background: %2; border: 1px solid %3; border-radius: 12px;
+    }
+    QFrame#configPreferenceRow { border: none; background: transparent; }
+    QLabel#configPreferenceTitle { color: %4; font-size: 14px; font-weight: 600; }
+    QLabel#configPreferenceDescription { color: %5; font-size: 12px; font-weight: 400; }
+    QLabel#configPreferenceGroupTitle { color: %4; font-size: 15px; font-weight: 700; }
+    QFrame#configPreferenceDivider { background: %3; border: none; min-height: 1px; max-height: 1px; }
     QFrame#configSettingsGroupCard {
     background: %2; border: 1px solid %3; border-radius: 12px;
 }
@@ -255,10 +266,55 @@ QPushButton:default { background: %7; border: 1px solid %9; }
     // The underlying five QTabWidget pages, save callbacks and error banners
     // remain unchanged. OCR is intentionally the last sidebar item.
     struct NavigationEntry { QString text; QIcon icon; int originalTab; int category; };
+    // G.2C: self-contained 48px vector icons, not dependent on host GNOME icon theme.
+    auto categoryIcon = [this](int category) -> QIcon {
+        QPixmap pixmap(48, 48);
+        pixmap.fill(Qt::transparent);
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);
+        QPen pen(palette().windowText().color(), 3.0,
+                 Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+        painter.setBrush(Qt::NoBrush);
+        if (category == 0) { // Bell — startup and notifications
+            QPainterPath bell;
+            bell.moveTo(12, 33);
+            bell.lineTo(17, 28);
+            bell.lineTo(17, 19);
+            bell.cubicTo(17, 8, 31, 8, 31, 19);
+            bell.lineTo(31, 28);
+            bell.lineTo(36, 33);
+            bell.closeSubpath();
+            painter.drawPath(bell);
+            painter.drawArc(QRectF(21, 32, 7, 7), 210 * 16, 120 * 16);
+        } else if (category == 1) { // Selection brackets — screenshot
+            painter.drawLine(10, 19, 10, 10);
+            painter.drawLine(10, 10, 19, 10);
+            painter.drawLine(29, 10, 38, 10);
+            painter.drawLine(38, 10, 38, 19);
+            painter.drawLine(10, 29, 10, 38);
+            painter.drawLine(10, 38, 19, 38);
+            painter.drawLine(29, 38, 38, 38);
+            painter.drawLine(38, 29, 38, 38);
+        } else { // Pencil — editing and display
+            painter.save();
+            painter.translate(24, 24);
+            painter.rotate(42);
+            painter.drawRoundedRect(QRectF(-5, -17, 10, 30), 2, 2);
+            QPainterPath nib;
+            nib.moveTo(-5, 13);
+            nib.lineTo(0, 22);
+            nib.lineTo(5, 13);
+            painter.drawPath(nib);
+            painter.drawLine(-5, -11, 5, -11);
+            painter.restore();
+        }
+        return QIcon(pixmap);
+    };
     const QList<NavigationEntry> entries {
-      { QCoreApplication::translate("GeneralConf", "Startup and notifications"), m_tabWidget->tabIcon(0), 0, 0 },
-      { QCoreApplication::translate("GeneralConf", "Screenshot behavior"), QIcon::fromTheme(QStringLiteral("camera-photo"), m_tabWidget->tabIcon(0)), 0, 1 },
-      { QCoreApplication::translate("GeneralConf", "Editing and display"), QIcon::fromTheme(QStringLiteral("document-edit"), m_tabWidget->tabIcon(0)), 0, 2 },
+      { QCoreApplication::translate("GeneralConf", "Startup and notifications"), categoryIcon(0), 0, 0 },
+      { QCoreApplication::translate("GeneralConf", "Screenshot behavior"), categoryIcon(1), 0, 1 },
+      { QCoreApplication::translate("GeneralConf", "Editing and display"), categoryIcon(2), 0, 2 },
       { m_tabWidget->tabText(2), m_tabWidget->tabIcon(2), 2, -1 },
       { m_tabWidget->tabText(3), m_tabWidget->tabIcon(3), 3, -1 },
       { m_tabWidget->tabText(4), m_tabWidget->tabIcon(4), 4, -1 },

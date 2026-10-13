@@ -7,6 +7,13 @@
 #include "utils/pathinfo.h"
 
 #include <QComboBox>
+#include <QAbstractItemView>
+#include <QEvent>
+#include <QGuiApplication>
+#include <QKeyEvent>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QMouseEvent>
 #include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -105,12 +112,84 @@ TextConfig::TextConfig(QWidget* parent)
     alignmentLayout->addWidget(m_rightAlignButton);
 
     m_layout->addWidget(m_fontsCB);
+    // On Wayland a transient QComboBox popup may lose its mouse grab as the
+    // screenshot editor and its scrollable tool panel exchange focus.
+    // An inline view avoids creating a second Wayland popup surface entirely.
+    if (QGuiApplication::platformName().startsWith(QStringLiteral("wayland"))) {
+        m_fontsCB->installEventFilter(this);
+        m_fontsCB->setToolTip(tr("Select font (click to expand list)"));
+        m_fontSearch = new QLineEdit(this);
+        m_fontSearch->setPlaceholderText(tr("Search fonts..."));
+        m_fontSearch->setClearButtonEnabled(true);
+        m_fontSearch->hide();
+        m_layout->addWidget(m_fontSearch);
+        m_fontChoices = new QListWidget(this);
+        m_fontChoices->setObjectName(QStringLiteral("windowEditorInlineFontList"));
+        m_fontChoices->setMaximumHeight(180);
+        m_fontChoices->setMinimumHeight(135);
+        m_fontChoices->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_fontChoices->addItems(QFontDatabase::families());
+        m_fontChoices->hide();
+        m_layout->addWidget(m_fontChoices);
+        connect(m_fontSearch, &QLineEdit::textChanged, this,
+                [this](const QString& text) {
+            for (int i = 0; i < m_fontChoices->count(); ++i) {
+                auto* item = m_fontChoices->item(i);
+                item->setHidden(!item->text().contains(text, Qt::CaseInsensitive));
+            }
+        });
+        connect(m_fontChoices, &QListWidget::itemClicked, this,
+                [this](QListWidgetItem* item) {
+            if (!item) return;
+            const QString family = item->text();
+            m_fontChoices->hide();
+            m_fontSearch->hide();
+            m_fontsCB->setCurrentText(family);
+        });
+    }
     modifiersLayout->addWidget(m_strikeOutButton);
     modifiersLayout->addWidget(m_underlineButton);
     modifiersLayout->addWidget(m_weightButton);
     modifiersLayout->addWidget(m_italicButton);
     m_layout->addLayout(modifiersLayout);
     m_layout->addLayout(alignmentLayout);
+}
+
+bool TextConfig::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == m_fontsCB && m_fontChoices && event) {
+        const auto toggleFontList = [this]() {
+            const bool open = !m_fontChoices->isVisible();
+            m_fontChoices->setVisible(open);
+            m_fontSearch->setVisible(open);
+            if (open) {
+                m_fontSearch->clear();
+                const auto hits = m_fontChoices->findItems(
+                  m_fontsCB->currentText(), Qt::MatchExactly);
+                if (!hits.isEmpty()) m_fontChoices->scrollToItem(hits.first());
+                m_fontSearch->setFocus();
+            }
+        };
+        if (event->type() == QEvent::MouseButtonPress) {
+            auto* mouse = static_cast<QMouseEvent*>(event);
+            if (mouse->button() == Qt::LeftButton) {
+                toggleFontList();
+                return true;
+            }
+        }
+        // Do not deliver a release without its press to QComboBox; Qt would
+        // otherwise try to display its native Wayland popup.
+        if (event->type() == QEvent::MouseButtonRelease) return true;
+        if (event->type() == QEvent::KeyPress) {
+            auto* key = static_cast<QKeyEvent*>(event);
+            if (key->key() == Qt::Key_Space || key->key() == Qt::Key_Return ||
+                key->key() == Qt::Key_Enter || key->key() == Qt::Key_Down) {
+                toggleFontList();
+                return true;
+            }
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 void TextConfig::setFontFamily(const QString& fontFamily)

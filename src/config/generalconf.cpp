@@ -2,9 +2,15 @@
 // SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
 
 #include "generalconf.h"
+#include "config/gnomeswitch.h"
+#include "utils/gnomeaccent.h"
 #include "utils/confighandler.h"
 
 #include <QCheckBox>
+#include <QAbstractButton>
+#include <QHBoxLayout>
+#include <QIcon>
+#include <QPixmap>
 #include <QFrame>
 #include <QScrollBar>
 #include <QLayoutItem>
@@ -166,6 +172,108 @@ GeneralConf::GeneralConf(QWidget* parent)
     m_scrollAreaLayout->setSpacing(0);
     m_layout->setContentsMargins(0, 0, 0, 0);
     setSettingsCategory(0);
+
+    // G.2C: replace the large legacy checkbox box with actual preference rows.
+    // Every original QCheckBox and its clicked/toggled/configuration connections
+    // remain intact, and receive state changes from the new switch.
+    const QColor initialAccent = GnomeAccent::current(palette());
+    const QString groupTitles[3][3] = {
+      { tr("Startup and background"), tr("Notifications"),
+        tr("Other startup options") },
+      { tr("Screenshot interaction"), tr("Copy and save"),
+        tr("Compatibility") },
+      { tr("Editing assistance"), tr("Files and output"),
+        tr("Other preferences") }
+    };
+    for (int category = 0; category < 3; ++category) {
+        auto* page = m_categoryPages[category];
+        auto* pageLayout = qobject_cast<QVBoxLayout*>(page->layout());
+        auto* originalLayout = sectionLayouts[category];
+        QWidget* oldCard = originalLayout->parentWidget();
+        QVBoxLayout* groups[3] { nullptr, nullptr, nullptr };
+        for (int g = 0; g < 3; ++g) {
+            auto* card = new QFrame(page);
+            card->setObjectName(QStringLiteral("configPreferenceCard"));
+            auto* cardLayout = new QVBoxLayout(card);
+            cardLayout->setContentsMargins(18, 14, 18, 14);
+            cardLayout->setSpacing(7);
+            auto* title = new QLabel(groupTitles[category][g], card);
+            title->setObjectName(QStringLiteral("configPreferenceGroupTitle"));
+            cardLayout->addWidget(title);
+            groups[g] = cardLayout;
+            pageLayout->insertWidget(pageLayout->count() - 1, card);
+        }
+        int itemIndex = 0;
+        while (originalLayout->count() > 0) {
+            QLayoutItem* item = originalLayout->takeAt(0);
+            const int group = category == 0 ? (itemIndex < 3 ? 0 : itemIndex < 7 ? 1 : 2)
+                            : category == 1 ? (itemIndex < 4 ? 0 : itemIndex < 9 ? 1 : 2)
+                                            : (itemIndex < 4 ? 0 : itemIndex < 8 ? 1 : 2);
+            auto* target = groups[group];
+            if (auto* child = item->widget()) {
+                if (auto* original = qobject_cast<QCheckBox*>(child)) {
+                    auto* row = new QFrame(page);
+                    row->setObjectName(QStringLiteral("configPreferenceRow"));
+                    auto* rowLayout = new QHBoxLayout(row);
+                    rowLayout->setContentsMargins(4, 8, 4, 8);
+                    rowLayout->setSpacing(15);
+                    auto* copy = new QVBoxLayout();
+                    copy->setSpacing(4);
+                    auto* title = new QLabel(original->text(), row);
+                    title->setObjectName(QStringLiteral("configPreferenceTitle"));
+                    title->setWordWrap(true);
+                    copy->addWidget(title);
+                    if (!original->toolTip().trimmed().isEmpty()) {
+                        auto* desc = new QLabel(original->toolTip(), row);
+                        desc->setObjectName(QStringLiteral("configPreferenceDescription"));
+                        desc->setWordWrap(true);
+                        copy->addWidget(desc);
+                    }
+                    rowLayout->addLayout(copy, 1);
+                    auto* sw = new GnomeSettingsSwitch(row);
+                    sw->setAccentColor(initialAccent);
+                    sw->setAccessibleName(original->text());
+                    sw->setChecked(original->isChecked());
+                    sw->setEnabled(original->isEnabled());
+                    rowLayout->addWidget(sw, 0, Qt::AlignVCenter);
+                    original->hide();
+                    original->setParent(row);
+                    QObject::connect(sw, &QAbstractButton::clicked, original,
+                                     [original](bool) { original->click(); });
+                    QObject::connect(original, &QCheckBox::toggled, sw,
+                                     &QAbstractButton::setChecked);
+                    target->addWidget(row);
+                    auto* rule = new QFrame(page);
+                    rule->setObjectName(QStringLiteral("configPreferenceDivider"));
+                    target->addWidget(rule);
+                } else {
+                    target->addWidget(child);
+                }
+            } else if (auto* nested = item->layout()) {
+                target->addLayout(nested);
+                ++itemIndex;
+                continue;
+            }
+            delete item;
+            ++itemIndex;
+        }
+        pageLayout->removeWidget(oldCard);
+        oldCard->hide();
+        oldCard->deleteLater();
+        // Eliminate empty subdivisions without changing any setting.
+        for (int g = 0; g < 3; ++g) {
+            if (groups[g]->count() == 1) {
+                groups[g]->parentWidget()->hide();
+            }
+        }
+    }
+    GnomeAccent::watch(this, [this]() {
+        const QColor accent = GnomeAccent::current(palette());
+        for (auto* button : findChildren<QAbstractButton*>()) {
+            if (button->objectName() == QStringLiteral("configGnomeSwitch"))
+                static_cast<GnomeSettingsSwitch*>(button)->setAccentColor(accent);
+        }
+    });
 
     updateComponents();
 }

@@ -8,6 +8,9 @@
 class QVBoxLayout;
 class QPushButton;
 class QComboBox;
+class QListWidget;
+class QLineEdit;
+class QEvent;
 
 class TextConfig : public QWidget
 {
@@ -31,12 +34,17 @@ signals:
     void alignmentChanged(Qt::AlignmentFlag alignment);
 public slots:
 
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
 private slots:
     void weightButtonPressed(bool weight);
 
 private:
     QVBoxLayout* m_layout;
     QComboBox* m_fontsCB;
+    QListWidget* m_fontChoices { nullptr };
+    QLineEdit* m_fontSearch { nullptr };
     QPushButton* m_strikeOutButton;
     QPushButton* m_underlineButton;
     QPushButton* m_weightButton;
